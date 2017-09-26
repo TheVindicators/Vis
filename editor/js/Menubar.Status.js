@@ -36,7 +36,7 @@ Menubar.Status = function ( editor ) {
 
 	} );
 
-	var version = new UI.Text( 'r' + THREE.REVISION );
+	var version = new UI.Text( 'prototype' );
 	version.setClass( 'title' );
 	version.setOpacity( 0.5 );
 	container.add( version );
