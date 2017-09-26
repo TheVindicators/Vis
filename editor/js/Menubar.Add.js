@@ -29,7 +29,57 @@ Menubar.Add = function ( editor ) {
 		cameraCount = 0;
 
 	} );
+	
+    // Antenna (Rod)
+	
+	var option = new UI.Row();
+	option.setClass( 'option' );
+	option.setTextContent( 'Antenna (Rod)' );
+	option.onClick( function () {
 
+		var radiusTop = .1;
+		var radiusBottom = .1;
+		var height = 3;
+		var radiusSegments = 32;
+		var heightSegments = 1;
+		var openEnded = false;
+
+		var geometry = new THREE.CylinderBufferGeometry( radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded );
+		var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+		var mesh = new THREE.Mesh( geometry, material );
+		mesh.name = 'Antenna (Rod) ' + ( ++ meshCount );
+
+		editor.execute( new AddObjectCommand( mesh ) );
+
+	} );
+	options.add( option );
+	
+	// Antenna (Point)
+	
+	var option = new UI.Row();
+	option.setClass( 'option' );
+	option.setTextContent( 'Antenna (Point)' );
+	option.onClick( function () {
+
+		var radius = .2;
+		var widthSegments = 32;
+		var heightSegments = 16;
+		var phiStart = 0;
+		var phiLength = Math.PI * 2;
+		var thetaStart = 0;
+		var thetaLength = Math.PI;
+
+		var geometry = new THREE.SphereBufferGeometry( radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength );
+		var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+		var mesh = new THREE.Mesh( geometry, material );
+		mesh.name = 'Antenna (Point) ' + ( ++ meshCount );
+
+		editor.execute( new AddObjectCommand( mesh ) );
+
+	} );
+	options.add( option );
+	
+	/*
 	// Group
 
 	var option = new UI.Row();
@@ -212,7 +262,7 @@ Menubar.Add = function ( editor ) {
 	} );
 	options.add( option );
 
-	/*
+	
 	// Teapot
 
 	var option = new UI.Row();
@@ -239,7 +289,7 @@ Menubar.Add = function ( editor ) {
 
 	} );
 	options.add( option );
-	*/
+	
 
 	// Lathe
 
@@ -413,7 +463,8 @@ Menubar.Add = function ( editor ) {
 
 	} );
 	options.add( option );
-
+    */
+	
 	return container;
 
 };
