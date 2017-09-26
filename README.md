@@ -1,4 +1,4 @@
-# Vis
-A 3D/2D WYSIWYG Visualizer to aid CEESIM operations
+# CEESIM Antenna Visualization Tool
+3D model generation tool to aid CEESIM functionality
 
-Team: Nitin Garg
+Team: Nitin Garg, Christian Evans, David Lohle, and Joshua Waney
