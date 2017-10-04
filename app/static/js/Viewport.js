@@ -275,12 +275,12 @@ var Viewport = function ( editor ) {
 
 		switch ( value ) {
 
-			case 'css/light.css':
+			case '/static/css/light.css':
 				sceneHelpers.remove( grid );
 				grid = new THREE.GridHelper( 60, 60, 0x444444, 0x888888 );
 				sceneHelpers.add( grid );
 				break;
-			case 'css/dark.css':
+			case '/static/css/dark.css':
 				sceneHelpers.remove( grid );
 				grid = new THREE.GridHelper( 60, 60, 0xbbbbbb, 0x888888 );
 				sceneHelpers.add( grid );

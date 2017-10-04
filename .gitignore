@@ -89,5 +89,9 @@ ENV/
 .ropeproject
 
 
+#Vis related stuff
+config.py
+
+
 # Mac stuff
 .DS_Store

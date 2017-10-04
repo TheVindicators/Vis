@@ -14,8 +14,8 @@ Sidebar.Settings = function ( editor ) {
 	// class
 
 	var options = {
-		'css/light.css': 'light',
-		'css/dark.css': 'dark'
+		'/static/css/light.css': 'light',
+		'/static/css/dark.css': 'dark'
 	};
 
 	var themeRow = new UI.Row();
