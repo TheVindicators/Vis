@@ -1,6 +1,5 @@
 from flask import Flask, render_template
 from config import config
-from werkzeug.contrib.fixers import ProxyFix
 
 #Initialize object methods
 
@@ -10,7 +9,7 @@ def create_app(config_name):
     config[config_name].init_app
 
     #properly expose IP addresses if being reversed proxy
-    app.wsgi_app = ProxyFix(app.wsgi_app)
+#    app.wsgi_app = ProxyFix(app.wsgi_app)
 
     #Register main web interface as blueprint
     from main import main as main_blueprint
