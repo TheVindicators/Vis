@@ -76,6 +76,7 @@ Menubar.File = function ( editor ) {
 
 	options.add( new UI.HorizontalRule() );
 
+	/*
 	// Export Geometry
 
 	var option = new UI.Row();
@@ -119,6 +120,8 @@ Menubar.File = function ( editor ) {
 	} );
 	options.add( option );
 
+	*/
+	
 	// Export Object
 
 	var option = new UI.Row();
@@ -153,7 +156,7 @@ Menubar.File = function ( editor ) {
 	} );
 	options.add( option );
 
-	// Export Scene
+	// Export 
 
 	var option = new UI.Row();
 	option.setClass( 'option' );
@@ -180,6 +183,7 @@ Menubar.File = function ( editor ) {
 
 	//
 
+	/*
 	options.add( new UI.HorizontalRule() );
 
 	// Export GLTF

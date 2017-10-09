@@ -14,9 +14,12 @@ Sidebar.History = function ( editor ) {
 	var container = new UI.Panel();
 
 	container.add( new UI.Text( 'HISTORY' ) );
+    container.add( new UI.Break() );
+    container.add( new UI.Break() );
 
 	//
-
+	
+	/*
 	var persistent = new UI.THREE.Boolean( config.getKey( 'settings/history' ), 'persistent' );
 	persistent.setPosition( 'absolute' ).setRight( '8px' );
 	persistent.onChange( function () {
@@ -41,9 +44,9 @@ Sidebar.History = function ( editor ) {
 
 	} );
 	container.add( persistent );
-
-	container.add( new UI.Break(), new UI.Break() );
-
+	
+	*/
+	
 	var ignoreObjectSelectedSignal = false;
 
 	var outliner = new UI.Outliner( editor );

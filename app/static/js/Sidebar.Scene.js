@@ -145,7 +145,7 @@ Sidebar.Scene = function ( editor ) {
 	fogTypeRow.add( new UI.Text( 'Fog' ).setWidth( '90px' ) );
 	fogTypeRow.add( fogType );
 
-	container.add( fogTypeRow );
+	//container.add( fogTypeRow );
 
 	// fog color
 
