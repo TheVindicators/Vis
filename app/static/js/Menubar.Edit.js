@@ -84,6 +84,7 @@ Menubar.Edit = function ( editor ) {
 
 	// Clone
 
+	/*
 	var option = new UI.Row();
 	option.setClass( 'option' );
 	option.setTextContent( 'Clone' );
@@ -100,6 +101,8 @@ Menubar.Edit = function ( editor ) {
 	} );
 	options.add( option );
 
+	*/
+	
 	// Delete
 
 	var option = new UI.Row();
@@ -121,6 +124,7 @@ Menubar.Edit = function ( editor ) {
 
 	// Minify shaders
 
+	/*
 	var option = new UI.Row();
 	option.setClass( 'option' );
 	option.setTextContent( 'Minify Shaders' );
@@ -199,7 +203,8 @@ Menubar.Edit = function ( editor ) {
 	} );
 	options.add( option );
 
-
+	*/
+	
 	return container;
 
 };

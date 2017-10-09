@@ -26,6 +26,7 @@
 		<script src="/static/js/loaders/GLTFLoader.js"></script>
 		<script src="/static/js/loaders/KMZLoader.js"></script>
 		<script src="/static/js/loaders/MD2Loader.js"></script>
+		<script src="/static/js/loaders/ObjectLoader.js"></script>
 		<script src="/static/js/loaders/OBJLoader.js"></script>
 		<script src="/static/js/loaders/MTLLoader.js"></script>
 		<script src="/static/js/loaders/PlayCanvasLoader.js"></script>
@@ -97,7 +98,6 @@
 		<script src="/static/js/Menubar.File.js"></script>
 		<script src="/static/js/Menubar.Edit.js"></script>
 		<script src="/static/js/Menubar.Add.js"></script>
-		<script src="/static/js/Menubar.Play.js"></script>
 		<script src="/static/js/Menubar.Status.js"></script>
 		<script src="/static/js/Sidebar.js"></script>
 		<script src="/static/js/Sidebar.Scene.js"></script>
@@ -122,7 +122,6 @@
 		<script src="/static/js/Sidebar.Geometry.LatheGeometry.js"></script>
 		<script src="/static/js/Sidebar.Material.js"></script>
 		<script src="/static/js/Sidebar.Animation.js"></script>
-		<script src="/static/js/Sidebar.Script.js"></script>
 		<script src="/static/js/Sidebar.History.js"></script>
 		<script src="/static/js/Toolbar.js"></script>
 		<script src="/static/js/Viewport.js"></script>
@@ -294,6 +293,8 @@
 					case 8: // backspace
 
 						event.preventDefault(); // prevent browser back
+
+                        break;
 
 					case 46: // delete
 

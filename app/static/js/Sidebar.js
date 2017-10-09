@@ -10,12 +10,11 @@ var Sidebar = function ( editor ) {
 	//
 
 	var sceneTab = new UI.Text( 'SCENE' ).onClick( onClick );
-	var projectTab = new UI.Text( 'PROJECT' ).onClick( onClick );
 	var settingsTab = new UI.Text( 'SETTINGS' ).onClick( onClick );
 
 	var tabs = new UI.Div();
 	tabs.setId( 'tabs' );
-	tabs.add( sceneTab, projectTab, settingsTab );
+	tabs.add( sceneTab, settingsTab );
 	container.add( tabs );
 
 	function onClick( event ) {
@@ -29,15 +28,13 @@ var Sidebar = function ( editor ) {
 	var scene = new UI.Span().add(
 		new Sidebar.Scene( editor ),
 		new Sidebar.Properties( editor ),
-		new Sidebar.Animation( editor ),
-		new Sidebar.Script( editor )
+		new Sidebar.Animation( editor )
 	);
 	container.add( scene );
 
 	var project = new UI.Span().add(
 		new Sidebar.Project( editor )
 	);
-	container.add( project );
 
 	var settings = new UI.Span().add(
 		new Sidebar.Settings( editor ),
@@ -50,21 +47,15 @@ var Sidebar = function ( editor ) {
 	function select( section ) {
 
 		sceneTab.setClass( '' );
-		projectTab.setClass( '' );
 		settingsTab.setClass( '' );
 
 		scene.setDisplay( 'none' );
-		project.setDisplay( 'none' );
 		settings.setDisplay( 'none' );
 
 		switch ( section ) {
 			case 'SCENE':
 				sceneTab.setClass( 'selected' );
 				scene.setDisplay( '' );
-				break;
-			case 'PROJECT':
-				projectTab.setClass( 'selected' );
-				project.setDisplay( '' );
 				break;
 			case 'SETTINGS':
 				settingsTab.setClass( 'selected' );
