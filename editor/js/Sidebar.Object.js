@@ -258,6 +258,15 @@ Sidebar.Object = function ( editor ) {
 	objectVisibleRow.add( objectVisible );
 
 	container.add( objectVisibleRow );
+	
+	//wireframe
+	var materialWireframeRow = new UI.Row();
+	var materialWireframe = new UI.Checkbox( false ).onChange( update );
+
+	materialWireframeRow.add( new UI.Text( 'Wireframe' ).setWidth( '90px' ) );
+	materialWireframeRow.add( materialWireframe );
+
+	container.add( materialWireframeRow );
 
 	// user data
 
@@ -434,6 +443,26 @@ Sidebar.Object = function ( editor ) {
 
 				editor.execute( new SetValueCommand( object, 'visible', objectVisible.getValue() ) );
 
+			}
+			
+			if ( (editor.getObjectMaterial((object.children)[0])).wireframe !== undefined && (editor.getObjectMaterial((object.children)[0])).wireframe !== materialWireframe.getValue() ){
+				
+				var objects = object.children;
+			
+				var cmds = [];
+				var currentObject;
+	
+				editor.execute(new SetMaterialValueCommand( objects[ 3 ], 'wireframe', materialWireframe.getValue()));
+				
+				for ( var i = 0, l = objects.length; i < l; i ++ ) {
+	
+					currentObject = objects[ i ];
+					
+					cmds.push(new SetMaterialValueCommand( currentObject, 'wireframe', materialWireframe.getValue()));
+				}
+	
+				editor.execute( new MultiCmdsCommand(cmds) );
+				
 			}
 
 			if ( object.castShadow !== undefined && object.castShadow !== objectCastShadow.getValue() ) {
@@ -662,6 +691,12 @@ Sidebar.Object = function ( editor ) {
 		} catch ( error ) {
 
 			console.log( error );
+
+		}
+		
+		if ( object.wireframe !== undefined ) {
+
+			materialWireframe.setValue( object.wireframe );
 
 		}
 
