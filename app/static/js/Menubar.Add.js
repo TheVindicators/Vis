@@ -84,6 +84,9 @@ Menubar.Add = function ( editor ) {
             x = input_x.getValue();              // store entered values
         	y = input_y.getValue();
         	z = input_z.getValue();
+        	var x_NG = 1950 + ( x * 183.256 );
+        	var y_NG = y * 199.542;
+        	var z_NG = ( z * -199.75 ) + 120;
             var radiusTop = 7;                   // initialize cylinder object
             var radiusBottom = 7;
             var height = 170;
@@ -96,9 +99,9 @@ Menubar.Add = function ( editor ) {
             var mesh = new THREE.Mesh( geometry, material );
             mesh.name = 'Antenna (Rod) ' + ( ++ meshCount );
 
-            editor.execute( new AddObjectCommand( mesh ) );     // add object to scene
+            editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( x_NG, z_NG, y_NG ) ) );    // move object to specified coordinates
 
-            editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( x, y, z ) ) );    // move object to specified coordinates
+            editor.execute( new AddObjectCommand( mesh ) );     // add object to scene
 
             input_pane.remove(input);     // remove additional display for input
             options.newInput();
@@ -135,6 +138,9 @@ Menubar.Add = function ( editor ) {
             x = input_x.getValue();              // store entered values
             y = input_y.getValue();
             z = input_z.getValue();
+            var x_NG = 1950 + ( x * 183.256 );
+            var y_NG = y * 199.542;
+            var z_NG = ( z * -199.75 ) + 120;
             var radius = 15;                     // create sphere object
             var widthSegments = 32;
             var heightSegments = 16;
@@ -148,9 +154,9 @@ Menubar.Add = function ( editor ) {
             var mesh = new THREE.Mesh( geometry, material );
             mesh.name = 'Antenna (Point) ' + ( ++ meshCount );
 
-            editor.execute( new AddObjectCommand( mesh ) );        // add object to scene
+            editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( x_NG, z_NG, y_NG ) ) );     // move object to desired coordinates
 
-            editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( x, y, z ) ) );     // move object to desired coordinates
+            editor.execute( new AddObjectCommand( mesh ) );        // add object to scene
 
             input_pane.remove(input);    // remove additional input display
             options.newInput();
