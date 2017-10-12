@@ -128,7 +128,7 @@ Sidebar.Object = function ( editor ) {
 
     objectScaleRow.add( new UI.Text( 'Scale' ).setWidth( '90px' ) );
     //objectScaleRow.add( objectScaleLock );
-    objectScaleRow.add( objectScaleX, objectScaleZ, objectScaleY );
+    objectScaleRow.add( objectScaleX, objectScaleZ, objectScaleY );    // swap y and z axis
 
     container.add( objectScaleRow );
 
@@ -357,10 +357,9 @@ Sidebar.Object = function ( editor ) {
 
         if ( object !== null ) {
 
-            var x = 1950 + ( objectPositionX.getValue() * 183.256 );
+            var x = 1950 + ( objectPositionX.getValue() * 183.256 );       // convert entered coordinates to three.js standard
             var y = ( ( objectPositionY.getValue() * -199.75 ) + 120 );
             var z = ( objectPositionZ.getValue() * 199.542 );
-            //var newPosition = new THREE.Vector3( objectPositionX.getValue(), objectPositionY.getValue(), objectPositionZ.getValue() );
             var newPosition = new THREE.Vector3( x, y, z );
             if ( object.position.distanceTo( newPosition ) >= 0.01 ) {
 
@@ -594,7 +593,7 @@ Sidebar.Object = function ( editor ) {
         objectUUID.setValue( object.uuid );
         objectName.setValue( object.name );
 
-        var x = ( object.position.x - 1950 ) / 183.256;
+        var x = ( object.position.x - 1950 ) / 183.256;     // convert three.js coordinates back to meters for display
         objectPositionX.setValue( x );
         var y = ( object.position.y - 120 ) / -199.75;
         objectPositionY.setValue( y );

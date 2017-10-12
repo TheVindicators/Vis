@@ -84,7 +84,7 @@ Menubar.Add = function ( editor ) {
             x = input_x.getValue();              // store entered values
         	y = input_y.getValue();
         	z = input_z.getValue();
-        	var x_NG = 1950 + ( x * 183.256 );
+        	var x_NG = 1950 + ( x * 183.256 );   // convert entered coordinates to three.js standard
         	var y_NG = y * 199.542;
         	var z_NG = ( z * -199.75 ) + 120;
             var radiusTop = 7;                   // initialize cylinder object
@@ -99,7 +99,7 @@ Menubar.Add = function ( editor ) {
             var mesh = new THREE.Mesh( geometry, material );
             mesh.name = 'Antenna (Rod) ' + ( ++ meshCount );
 
-            editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( x_NG, z_NG, y_NG ) ) );    // move object to specified coordinates
+            editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( x_NG, z_NG, y_NG ) ) );    // move object to specified coordinates, swapping y and z
 
             editor.execute( new AddObjectCommand( mesh ) );     // add object to scene
 
