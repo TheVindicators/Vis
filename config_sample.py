@@ -16,13 +16,16 @@ class Config:
         pass
 
 class DevelopmentConfig(Config):
+    JSON_STORE_DATA = basedir + "/app/json_save_states/"
     DEBUG = True
     MODE = 'Development'
 
 class ProductionConfig(Config):
+    JSON_STORE_DATA = basedir + "/app/json_save_states/"
     MODE ='Production'
 
 class TestingConfig(Config):
+    JSON_STORE_DATA = basedir + "/app/json_save_states/"
     MODE = 'Testing'
 
 

@@ -1,4 +1,5 @@
-from flask import render_template, request
+from flask import render_template, request, current_app
+import json, uuid, os
 from . import rest
 
 
@@ -29,16 +30,30 @@ def convert_object():
 @rest.route('/save_state', methods=["GET", "POST"])
 def save_state():
     if request.method == "POST":
-        return "Save OK"
-    return "Save Failed! :("
+        state = request.get_json(request.data)
+        if "uuid" not in state["project"] or state["project"]["uuid"] == "":
+            state["project"]["uuid"] = str(uuid.uuid4())
+        with open(current_app.config["JSON_STORE_DATA"] + state["project"]["uuid"] + ".json", 'w+') as save_state_file:
+            save_state_file.write(json.dumps(state))
+        print "I'm saving: " + state["project"]["uuid"]
+        return state["project"]["uuid"]
+    return "FAIL"
 
 
 #This URL (website.com/rest/resume_state) is used to fetch the JSON file of the state requested by the user.
 #The user requests the UUID of the specific JSON file, which is fetched and dumped back to client.
 #JSON schema TBD
-@rest.route('/resume_state', methods=["GET", "POST"])
-def resume_state():
-    if request.method == "POST":
-        #fetch uuid
-        #dump file
-        return "<json file of state here>"
+@rest.route('/resume_state/', methods=["GET", "POST"])
+@rest.route('/resume_state/<uuid>', methods=["GET", "POST"])
+def resume_state(uuid=None):
+    if uuid == None:
+        #We're looking to see which save states we have
+        states = ""
+        for save_state in os.listdir(current_app.config["JSON_STORE_DATA"]):
+            states += save_state[:-5] + "," #Only return the UUID, remove .json ending
+        return str(states[:-1])
+    else:
+        #We're requesting a specific UUID to resume from.
+        with open(current_app.config["JSON_STORE_DATA"] + str(uuid)+ ".json", 'r') as save_state_file:
+            return save_state_file.read()
+    return None

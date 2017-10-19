@@ -1,5 +1,6 @@
 from flask import Flask, render_template
 from config import config
+import os
 
 #Initialize object methods
 
@@ -7,6 +8,9 @@ def create_app(config_name):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
     config[config_name].init_app
+
+    if not os.path.exists(app.config["JSON_STORE_DATA"]):
+        os.makedirs(app.config["JSON_STORE_DATA"])
 
     #properly expose IP addresses if being reversed proxy
 #    app.wsgi_app = ProxyFix(app.wsgi_app)
