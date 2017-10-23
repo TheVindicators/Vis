@@ -50,16 +50,33 @@ var Storage = function () {
 
 		},
 
-		get: function ( callback ) {
+		get: function ( uuid, callback ) {
 
-			var transaction = database.transaction( [ 'states' ], 'readwrite' );
-			var objectStore = transaction.objectStore( 'states' );
-			var request = objectStore.get( 0 );
-			request.onsuccess = function ( event ) {
+			if (uuid != "None") {
+				var xhr = new XMLHttpRequest();
 
-				callback( event.target.result );
+				xhr.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+					var myArr = JSON.parse(this.responseText);
+					callback(myArr);
+			}
+	};
+				xhr.open("GET", "/rest/resume_state/" + uuid, true);
+				xhr.send();
+			} else {
+				var transaction = database.transaction( [ 'states' ], 'readwrite' );
+				var objectStore = transaction.objectStore( 'states' );
 
-			};
+				var request = objectStore.get( 0 );
+				request.onsuccess = function ( event ) {
+
+					callback( event.target.result );
+
+				};
+			}
+
+
+
 
 		},
 
@@ -69,7 +86,23 @@ var Storage = function () {
 
 			var transaction = database.transaction( [ 'states' ], 'readwrite' );
 			var objectStore = transaction.objectStore( 'states' );
+			//console.log(JSON.stringify(data));
 			var request = objectStore.put( data, 0 );
+
+
+
+			var xhr = new XMLHttpRequest();
+			xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+				var myArr = this.responseText;
+				callback(myArr);
+		}
+};
+			xhr.open('POST', '/rest/save_state');
+			xhr.send(JSON.stringify(data));
+
+			//console.log(data);
+
 			request.onsuccess = function ( event ) {
 
 				console.log( '[' + /\d\d\:\d\d\:\d\d/.exec( new Date() )[ 0 ] + ']', 'Saved state to IndexedDB. ' + ( performance.now() - start ).toFixed( 2 ) + 'ms' );

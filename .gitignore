@@ -93,6 +93,7 @@ ENV/
 config.py
 vis.sock
 vis.log
+app/json_save_states
 
 # Mac stuff
 .DS_Store
