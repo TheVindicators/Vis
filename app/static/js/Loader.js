@@ -428,6 +428,22 @@ var Loader = function ( editor ) {
 
 				break;
 
+
+			case 'x3d':
+
+				reader.addEventListener( 'load', function ( event ) {
+
+					var loader = new THREE.X3DLoader();
+					//console.log(event.target.result);
+					var object = loader.parse( event.target.result );
+
+					editor.execute( new AddObjectCommand( object ) );
+
+				}, false );
+				reader.readAsText( file );
+
+				break;
+
 			case 'zip':
 
 				reader.addEventListener( 'load', function ( event ) {
