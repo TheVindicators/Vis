@@ -22,7 +22,7 @@ def convert_object():
             file_data = request.data
             with open("temp.flt", 'w+') as flt_file:
                 flt_save.write(file_data)
-            subprocess.check_output(["osgconv temp.flt temp.obj"])
+            subprocess.check_output("osgconv temp.flt temp.obj")
             with open("temp.obj", 'r') as converted_file:
                 print "Nice, let's get this out onto a tray."
                 return converted_file.read()
