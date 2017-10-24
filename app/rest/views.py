@@ -62,7 +62,6 @@ def resume_state(uuid=None):
             return "FAIL" #Something went wrong. Let's be purposely dense about what went wrong.
     else: #We're requesting a specific UUID to resume from.
         try:
-
             with open(current_app.config["JSON_STORE_DATA"] + secure_filename(str(uuid))+ ".json", 'r') as save_state_file:
                 return save_state_file.read()
         except:

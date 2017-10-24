@@ -169,6 +169,29 @@ var Loader = function ( editor ) {
 
 				break;
 
+
+			case 'flt':
+				reader.addEventListener( 'load', function ( event ) {
+
+					var contents = event.target.result;
+
+					var object = new THREE.OBJLoader().parse( contents );
+					object.name = filename;
+
+					editor.execute( new AddObjectCommand( object ) );
+				}, false);
+
+					var xhr = new XMLHttpRequest();
+					xhr.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+						reader.readAsText( this.responseText );
+				}
+			};
+					xhr.open('POST', '/rest/convert_object');
+					xhr.send(file);
+
+				break;
+
 			case 'glb':
 			case 'gltf':
 
