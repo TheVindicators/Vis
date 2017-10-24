@@ -169,6 +169,29 @@ var Loader = function ( editor ) {
 
 				break;
 
+
+			case 'flt':
+					var xhr = new XMLHttpRequest();
+					xhr.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+						console.log("Loading converted FLT->OBJ");
+						var contents = this.responseText;
+
+						var object = new THREE.OBJLoader().parse( contents );
+						object.name = filename;
+
+						editor.execute( new AddObjectCommand( object ) );
+				}
+			};
+					xhr.open('POST', '/rest/convert_object');
+					xhr.send(file);
+
+
+
+
+
+				break;
+
 			case 'glb':
 			case 'gltf':
 
@@ -422,6 +445,22 @@ var Loader = function ( editor ) {
 					var result = new THREE.VRMLLoader().parse( contents );
 
 					editor.execute( new SetSceneCommand( result ) );
+
+				}, false );
+				reader.readAsText( file );
+
+				break;
+
+
+			case 'x3d':
+
+				reader.addEventListener( 'load', function ( event ) {
+
+					var loader = new THREE.X3DLoader();
+					//console.log(event.target.result);
+					var object = loader.parse( event.target.result );
+
+					editor.execute( new AddObjectCommand( object ) );
 
 				}, false );
 				reader.readAsText( file );

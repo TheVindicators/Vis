@@ -1,6 +1,8 @@
 from flask import Flask, render_template
+from werkzeug.wsgi import LimitedStream
 from config import config
 import os
+
 
 #Initialize object methods
 
@@ -12,8 +14,12 @@ def create_app(config_name):
     if not os.path.exists(app.config["JSON_STORE_DATA"]):
         os.makedirs(app.config["JSON_STORE_DATA"])
 
+    if not os.path.exists(app.config["FILE_CONVERSION_WORK_DIR"]):
+        os.makedirs(app.config["FILE_CONVERSION_WORK_DIR"])
     #properly expose IP addresses if being reversed proxy
-#    app.wsgi_app = ProxyFix(app.wsgi_app)
+    #app.wsgi_app = ProxyFix(app.wsgi_app)
+    #app.wsgi_app = StreamConsumingMiddleware(app.wsgi_app)
+
 
     #Register main web interface as blueprint
     from main import main as main_blueprint

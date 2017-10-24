@@ -1,7 +1,7 @@
 from flask import render_template, request, current_app
 from werkzeug.utils import secure_filename
 from . import rest
-import json, uuid, os
+import json, uuid, os, subprocess, time
 
 
 #This URL (website.com/rest/debug) is used to test the website and provide debug output. It's really only a developer tool.
@@ -17,7 +17,19 @@ def rest_debug():
 #javascript requests is an absolute must to prevent client lockup.
 @rest.route('/convert_object', methods=["GET", "POST"])
 def convert_object():
-    return "<json file of converted object here>"
+    if request.method == "POST":
+        try:
+            file_data = request.data
+            temp_file_name = str(int(time.time()))
+            with open(current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".flt", 'w+') as flt_file:
+                flt_file.write(file_data)
+            print "osgconv " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".flt " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".obj"
+            subprocess.check_output("osgconv " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".flt " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".obj", shell=True)
+            with open(current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".obj", 'r') as converted_file:
+                print "Nice, let's get this out onto a tray."
+                return converted_file.read()
+        except Exception as e:
+            return str(e)
 
 
 
@@ -62,7 +74,6 @@ def resume_state(uuid=None):
             return "FAIL" #Something went wrong. Let's be purposely dense about what went wrong.
     else: #We're requesting a specific UUID to resume from.
         try:
-
             with open(current_app.config["JSON_STORE_DATA"] + secure_filename(str(uuid))+ ".json", 'r') as save_state_file:
                 return save_state_file.read()
         except:
