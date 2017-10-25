@@ -116,7 +116,7 @@ Sidebar.Object = function ( editor ) {
     objectRotationRow.add( new UI.Text( 'Rotation' ).setWidth( '90px' ) );
     objectRotationRow.add( objectRotationZ, objectRotationX, objectRotationY );
 
-    container.add( objectRotationRow );
+    //container.add( objectRotationRow );
 
     // scale
 
@@ -130,7 +130,7 @@ Sidebar.Object = function ( editor ) {
     //objectScaleRow.add( objectScaleLock );
     objectScaleRow.add( objectScaleZ, objectScaleX, objectScaleY );    // swap y and z axis
 
-    container.add( objectScaleRow );
+    //container.add( objectScaleRow );
 
     // fov
 
