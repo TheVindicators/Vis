@@ -1,0 +1,12 @@
+----- A-10 Thunderbolt II -----
+
+Length: 16.3 m
+Wingspan: 17.5 m
+Height (from nose up): 4.0 m
+
+Nose: 0, 0, 0
+L. wing tip: -8.5, 8.6, -0.7
+R. wing tip: -8.5, -8.6, -0.7
+L. Vertical Tail: -15.3, 2.85, -4
+R. Vertical Tail: -15.3, -2.85, -4
+Body Tail: -16.3, 0, -0.4

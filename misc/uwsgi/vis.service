@@ -1,0 +1,13 @@
+[Unit]
+Description=Vis uWSGI Instance
+After=network.target
+
+[Service]
+User=vis
+Group=www-data
+WorkingDirectory=/home/vis/vis
+Environment="PATH=/home/vis/vis/venv/bin"
+ExecStart=/home/vis/vis/venv/bin/uwsgi --ini vis.ini
+
+[Install]
+WantedBy=multi-user.target
