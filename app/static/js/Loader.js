@@ -295,6 +295,7 @@ var Loader = function ( editor ) {
 					object.name = filename;
 
 					editor.execute( new AddObjectCommand( object ) );
+					editor.setModel( object );                                // set import as base model
 
 				}, false );
 				reader.readAsText( file );
@@ -491,6 +492,7 @@ var Loader = function ( editor ) {
 				var mesh = new THREE.Mesh( result );
 
 				editor.execute( new AddObjectCommand( mesh ) );
+                editor.setModel( mesh );                             // set import as base model
 
 				break;
 
@@ -540,6 +542,7 @@ var Loader = function ( editor ) {
 				mesh.name = filename;
 
 				editor.execute( new AddObjectCommand( mesh ) );
+                editor.setModel( mesh );                               // set import as base model
 
 				break;
 
@@ -557,6 +560,7 @@ var Loader = function ( editor ) {
 				} else {
 
 					editor.execute( new AddObjectCommand( result ) );
+                    editor.setModel( result );                          // set import as base model
 
 				}
 

@@ -59,6 +59,20 @@ Menubar.File = function ( editor ) {
 		editor.loader.loadFile( fileInput.files[ 0 ] );
 		form.reset();
 
+		var color = 0xffffff;                 // create spotlight when new model imported
+        var intensity = 1;
+        var distance = 0;
+        var angle = Math.PI * 0.1;
+        var penumbra = 0;
+
+        var light = new THREE.SpotLight( color, intensity, distance, angle, penumbra );
+        light.name = 'SpotLight';
+        light.target.name = 'SpotLight Target';
+
+        light.position.set( 0, 5500, 5000 );
+
+        editor.execute( new AddObjectCommand( light ) );
+
 	} );
 	form.appendChild( fileInput );
 

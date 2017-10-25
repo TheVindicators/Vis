@@ -29,7 +29,13 @@ Menubar.Add = function ( editor ) {
 		cameraCount = 0;
 
 	} );
-
+	/*
+    var light = new THREE.SpotLight( 0xffffff, 1, 0, Math.PI * 0.1, 0 );
+    light.name = 'SpotLight';
+    light.target.name = 'SpotLight Target';
+    light.position.set( 5000, 5500, 0 );
+    editor.execute( new AddObjectCommand( light ) );
+    */
     // Input Variables
 
     var check = false;                          // set a flag to check if button already pressed
@@ -62,65 +68,11 @@ Menubar.Add = function ( editor ) {
     input_pane.add(input_row);
     input_pane.add(new UI.Break());
 
-    // Antenna (Rod)
-
-	var option = new UI.Row();                   // standard antenna rod
-	option.setClass( 'option' );
-	option.setTextContent( 'Antenna (Rod)' );
-    option.onClick( function () {
-
-        if (check === true){                     // check if prior button state already displayed
-            options.newInput();                  // if so, remove the display
-            input_pane.remove(input);
-        }
-        check = true;                            // set flag to true as new display will populate
-
-        input = new UI.Button();                 // set input button spacing and function
-        input.setMarginLeft('42px');
-        input.setClass("input");
-        input.setTextContent("Enter");
-        input.onClick( function () {
-
-            x = input_x.getValue();              // store entered values
-        	y = input_y.getValue();
-        	z = input_z.getValue();
-        	var x_NG = 1950 + ( x * 183.256 );   // convert entered coordinates to three.js standard
-        	var y_NG = y * 199.542;
-        	var z_NG = ( z * -199.75 ) + 120;
-            var radiusTop = 7;                   // initialize cylinder object
-            var radiusBottom = 7;
-            var height = 170;
-            var radiusSegments = 32;
-            var heightSegments = 1;
-            var openEnded = false;
-
-            var geometry = new THREE.CylinderBufferGeometry( radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded );
-            var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
-            var mesh = new THREE.Mesh( geometry, material );
-            mesh.name = 'Antenna (Rod) ' + ( ++ meshCount );
-
-            editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( x_NG, z_NG, y_NG ) ) );    // move object to specified coordinates, swapping y and z
-
-            editor.execute( new AddObjectCommand( mesh ) );     // add object to scene
-
-            input_pane.remove(input);     // remove additional display for input
-            options.newInput();
-            check = false;                // set flag to false
-
-		});
-
-        input_pane.add(input);            // add display to menubar panel
-        options.add(filler);
-    	options.add(input_pane);
-
-	} );
-	options.add( option );
-	
-	// Antenna (Point)
+	// Antenna
 	
 	var option = new UI.Row();                    // basic point for antenna representation
 	option.setClass( 'option' );
-	option.setTextContent( 'Antenna (Point)' );
+	option.setTextContent( 'Antenna' );
 	option.onClick( function () {
 
         if (check === true){                     // check if prior button state already displayed
@@ -138,10 +90,24 @@ Menubar.Add = function ( editor ) {
             x = input_x.getValue();              // store entered values
             y = input_y.getValue();
             z = input_z.getValue();
-            var x_NG = 1950 + ( x * 183.256 );
-            var y_NG = y * 199.542;
-            var z_NG = ( z * -199.75 ) + 120;
-            var radius = 15;                     // create sphere object
+
+            var x_nose = editor.getModel()[4];                // convert entered values to meters coordinate system
+            var x_tail = editor.getModel()[5];
+            var x_slope = ( x_nose - x_tail ) / editor.getModelLength();
+
+            var z_nose = editor.getModel()[3];
+            var z_tail = editor.getModel()[2];
+            var z_slope = ( z_nose - z_tail ) / editor.getModelHeight();
+
+            var right_wing = editor.getModel()[0];
+            var left_wing = editor.getModel()[1];
+            var y_slope = ( right_wing - left_wing ) / editor.getModelWingspan();
+
+            var x_NG = y * y_slope;
+            var y_NG = ( z * z_slope ) + z_nose;
+            var z_NG = x_nose + ( x * x_slope );
+
+            var radius = ( right_wing - left_wing ) / 180;      // create sphere object according to model size
             var widthSegments = 32;
             var heightSegments = 16;
             var phiStart = 0;
@@ -152,9 +118,9 @@ Menubar.Add = function ( editor ) {
             var geometry = new THREE.SphereBufferGeometry( radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength );
             var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
             var mesh = new THREE.Mesh( geometry, material );
-            mesh.name = 'Antenna (Point) ' + ( ++ meshCount );
+            mesh.name = 'Antenna' + ( ++ meshCount );
 
-            editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( x_NG, z_NG, y_NG ) ) );     // move object to desired coordinates
+            editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( x_NG, y_NG, z_NG ) ) );     // move object to desired coordinates
 
             editor.execute( new AddObjectCommand( mesh ) );        // add object to scene
 
