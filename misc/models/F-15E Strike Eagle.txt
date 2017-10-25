@@ -1,0 +1,13 @@
+----- F-15E Strike Eagle -----
+
+Length: 21.3 m
+Wingspan: 13.1 m
+Height (from nose up): 4.0 m
+
+Nose: 0, 0, 0
+L. wing tip: -15.3, 6.5, -0.7
+R. wing tip: -15.3, -6.5, -0.7
+L. Horizontal Tail: -21.3, 4, -0.4
+R. Horizontal Tail: -21.3, -4, -0.4
+L. Vertical Tail: -20, 1.7, -4
+R. Vertical Tail: -20, -1.7, -4
