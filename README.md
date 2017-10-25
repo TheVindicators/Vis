@@ -9,26 +9,26 @@ Our program is an extension of the three.js development evironment modified to a
 ---
 
 ## How To Run
-Vis will run on any platform to include Windows, Mac OS, Linux, Android, and iOS devices. The only requirement is that you must be running a WebGL compatible browser. The following are supported:
- - Google Chrome
- - Mozilla Firefox
- - Microsoft Internet Explorer
- - Microsoft Edge
- - Apple Safari
- - Opera
- - iOS Safari
- - Android Browser
- - Chrome for Android
 
-To begin, download the ZIP file located at the repository homepage under the "Clone or download" tab.
+### For Users
 
-From here you can extract the files to a location of your choosing.
+If you're interested in trying out Vis yourself, please visit http://vis.ipwnage.com. From there, you'll be able to upload models, add antennas, and modify wireframe status easily.
 
-Open up the file location and navigate to the "editor" folder.
+### For Developers
 
-Here you will see an html file entitled "Vis". 
+If you're interested in contributing to Vis, or looking for deploy your own installation, setup is a breeze.
 
-Double-click the file to open the application in your internet browser.
+1. Clone the repository: `git clone https://github.com/TheVindicators/Vis.git`
+2. Install Python2.7 for your respective operating system (https://www.python.org/download/releases/2.7/)
+3. Install virtualenv (*nix/Mac: `sudo pip install virtualenv` Windows: `pip install virtualenv` )
+4. Create a virtualenv in your Vis directory: `virtualenv venv`
+5. Activate the virtualenv (*nix/Mac: `. venv/bin/activate` Windows: `venv\Scripts\activate.bat`)
+6. Install all the requirements: `pip install -r requirements.txt`
+7. Copy `config_sample.py` and name is `config.py`
+
+That's it. To run the server, run `manage.py runserver`
+
+If you're looking to deploy this for production use, it's recommended you use the uWSGI files in the `uwsgi` folder and deploy Vis as a service.
 
 ---
 

@@ -1,5 +1,7 @@
-from flask import render_template, request
+from flask import render_template, request, current_app
+from werkzeug.utils import secure_filename
 from . import rest
+import json, uuid, os
 
 
 #This URL (website.com/rest/debug) is used to test the website and provide debug output. It's really only a developer tool.
@@ -29,16 +31,40 @@ def convert_object():
 @rest.route('/save_state', methods=["GET", "POST"])
 def save_state():
     if request.method == "POST":
-        return "Save OK"
-    return "Save Failed! :("
+        try:
+            state = request.get_json(request.data)
+            #Check to see if the POSTed save state has a UUID. If not, then this is a new project and we need to generate a UUID for it.
+            if "uuid" not in state["project"] or state["project"]["uuid"] == "":
+                state["project"]["uuid"] = str(uuid.uuid4())
+            #Save the save state to the appropriate folder. The file is named 'UUID.json'
+            with open(current_app.config["JSON_STORE_DATA"] + secure_filename(str(state["project"]["uuid"])) + ".json", 'w+') as save_state_file:
+                save_state_file.write(json.dumps(state))
+            print "I'm saving: " + state["project"]["uuid"]
+            return state["project"]["uuid"] #Return the UUID if successful. This is used by the client to receive the UUID on the first initial save.
+        except:
+            return "FAIL" #Something went wrong. Let's be purposely dense about what went wrong.
+    return "FAIL" #How'd we get here? Someone trying to load the page?
 
 
 #This URL (website.com/rest/resume_state) is used to fetch the JSON file of the state requested by the user.
 #The user requests the UUID of the specific JSON file, which is fetched and dumped back to client.
 #JSON schema TBD
-@rest.route('/resume_state', methods=["GET", "POST"])
-def resume_state():
-    if request.method == "POST":
-        #fetch uuid
-        #dump file
-        return "<json file of state here>"
+@rest.route('/resume_state/', methods=["GET", "POST"])
+@rest.route('/resume_state/<uuid>', methods=["GET", "POST"])
+def resume_state(uuid=None):
+    if uuid == None: #We're looking to see which save states we have
+        states = ""
+        try:
+            for save_state in os.listdir(current_app.config["JSON_STORE_DATA"]):
+                states += save_state[:-5] + "," #Only return the UUID, remove .json ending
+            return str(states[:-1])
+        except:
+            return "FAIL" #Something went wrong. Let's be purposely dense about what went wrong.
+    else: #We're requesting a specific UUID to resume from.
+        try:
+
+            with open(current_app.config["JSON_STORE_DATA"] + secure_filename(str(uuid))+ ".json", 'r') as save_state_file:
+                return save_state_file.read()
+        except:
+            return "FAIL"
+    return "FAIL" #How'd we get here?

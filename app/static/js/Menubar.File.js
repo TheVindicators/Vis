@@ -36,11 +36,29 @@ Menubar.File = function ( editor ) {
 		if ( confirm( 'Any unsaved data will be lost. Are you sure?' ) ) {
 
 			editor.clear();
+			editor.storage.clear();
+			editor.project_uuid = "";
+		}
+
+	} );
+	options.add( option );
+
+// Load/Resume State
+	var option = new UI.Row();
+	option.setClass( 'option' );
+	option.setTextContent( 'Load' );
+	option.onClick( function () {
+
+		if ( confirm( 'Any unsaved data will be lost. Are you sure?' ) ) {
+			fetchStates();
+
+			document.getElementById('myModal').style.display = "block";
 
 		}
 
 	} );
 	options.add( option );
+
 
 	//
 
@@ -135,7 +153,7 @@ Menubar.File = function ( editor ) {
 	options.add( option );
 
 	*/
-	
+
 	// Export Object
 
 	var option = new UI.Row();
@@ -170,7 +188,7 @@ Menubar.File = function ( editor ) {
 	} );
 	options.add( option );
 
-	// Export 
+	// Export
 
 	var option = new UI.Row();
 	option.setClass( 'option' );

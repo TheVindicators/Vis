@@ -8,6 +8,7 @@ var Editor = function () {
 	this.DEFAULT_CAMERA.name = 'Camera';
 	this.DEFAULT_CAMERA.position.set( 20, 10, 20 );
 	this.DEFAULT_CAMERA.lookAt( new THREE.Vector3() );
+	this.project_uuid = "";
 
     var Signal = signals.Signal;
 
@@ -501,7 +502,7 @@ Editor.prototype = {
 		}
 
 		var camera = loader.parse( json.camera );
-
+		this.project_uuid = json.project.uuid;
 		this.camera.copy( camera );
 		this.camera.aspect = this.DEFAULT_CAMERA.aspect;
 		this.camera.updateProjectionMatrix();
@@ -538,6 +539,7 @@ Editor.prototype = {
 
 			metadata: {},
 			project: {
+				uuid: this.project_uuid,
 				gammaInput: this.config.getKey( 'project/renderer/gammaInput' ),
 				gammaOutput: this.config.getKey( 'project/renderer/gammaOutput' ),
 				shadows: this.config.getKey( 'project/renderer/shadows' ),

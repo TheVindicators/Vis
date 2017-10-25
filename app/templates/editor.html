@@ -6,6 +6,7 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	</head>
 	<body ontouchstart="">
+		<link href="/static/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="/static/css/main.css" rel="stylesheet" />
 		<link id="theme" href="/static/css/light.css" rel="stylesheet" />
 
@@ -154,6 +155,33 @@
 		<script src="/static/js/libs/html2canvas.js"></script>
 		<script src="/static/js/libs/three.html.js"></script>
 
+		<style>
+		/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0, 0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    width: 20%; /* Could be more or less, depending on screen size */
+}
+
+.modal-content a{
+    text-decoration: none;
+}
+</style>
+
 		<script>
 
 			window.URL = window.URL || window.webkitURL;
@@ -194,7 +222,7 @@
 
 			editor.storage.init( function () {
 
-				editor.storage.get( function ( state ) {
+				editor.storage.get( "None", function ( state ) {
 
 					if ( isLoadingFromHash ) return;
 
@@ -234,7 +262,11 @@
 
 						timeout = setTimeout( function () {
 
-							editor.storage.set( editor.toJSON() );
+							editor.storage.set( editor.toJSON(), function (uuid) {
+								if (editor.project_uuid == "") {
+									editor.project_uuid = uuid;
+								}
+							} );
 
 							editor.signals.savingFinished.dispatch();
 
@@ -388,7 +420,57 @@
 			}, false );
 			*/
 
+		function loadProject(uuid) {
+			editor.clear();
+			editor.storage.clear();
+			editor.storage.get( uuid, function ( state ) {
+
+				if ( state !== undefined ) {
+
+					editor.fromJSON( state );
+
+				}
+					editor.project_uuid = uuid;
+
+			} );
+
+			document.getElementById('myModal').style.display = "none";
+		}
+
+		function fetchStates() {
+			var fs = new XMLHttpRequest();
+			fs.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+				 var all_uuids = this.responseText.split(",");
+				 saves.innerHTML = "";
+				 for (var i = 0; i < all_uuids.length; i++)
+
+				 saves.insertAdjacentHTML("beforeend", "<a href=\"#\" onClick=\"loadProject('" + all_uuids[i] + "');\" class=\"list-group-item list-group-item-action\">" + all_uuids[i] + "</a>");
+ 					//document.getElementById("saves").insertAdjacentHTML()
+
+		}
+};
+				fs.open("GET", "/rest/resume_state/", true);
+				fs.send();
+
+
+		}
+
 		</script>
-	    
+
+
+		<!-- The Modal -->
+		<div id="myModal" class="modal">
+
+		  <!-- Modal content -->
+		  <div class="modal-content">
+				<div id="saves" class="list-group">
+
+				</div>
+
+		  </div>
+
+
+		</div>
 	</body>
 </html>
