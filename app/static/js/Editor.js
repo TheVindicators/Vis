@@ -95,6 +95,12 @@ var Editor = function () {
 	this.selected = null;
 	this.helpers = {};
 
+	var light = new THREE.SpotLight( 0xffffff, 1, 0, Math.PI * 0.1, 0 );
+	light.name = 'SpotLight';
+	light.target.name = 'SpotLight Target';
+	light.position.set( 5000, 5500, 0 );
+	editor.execute( new AddObjectCommand( light ) );
+
 };
 
 var length = 20;

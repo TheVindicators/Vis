@@ -29,13 +29,7 @@ Menubar.Add = function ( editor ) {
 		cameraCount = 0;
 
 	} );
-	/*
-    var light = new THREE.SpotLight( 0xffffff, 1, 0, Math.PI * 0.1, 0 );
-    light.name = 'SpotLight';
-    light.target.name = 'SpotLight Target';
-    light.position.set( 5000, 5500, 0 );
-    editor.execute( new AddObjectCommand( light ) );
-    */
+
     // Input Variables
 
     var check = false;                          // set a flag to check if button already pressed
@@ -69,7 +63,7 @@ Menubar.Add = function ( editor ) {
     input_pane.add(new UI.Break());
 
 	// Antenna
-	
+
 	var option = new UI.Row();                    // basic point for antenna representation
 	option.setClass( 'option' );
 	option.setTextContent( 'Antenna' );
