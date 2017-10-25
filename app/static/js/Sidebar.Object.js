@@ -102,7 +102,7 @@ Sidebar.Object = function ( editor ) {
     var objectPositionZ = new UI.Number().setWidth( '50px' ).onChange( update );
 
     objectPositionRow.add( new UI.Text( 'Position' ).setWidth( '90px' ) );
-    objectPositionRow.add( objectPositionX, objectPositionZ, objectPositionY );
+    objectPositionRow.add( objectPositionZ, objectPositionX, objectPositionY );
 
     container.add( objectPositionRow );
 
@@ -114,7 +114,7 @@ Sidebar.Object = function ( editor ) {
     var objectRotationZ = new UI.Number().setStep( 10 ).setUnit( '°' ).setWidth( '50px' ).onChange( update );
 
     objectRotationRow.add( new UI.Text( 'Rotation' ).setWidth( '90px' ) );
-    objectRotationRow.add( objectRotationX, objectRotationZ, objectRotationY );
+    objectRotationRow.add( objectRotationZ, objectRotationX, objectRotationY );
 
     container.add( objectRotationRow );
 
@@ -128,7 +128,7 @@ Sidebar.Object = function ( editor ) {
 
     objectScaleRow.add( new UI.Text( 'Scale' ).setWidth( '90px' ) );
     //objectScaleRow.add( objectScaleLock );
-    objectScaleRow.add( objectScaleX, objectScaleZ, objectScaleY );    // swap y and z axis
+    objectScaleRow.add( objectScaleZ, objectScaleX, objectScaleY );    // swap y and z axis
 
     container.add( objectScaleRow );
 
@@ -357,9 +357,21 @@ Sidebar.Object = function ( editor ) {
 
         if ( object !== null ) {
 
-            var x = 1950 + ( objectPositionX.getValue() * 183.256 );       // convert entered coordinates to three.js standard
-            var y = ( ( objectPositionY.getValue() * -199.75 ) + 120 );
-            var z = ( objectPositionZ.getValue() * 199.542 );
+            var right_wing = editor.getModel()[0];          // convert entered coordinates to three.js standard
+            var left_wing = editor.getModel()[1];
+            var y_slope = ( right_wing - left_wing ) / editor.getModelWingspan();
+            var x = ( objectPositionX.getValue() * y_slope );
+
+            var z_nose = editor.getModel()[3];
+            var z_tail = editor.getModel()[2];
+            var z_slope = ( z_nose - z_tail ) / editor.getModelHeight();
+            var y = ( ( objectPositionY.getValue() * z_slope ) + z_nose );
+
+            var x_nose = editor.getModel()[4];
+            var x_tail = editor.getModel()[5];
+            var x_slope = ( x_nose - x_tail ) / editor.getModelLength();
+            var z = x_nose + ( objectPositionZ.getValue() * x_slope );
+
             var newPosition = new THREE.Vector3( x, y, z );
             if ( object.position.distanceTo( newPosition ) >= 0.01 ) {
 
@@ -593,11 +605,24 @@ Sidebar.Object = function ( editor ) {
         objectUUID.setValue( object.uuid );
         objectName.setValue( object.name );
 
-        var x = ( object.position.x - 1950 ) / 183.256;     // convert three.js coordinates back to meters for display
+
+        var right_wing = editor.getModel()[0];              // convert three.js coordinates back to meters for display
+        var left_wing = editor.getModel()[1];
+        var y_slope = ( right_wing - left_wing ) / editor.getModelWingspan();
+        var x = object.position.x / y_slope;
         objectPositionX.setValue( x );
-        var y = ( object.position.y - 120 ) / -199.75;
+
+        var z_nose = editor.getModel()[3];
+        var z_tail = editor.getModel()[2];
+        var z_slope = ( z_nose - z_tail ) / editor.getModelHeight();
+        var y = ( object.position.y - z_nose ) / z_slope;
         objectPositionY.setValue( y );
-        var z = object.position.z / 199.542;
+
+
+        var x_nose = editor.getModel()[4];
+        var x_tail = editor.getModel()[5];
+        var x_slope = ( x_nose - x_tail ) / editor.getModelLength();
+        var z = ( object.position.z - x_nose ) / x_slope;
         objectPositionZ.setValue( z );
 
         objectRotationX.setValue( object.rotation.x * THREE.Math.RAD2DEG );

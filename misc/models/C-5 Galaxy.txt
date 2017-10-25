@@ -1,0 +1,13 @@
+----- c-5 Galaxy -----
+
+Length: 75.5 m
+Wingspan: 67.9 m
+Height (from nose up): 18 m
+
+Nose: 0, 0, 0
+L. wing tip: -43.5, 33.8, -1.05
+R. wing tip: -43.5, -33.8, -1.05
+Tail: -75.5, 0, -16.5
+Tail L. Tip: -73.6, 10.8, -16.9
+Tail R. Tip: -73.6, -10.8, -16.9
+Body Tail: -70.4, 0, -3.75
