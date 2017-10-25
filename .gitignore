@@ -98,3 +98,6 @@ app/conversion_work
 
 # Mac stuff
 .DS_Store
+
+#Other stuff
+.idea/

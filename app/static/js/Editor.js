@@ -390,22 +390,36 @@ Editor.prototype = {
 	//
 
 	select: function ( object ) {
-
 		if ( this.selected === object ) return;
 
-		var uuid = null;
+		if(this.scene == object || this.scene === object.parent){
+			var uuid = null;
 
-		if ( object !== null ) {
+			if ( object !== null ) {
 
-			uuid = object.uuid;
+				uuid = object.uuid;
 
+			}
+
+			this.selected = object;
+
+			this.config.setKey( 'selected', uuid );
+			this.signals.objectSelected.dispatch( object );
+
+		} else {
+			var uuid = null;
+
+			if ( object.parent !== null ) {
+
+				uuid = object.parent.uuid;
+
+			}
+
+			this.selected = object.parent;
+
+			this.config.setKey( 'selected', uuid );
+			this.signals.objectSelected.dispatch( object.parent );
 		}
-
-		this.selected = object;
-
-		this.config.setKey( 'selected', uuid );
-		this.signals.objectSelected.dispatch( object );
-
 	},
 
 	selectById: function ( id ) {
@@ -688,7 +702,9 @@ Editor.prototype = {
         z_max = geo.scale.z * z_max;
         z_min = geo.scale.z * z_min;
 
-
+        var scale = z_max - z_min;
+        var newPos = new THREE.Vector3( scale , scale/2, scale );
+        this.execute( new SetPositionCommand( this.camera, newPos ) );
 
     },
 

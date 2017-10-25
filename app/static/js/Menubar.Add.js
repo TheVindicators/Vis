@@ -29,7 +29,13 @@ Menubar.Add = function ( editor ) {
 		cameraCount = 0;
 
 	} );
-
+	/*
+    var light = new THREE.SpotLight( 0xffffff, 1, 0, Math.PI * 0.1, 0 );
+    light.name = 'SpotLight';
+    light.target.name = 'SpotLight Target';
+    light.position.set( 5000, 5500, 0 );
+    editor.execute( new AddObjectCommand( light ) );
+    */
     // Input Variables
 
     var check = false;                          // set a flag to check if button already pressed
@@ -69,17 +75,13 @@ Menubar.Add = function ( editor ) {
 	option.setTextContent( 'Antenna' );
 	option.onClick( function () {
 
-        if (check === true){                     // check if prior button state already displayed
-            options.newInput();                  // if so, remove the display
-            input_pane.remove(input);
-        }
-        check = true;                            // set flag to true as new display will populate
+            var right_wing = editor.getModel()[0];
+            var left_wing = editor.getModel()[1];
+            var y_slope = ( right_wing - left_wing ) / editor.getModelWingspan();
 
-        input = new UI.Button();                 // set input button spacing and function
-        input.setMarginLeft('42px');
-        input.setClass("input");
-        input.setTextContent("Enter");
-        input.onClick( function () {
+            var x_NG = y * y_slope;
+            var y_NG = ( z * z_slope ) + z_nose;
+            var z_NG = x_nose + ( x * x_slope );
 
             x = input_x.getValue();              // store entered values
             y = input_y.getValue();
