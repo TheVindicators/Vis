@@ -112,6 +112,32 @@ Sidebar.Scene = function ( editor ) {
 	backgroundRow.add( backgroundColor );
 
 	container.add( backgroundRow );
+    container.add( new UI.HorizontalRule() );
+
+	// Model Dimensions
+
+    container.add( new UI.Text( 'Aircraft Dimensions (meters)' ) );
+    container.add( new UI.Break() );
+    container.add( new UI.Break() );
+
+    var lengthRow = new UI.Row();
+    var length = new UI.Number().setWidth( '50px' ).onChange( update );
+    lengthRow.add( new UI.Text( 'Length' ).setMarginLeft('15px').setWidth( '120px' ) );
+    lengthRow.add( length );
+
+    var wingspanRow = new UI.Row();
+    var wingspan = new UI.Number().setWidth( '50px' ).onChange( update );
+    wingspanRow.add( new UI.Text( 'Wingspan' ).setMarginLeft('15px').setWidth( '120px' ) );
+    wingspanRow.add( wingspan );
+
+    var heightRow = new UI.Row();
+    var height = new UI.Number().setWidth( '50px' ).onChange( update );
+    heightRow.add( new UI.Text( 'Height (nose up)' ).setMarginLeft('15px').setWidth( '120px' ) );
+    heightRow.add( height );
+
+    container.add( lengthRow );
+    container.add( wingspanRow );
+    container.add( heightRow );
 
 	// fog
 
@@ -184,6 +210,10 @@ Sidebar.Scene = function ( editor ) {
 
 		options.push( buildOption( camera, false ) );
 		options.push( buildOption( scene, false ) );
+
+		length.setValue( editor.getModelLength() );                // refresh entered dimensions back for display
+        wingspan.setValue( editor.getModelWingspan() );
+        height.setValue( editor.getModelHeight() );
 
 		( function addObjects( objects, pad ) {
 
@@ -287,6 +317,12 @@ Sidebar.Scene = function ( editor ) {
 		outliner.setValue( object !== null ? object.id : null );
 
 	} );
+
+    function update() {
+
+    	editor.setModelDimensions( length.getValue(), wingspan.getValue(), height.getValue() )
+
+    }
 
 	return container;
 

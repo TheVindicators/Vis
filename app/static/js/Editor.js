@@ -6,11 +6,11 @@ var Editor = function () {
 
 	this.DEFAULT_CAMERA = new THREE.PerspectiveCamera( 50, 1, 0.1, 10000 );
 	this.DEFAULT_CAMERA.name = 'Camera';
-	this.DEFAULT_CAMERA.position.set( 1800, 1500, 3600 );
+	this.DEFAULT_CAMERA.position.set( 20, 10, 20 );
 	this.DEFAULT_CAMERA.lookAt( new THREE.Vector3() );
 	this.project_uuid = "";
 
-	var Signal = signals.Signal;
+    var Signal = signals.Signal;
 
 	this.signals = {
 
@@ -96,6 +96,18 @@ var Editor = function () {
 	this.helpers = {};
 
 };
+
+var length = 20;
+var wingspan = 15;
+var height = 5;
+var x_max = 0;
+var x_min = 0;
+var y_max = 0;
+var y_min = 0;
+var z_max = 0;
+var z_min = 0;
+var z_short = 0;
+var y_short = 0;
 
 Editor.prototype = {
 
@@ -462,6 +474,15 @@ Editor.prototype = {
 		this.deselect();
 
 		this.signals.editorCleared.dispatch();
+        length = 20;
+        wingspan = 15;
+        height = 5;
+        x_max = 0;
+        x_min = 0;
+        y_max = 0;
+        y_min = 0;
+        z_max = 0;
+        z_min = 0;
 
 	},
 
@@ -555,6 +576,128 @@ Editor.prototype = {
 
 		this.history.redo();
 
-	}
+	},
+
+	getModelLength: function() {                           // return model length
+
+        return length;
+
+    },
+
+    getModelWingspan: function() {                         // return model wingspan
+
+        return wingspan;
+
+    },
+
+    getModelHeight: function() {                           // return model height (nose up)
+
+        return height;
+
+    },
+
+    setModelDimensions: function( len, wing, heigh ) {     // set input model dimensions
+
+		length = len;
+		wingspan = wing;
+		height = heigh;
+
+    },
+
+    setModel: function ( geo ){
+
+        for ( var i = 0; i < geo.children.length; i++ ){          // loop through each vertex of the model
+            var type = geo.children[i].geometry;
+            if ( type.type === "BufferGeometry" ) {               // check if object makeup is of type "BufferGeometry"
+                var next = type.attributes.position.array;
+                for (var j = 0; j < next.length; j = j + 3) {
+                    if ( next[j] > x_max ) {                      // store the max and min value on each axis
+                        x_max = next[j];
+                    }
+                    if ( next[j] < x_min ) {
+                        x_min = next[j];
+                    }
+                    if ( next[j + 1] > y_max ) {
+                        y_max = next[j + 1];
+                    }
+                    if ( next[j + 1] < y_min ) {
+                    	y_min = next[j + 1];
+					}
+                    if ( next[j + 2] > z_max ) {
+                        z_max = next[j + 2];
+                        y_short = next[j + 1];                    // for a converted zero base for z, store the associated minimum at the nose of the model
+                }
+                    if ( next[j + 2] < z_min ) {
+                    	z_min = next[j + 2];
+                        z_short = next[j + 1];
+					}
+                }
+            }
+            else if ( type.type === "Geometry" ){                 // check if makeup is of type "Geometry"
+                var next = type.vertices;                         // perform same steps as "BufferGeometry"
+                for ( var j = 0; j < next.length; j++ ) {
+                    if ( next[j].x > x_max ) {
+                        x_max = next[j].x;
+                    }
+                    if ( next[j].x < x_min ) {
+                        x_min = next[j].x;
+                    }
+                    if ( next[j].y > y_max ) {
+                        y_max = next[j].y;
+                    }
+                    if ( next[j].y < y_min ) {
+                        y_min = next[j].y;
+                    }
+                    if ( next[j].z > z_max ) {
+                        z_max = next[j].z;
+                        y_short = next[j].y;
+                    }
+                    if ( next[j].z < z_min ) {
+                    	z_min = next[j].z;
+                        z_short = next[j].y;
+					}
+                }
+            }
+        }
+
+        if ( geo.name === "A-10 Thunderbolt II" ){                // since A-10 model generates backwards, flip z axis results
+
+        	var temp = z_max;
+        	z_max = ( z_min * -1 ) - .2;
+        	z_min = temp * -1;
+        	y_min = z_short + .4;                                 // set y minimum
+
+        	var newRotation = new THREE.Euler( 0, 180 * THREE.Math.DEG2RAD, 0 );          // rotate model accordingly
+            this.execute( new SetRotationCommand( geo, newRotation ) );
+
+		}
+		else {
+        	y_min = y_short;               // for all other models set y minimum
+		}
+
+        x_max = geo.scale.x * x_max;       // scale each value according to the model's preset scale
+        x_min = geo.scale.x * x_min;
+        y_max = geo.scale.y * y_max;
+        y_min = geo.scale.y * y_min;
+        z_max = geo.scale.z * z_max;
+        z_min = geo.scale.z * z_min;
+
+
+
+    },
+
+    getModel: function (){                 // return all axis extreme values
+
+        var array = new Object();
+        array[0] = x_max;
+        array[1] = x_min;
+        array[2] = y_max;
+        array[3] = y_min;
+        array[4] = z_max;
+        array[5] = z_min;
+        return array;
+
+    }
+
 
 };
