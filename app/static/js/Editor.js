@@ -696,7 +696,9 @@ Editor.prototype = {
         z_max = geo.scale.z * z_max;
         z_min = geo.scale.z * z_min;
 
-
+        var scale = z_max - z_min;
+        var newPos = new THREE.Vector3( scale , scale/2, scale );
+        this.execute( new SetPositionCommand( this.camera, newPos ) );
 
     },
 
