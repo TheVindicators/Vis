@@ -94,6 +94,7 @@ config.py
 vis.sock
 vis.log
 app/json_save_states
+app/conversion_work
 
 # Mac stuff
 .DS_Store

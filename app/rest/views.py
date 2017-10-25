@@ -1,7 +1,7 @@
 from flask import render_template, request, current_app
 from werkzeug.utils import secure_filename
 from . import rest
-import json, uuid, os, subprocess
+import json, uuid, os, subprocess, time
 
 
 #This URL (website.com/rest/debug) is used to test the website and provide debug output. It's really only a developer tool.
@@ -20,10 +20,12 @@ def convert_object():
     if request.method == "POST":
         try:
             file_data = request.data
-            with open("temp.flt", 'w+') as flt_file:
+            temp_file_name = str(int(time.time()))
+            with open(current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".flt", 'w+') as flt_file:
                 flt_file.write(file_data)
-            subprocess.check_output("osgconv temp.flt temp.obj", shell=True)
-            with open("temp.obj", 'r') as converted_file:
+            print "osgconv " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".flt " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".obj"
+            subprocess.check_output("osgconv " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".flt " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".obj", shell=True)
+            with open(current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".obj", 'r') as converted_file:
                 print "Nice, let's get this out onto a tray."
                 return converted_file.read()
         except Exception as e:
