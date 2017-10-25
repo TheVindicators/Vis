@@ -171,24 +171,24 @@ var Loader = function ( editor ) {
 
 
 			case 'flt':
-				reader.addEventListener( 'load', function ( event ) {
-
-					var contents = event.target.result;
-
-					var object = new THREE.OBJLoader().parse( contents );
-					object.name = filename;
-
-					editor.execute( new AddObjectCommand( object ) );
-				}, false);
-
 					var xhr = new XMLHttpRequest();
 					xhr.onreadystatechange = function() {
 				if (this.readyState == 4 && this.status == 200) {
-						reader.readAsText( this.responseText );
+						console.log("Loading converted FLT->OBJ");
+						var contents = this.responseText;
+
+						var object = new THREE.OBJLoader().parse( contents );
+						object.name = filename;
+
+						editor.execute( new AddObjectCommand( object ) );
 				}
 			};
 					xhr.open('POST', '/rest/convert_object');
 					xhr.send(file);
+
+
+
+
 
 				break;
 

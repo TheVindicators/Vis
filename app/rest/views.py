@@ -22,12 +22,12 @@ def convert_object():
             file_data = request.data
             with open("temp.flt", 'w+') as flt_file:
                 flt_file.write(file_data)
-            subprocess.check_output("osgconv temp.flt temp.obj")
+            subprocess.check_output("osgconv temp.flt temp.obj", shell=True)
             with open("temp.obj", 'r') as converted_file:
                 print "Nice, let's get this out onto a tray."
                 return converted_file.read()
-        except as err:
-            return str(err)
+        except Exception as e:
+            return str(e)
 
 
 
