@@ -384,22 +384,36 @@ Editor.prototype = {
 	//
 
 	select: function ( object ) {
-
 		if ( this.selected === object ) return;
+		
+		if(this.scene == object || this.scene === object.parent){
+			var uuid = null;
 
-		var uuid = null;
+			if ( object !== null ) {
+	
+				uuid = object.uuid;
+	
+			}
 
-		if ( object !== null ) {
+			this.selected = object;
 
-			uuid = object.uuid;
+			this.config.setKey( 'selected', uuid );
+			this.signals.objectSelected.dispatch( object );
+			
+		} else {
+			var uuid = null;
 
+			if ( object.parent !== null ) {
+	
+				uuid = object.parent.uuid;
+	
+			}
+
+			this.selected = object.parent;
+
+			this.config.setKey( 'selected', uuid );
+			this.signals.objectSelected.dispatch( object.parent );
 		}
-
-		this.selected = object;
-
-		this.config.setKey( 'selected', uuid );
-		this.signals.objectSelected.dispatch( object );
-
 	},
 
 	selectById: function ( id ) {
