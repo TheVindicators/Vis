@@ -26,16 +26,20 @@ Menubar.Help = function ( editor ) {
 		window.open( 'https://github.com/mrdoob/three.js/tree/master/editor', '_blank' )
 
 	} );
-	options.add( option );
+	//options.add( option );
 
 	// About
 
 	var option = new UI.Row();
 	option.setClass( 'option' );
-	option.setTextContent( 'About' );
+	option.setTextContent( 'How To' );
 	option.onClick( function () {
 
-		window.open( 'http://threejs.org', '_blank' );
+        document.getElementById('readme').style.display = "block";
+        var but = document.getElementById('input');
+        but.onclick = function () {
+            document.getElementById('readme').style.display = "none";
+        }
 
 	} );
 	options.add( option );
