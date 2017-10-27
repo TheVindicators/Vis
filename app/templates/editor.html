@@ -26,7 +26,7 @@
 		text-decoration: none;
 		}
 		.popup {
-		display: block;
+		display: none;
 		position: fixed;
 		z-index: 1;
 		padding-top: 100px;
@@ -45,17 +45,10 @@
 		border: 1px solid #888;
 		width: 675px;
 		}
-		.close-win {
-		color: #aaaaaa;
-		float: right;
-		font-size: 28px;
-		font-weight: bold;
-		}
-		.close-win:hover,
-		.close-win:focus {
-		color: #000;
-		text-decoration: none;
-		cursor: pointer;
+		.center {
+			margin: auto;
+			width: 10%;
+			padding: 10px;
 		}
 		</style>
 	</head>
@@ -153,6 +146,7 @@
 		<script src="/static/js/Menubar.File.js"></script>
 		<script src="/static/js/Menubar.Edit.js"></script>
 		<script src="/static/js/Menubar.Add.js"></script>
+		<script src="/static/js/Menubar.Help.js"></script>
 		<script src="/static/js/Menubar.Status.js"></script>
 		<script src="/static/js/Sidebar.js"></script>
 		<script src="/static/js/Sidebar.Scene.js"></script>
@@ -448,74 +442,75 @@
 			}, false );
 			*/
 
-		function loadProject(uuid) {
-			editor.clear();
-			editor.storage.clear();
-			editor.storage.get( uuid, function ( state ) {
+	       	function loadProject(uuid) {
+	       		editor.clear();
+	       		editor.storage.clear();
+	       		editor.storage.get( uuid, function ( state ) {
 
-				if ( state !== undefined ) {
+	       			if ( state !== undefined ) {
 
-					editor.fromJSON( state );
+	       				editor.fromJSON( state );
 
-				}
-					editor.project_uuid = uuid;
+	       			}
+	       				editor.project_uuid = uuid;
 
-			} );
+	       		} );
 
-			document.getElementById('myModal').style.display = "none";
-		}
+	       		document.getElementById('myModal').style.display = "none";
+	       	}
 
-		function fetchStates() {
-			var fs = new XMLHttpRequest();
-			fs.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-				 var all_uuids = this.responseText.split(",");
-				 saves.innerHTML = "";
-				 for (var i = 0; i < all_uuids.length; i++)
+	       	function fetchStates() {
+	       		var fs = new XMLHttpRequest();
+	       		fs.onreadystatechange = function() {
+	       	    if (this.readyState == 4 && this.status == 200) {
+	       			 var all_uuids = this.responseText.split(",");
+	       			 saves.innerHTML = "";
+	       			 for (var i = 0; i < all_uuids.length; i++)
 
-				 saves.insertAdjacentHTML("beforeend", "<a href=\"#\" onClick=\"loadProject('" + all_uuids[i] + "');\" class=\"list-group-item list-group-item-action\">" + all_uuids[i] + "</a>");
- 					//document.getElementById("saves").insertAdjacentHTML()
+	       			 saves.insertAdjacentHTML("beforeend", "<a href=\"#\" onClick=\"loadProject('" + all_uuids[i] + "');\" class=\"list-group-item list-group-item-action\">" + all_uuids[i] + "</a>");
+ 	       				//document.getElementById("saves").insertAdjacentHTML()
+	       		}
+	       		};
+	       		fs.open("GET", "/rest/resume_state/", true);
+	       		fs.send();
+	       	}
 
-		}
-};
-				fs.open("GET", "/rest/resume_state/", true);
-				fs.send();
+	       	var span = document.getElementsByClassName("close-win");
+			span.onclick = function () {
+				document.getElementById('readme').style.display = "none";
+			}
+
+	       	</script>
 
 
-		}
+	       	<!-- The Modal -->
+	       	<div id="myModal" class="modal">
 
-		</script>
+	       	  <!-- Modal content -->
+	       	  <div class="modal-content">
+	       			<div id="saves" class="list-group">
 
-
-		<!-- The Modal -->
-		<div id="myModal" class="modal">
-
-		  <!-- Modal content -->
-		  <div class="modal-content">
-				<div id="saves" class="list-group">
-
-				</div>
-		  </div>
-		</div>
-		<!--
-		<div id="readme" class="popup">
-			<div class="popup-content">
-				<span class="close-win">&times;</span>
-				<h2>Hello, and Welcome to Vis: Web Visualizer!</h2>
-				<p>Please read the following information before continuing:</p>
-				<ul>
-					<li>To load a previous session, click on File -> Load, then select from the popup box</li>
-					<li>To import a model, go to File -> Import</li>
-					<li>Once imported, adjust the aircraft dimensions on the right to match that of your selected model</li>
-					<li>To add an antenna, click on Add -> Antenna and then enter in the desired starting coordinates</li>
-					<li>To start a new visualization, press File -> New</li>
-					<li>When an object is selected, you can adjust various characteristics from 'Object' menu on the sidebar</li>
-					<li>You may also move an antenna along any axis by moving the axis arrows once it's selected</li>
-				</ul>
-				<p>If you do notice any issues with the application, please let us know on our github page. Enjoy!</p>
-			</div>
-		</div>
-		-->
-		</div>
+	       			</div>
+	       	  </div>
+	       	</div>
+	       	<div id="readme" class="popup">
+	       		<div class="popup-content">
+	       			<h2>Hello, and Welcome to Vis: Web Visualizer!</h2>
+	       			<p>Please read the following information before continuing:</p>
+	       			<ul>
+						<li>To start a new visualization, press File -> New</li>
+						<li>To load a previous session, click on File -> Load, then select from the popup box</li>
+						<li>To import a model, go to File -> Import</li>
+						<li>Once imported, adjust the aircraft dimensions on the right to match that of your selected model</li>
+						<li>To add an antenna, click on Add -> Antenna and then enter in the desired starting coordinates</li>
+	       				<li>When an object is selected, you can adjust various characteristics from 'Object' menu on the sidebar</li>
+	       				<li>You may also move an antenna along any axis by moving the axis arrows once it's selected</li>
+	       			</ul>
+	       			<p>If you do notice any issues with the application, please let us know on our github page. Enjoy!</p>
+					<div class="center">
+						<button id="input">Got It</button>
+					</div>
+	       		</div>
+	       	</div>
 	</body>
 </html>
