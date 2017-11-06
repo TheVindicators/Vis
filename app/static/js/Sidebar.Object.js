@@ -268,6 +268,15 @@ Sidebar.Object = function ( editor ) {
 
     container.add( materialWireframeRow );
 
+    //snap button
+    var snapButtonRow = new UI.Row();
+    var snapButton = new UI.Button( 'Snap' ).setMarginLeft( '7px' ).onClick( function(){} );
+
+    snapButtonRow.add( new UI.Text( 'Snapping' ).setWidth( '90px ') );
+    snapButtonRow( snapButton );
+
+    container.add( snapButtonRow );
+
     // user data
 
     var timeout;
