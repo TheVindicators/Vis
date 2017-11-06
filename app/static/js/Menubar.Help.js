@@ -77,7 +77,7 @@ Menubar.Help = function ( editor ) {
     option.setTextContent( 'Leave Feedback' );
     option.onClick( function () {
 
-        window.open( 'https://docs.google.com/forms/d/e/1FAIpQLSd-ruWSfoWmraXibXSOOzVwI7VNOERSUqEyeJ8dPQ_XdbOv8g/viewform' );
+        window.open( 'https://docs.google.com/forms/d/e/1FAIpQLSd-ruWSfoWmraXibXSOOzVwI7VNOERSUqEyeJ8dPQ_XdbOv8g/viewform?usp=sf_link' );
 
     } );
     options.add( option );
