@@ -1,7 +1,7 @@
 from flask import render_template, request, current_app
 from werkzeug.utils import secure_filename
 from . import rest
-import json, uuid, os
+import json, uuid, os,time
 
 
 #This URL (website.com/rest/debug) is used to test the website and provide debug output. It's really only a developer tool.
@@ -17,7 +17,15 @@ def rest_debug():
 #javascript requests is an absolute must to prevent client lockup.
 @rest.route('/convert_object', methods=["GET", "POST"])
 def convert_object():
-    return "<json file of converted object here>"
+    if request.method == "POST":
+        file = request.data
+        filename = time.time()
+        with open(secure_filename(str(filename)) + ".flt", 'w+') as save_state_file:
+            save_state_file.write(file)
+        osgconv = " osgconv " + filename + ".flt "  + filename + ".obj "
+        subprocess.check_output(osgconv,shell=True)
+        with open(secure_filename(str(filename)) + ".obj", 'r') as save_state_file:
+            return save_state_file.read()
 
 
 
