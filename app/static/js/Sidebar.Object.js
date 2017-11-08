@@ -273,7 +273,7 @@ Sidebar.Object = function ( editor ) {
     var snapButton = new UI.Button( 'Snap' ).setMarginLeft( '7px' ).onClick( function(){} );
 
     snapButtonRow.add( new UI.Text( 'Snapping' ).setWidth( '90px ') );
-    snapButtonRow( snapButton );
+    snapButtonRow.add( snapButton );
 
     container.add( snapButtonRow );
 
