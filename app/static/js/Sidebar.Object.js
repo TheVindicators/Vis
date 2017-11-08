@@ -261,8 +261,8 @@ Sidebar.Object = function ( editor ) {
 
     //wireframe
     var materialWireframeRow = new UI.Row();
-    var materialWireframe = new UI.Checkbox( false ).onChange( update );
-
+    //var materialWireframe = new UI.Checkbox( false ).onChange( update );
+    var materialWireframe = new UI.Checkbox(false).onChange( update );
     materialWireframeRow.add( new UI.Text( 'Wireframe' ).setWidth( '90px' ) );
     materialWireframeRow.add( materialWireframe );
 
@@ -485,6 +485,11 @@ Sidebar.Object = function ( editor ) {
               }
 
               editor.execute( new MultiCmdsCommand(cmds) );
+
+            }
+            //Added
+            if ( object.WireFrame !== materialWireframe.getValue() ) {
+                editor.execute( new SetValueCommand( object, 'Wireframe', materialWireframe.getValue() ) );
 
             }
 
@@ -719,9 +724,16 @@ Sidebar.Object = function ( editor ) {
             objectShadowRadius.setValue( object.shadow.radius );
 
         }
+        //Added
+        /*if ( object.visible !== objectVisible.getValue() ) {
 
+            editor.execute( new SetValueCommand( object, 'visible', objectVisible.getValue() ) );
+
+        }*/
         objectVisible.setValue( object.visible );
-
+        //Added
+        //materialWireframe.setValue(object.Wireframe);
+        materialWireframe.setValue( (editor.getObjectMaterial((object.children)[0])).wireframe );
         try {
 
             objectUserData.setValue( JSON.stringify( object.userData, null, '  ' ) );
