@@ -156,27 +156,43 @@ var Viewport = function ( editor ) {
 
 			var intersects = getIntersects( onUpPosition, objects );
 
-			if ( intersects.length > 0 ) {
+			//if ( editor.getAntennaSnapping() ) {
 
-				var object = intersects[ 0 ].object;
+				if (intersects.length>0) {
+					var localPoint = interestsRay[0].point;
+					var geometry = new THREE.SphereBufferGeometry( radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength );
+            		var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+            		var mesh = new THREE.Mesh( geometry, material );
+            		mesh.name = 'Antenna' + ( ++ meshCount );
 
-				if ( object.userData.object !== undefined ) {
+            		editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( localPoint.x, loclaPoint.y, localPoint.z ) ) );     // move object to desired coordinates
+            		editor.execute( new AddObjectCommand( mesh ) );
+
+				}
+			//} else {
+
+				if ( intersects.length > 0 ) {
+
+					var object = intersects[ 0 ].object;
+
+					if ( object.userData.object !== undefined ) {
 
 					// helper
 
-					editor.select( object.userData.object );
+						editor.select( object.userData.object );
+
+					} else {
+
+						editor.select( object );
+
+					}
 
 				} else {
 
-					editor.select( object );
+					editor.select( null );
 
 				}
-
-			} else {
-
-				editor.select( null );
-
-			}
+			//}
 
 			render();
 

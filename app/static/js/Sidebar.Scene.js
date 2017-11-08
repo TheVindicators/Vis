@@ -139,6 +139,20 @@ Sidebar.Scene = function ( editor ) {
     container.add( wingspanRow );
     container.add( heightRow );
 
+    // snapping
+    container.add( new UI.HorizontalRule() );
+    var isSnapOn = false;
+    var snapRow = new UI.Row();
+    var snapBox = new UI.Checkbox( false ).onChange( function(){
+
+    	isSnapOn = !isSnapOn;
+    	editor.setAntennaSnapping(isSnapOn);
+    });
+
+    snapRow.add( new UI.Text( 'Antenna Snapping' ).setWidth( '150px' ) );
+    snapRow.add( snapBox );
+
+    container.add( snapRow );
 	// fog
 
 	function onFogChanged() {
