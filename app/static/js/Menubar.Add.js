@@ -29,7 +29,13 @@ Menubar.Add = function ( editor ) {
 		cameraCount = 0;
 
 	} );
-
+	/*
+    var light = new THREE.SpotLight( 0xffffff, 1, 0, Math.PI * 0.1, 0 );
+    light.name = 'SpotLight';
+    light.target.name = 'SpotLight Target';
+    light.position.set( 5000, 5500, 0 );
+    editor.execute( new AddObjectCommand( light ) );
+    */
     // Input Variables
 
     var check = false;                          // set a flag to check if button already pressed
@@ -53,7 +59,7 @@ Menubar.Add = function ( editor ) {
     var input_z = new UI.Number().setWidth( '28px' );
 
     input_pane.add(text);                       // ready all contents to be displayed once added to the main panel
-    input_row.add(text_x);
+	input_row.add(text_x);
     input_row.add(input_x);
     input_row.add(text_y);
     input_row.add(input_y);
@@ -109,20 +115,11 @@ Menubar.Add = function ( editor ) {
             var thetaStart = 0;
             var thetaLength = Math.PI;
 
-
-            var material = new THREE.MeshBasicMaterial( {color: 0xffffff, vertexColors: THREE.FaceColors} );
-            var geometry = new THREE.SphereGeometry( radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength );
-            for ( var i = 0; i < geometry.faces.length; i++ ){
-                var face = geometry.faces[i];
-                if ( i < 96 ) {
-                    face.color.setRGB( 0, 0, 256 );
-                }
-                else {
-                	face.color.setRGB( 256, 0, 0 );
-	    		}
-            }
+            var geometry = new THREE.SphereBufferGeometry( radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength );
+            var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
             var mesh = new THREE.Mesh( geometry, material );
-            mesh.name = 'Antenna' + ( ++meshCount );
+            mesh.name = 'Antenna' + ( ++ meshCount );
+			mesh.type = 'Antenna';
 
             editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( x_NG, y_NG, z_NG ) ) );     // move object to desired coordinates
 
