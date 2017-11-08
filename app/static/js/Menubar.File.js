@@ -103,6 +103,97 @@ Menubar.File = function ( editor ) {
 
 	} );
 	options.add( option );
+	
+	var xmlInput = document.createElement( 'input' );
+	xmlInput.type = 'file';
+	xmlInput.addEventListener( 'change', function ( event ) {
+		
+		var filename = (xmlInput.files[ 0 ].name);
+		var extension = filename.split( '.' ).pop().toLowerCase();
+		
+		if(extension === 'xml'){
+			var reader = new FileReader();
+			reader.addEventListener( 'load', function ( event ) {
+				var xmlString = event.target.result;
+			
+				xmlString = xmlString.replace(/\t/g, "");
+				xmlString = xmlString.replace(/<|>/g, " ");
+				xmlString = xmlString.split(/[\r\n]+/g);
+				for(var i = 0; i < xmlString.length; i++){
+					xmlString[i] = xmlString[i].substr(1);
+					xmlString[i] = xmlString[i].split(" ");
+				}
+			
+				var pos = 0;
+				while(xmlString[pos][0] !== "Antennas"){
+					pos++;
+				}
+			
+				if(xmlString[pos][0] === "Antennas"){
+					while(xmlString[pos][0] !== "/Antennas"){
+						if(xmlString[pos][0] === "Antenna"){
+							x = xmlString[pos+3][1];             // store entered values
+							y = xmlString[pos+4][1];
+							z = xmlString[pos+5][1];
+
+							var x_nose = editor.getModel()[4];                // convert entered values to meters coordinate system
+							var x_tail = editor.getModel()[5];
+							var x_slope = ( x_nose - x_tail ) / editor.getModelLength();
+	
+							var z_nose = editor.getModel()[3];
+							var z_tail = editor.getModel()[2];
+							var z_slope = ( z_nose - z_tail ) / editor.getModelHeight();
+	
+							var right_wing = editor.getModel()[0];
+							var left_wing = editor.getModel()[1];
+							var y_slope = ( right_wing - left_wing ) / editor.getModelWingspan();
+	
+							var x_NG = y * y_slope;
+							var y_NG = ( z * z_slope ) + z_nose;
+							var z_NG = x_nose + ( x * x_slope );
+	
+							var radius = ( right_wing - left_wing ) / 180;      // create sphere object according to model size
+							var widthSegments = 32;
+							var heightSegments = 16;
+							var phiStart = 0;
+							var phiLength = Math.PI * 2;
+							var thetaStart = 0;
+							var thetaLength = Math.PI;
+	
+							var geometry = new THREE.SphereBufferGeometry( radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength );
+							var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+							var mesh = new THREE.Mesh( geometry, material );
+							mesh.name = xmlString[pos+1][1];;
+							mesh.type = 'Antenna';
+	
+							editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( x_NG, y_NG, z_NG ) ) );     // move object to desired coordinates
+
+							editor.execute( new AddObjectCommand( mesh ) );        // add object to scene
+						
+						}
+						pos++;
+					}
+				}	
+			
+			}, false );
+			reader.readAsText( xmlInput.files[ 0 ] );
+		} else {
+			alert('Unsupported file format (' + extension +  ').');
+		}
+		form.reset();
+
+	} );
+	form.appendChild( xmlInput );
+	
+	var option = new UI.Row();
+	option.setClass( 'option' );
+	option.setTextContent( 'Import Antennas' );
+	option.onClick( function () {
+
+		xmlInput.click();
+
+	} );
+	options.add( option );
 
 	//
 
@@ -212,6 +303,48 @@ Menubar.File = function ( editor ) {
 
 	} );
 	options.add( option );
+	
+	var option = new UI.Row();
+	option.setClass( 'option' );
+	option.setTextContent( 'Export Antennas' );
+	option.onClick( function () {
+		var output = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+		var objects = editor.scene.children
+		
+        var right_wing = editor.getModel()[0];              // convert three.js coordinates back to meters for display
+        var left_wing = editor.getModel()[1];
+        var y_slope = ( right_wing - left_wing ) / editor.getModelWingspan();
+		
+		var z_nose = editor.getModel()[3];
+        var z_tail = editor.getModel()[2];
+        var z_slope = ( z_nose - z_tail ) / editor.getModelHeight();
+		
+		var x_nose = editor.getModel()[4];
+        var x_tail = editor.getModel()[5];
+        var x_slope = ( x_nose - x_tail ) / editor.getModelLength();
+		
+		output += "<Antennas>\n"
+		for ( var i = 0, l = objects.length; i < l; i ++ ) {
+			var object = objects[ i ];
+
+			if(object.type === 'Antenna'){
+				output += "\t<Antenna>\n";
+				output += "\t\t<Name>" + object.name + "</Name>\n";
+				
+				output += "\t\t<Coordinates>\n"
+				output += "\t\t\t<X>" + (Math.round((( object.position.z - x_nose ) / x_slope) * 100) / 100) + "</X>\n";
+				output += "\t\t\t<Y>" + (Math.round((object.position.x / y_slope) * 100) / 100) + "</Y>\n";
+				output += "\t\t\t<Z>" + (Math.round((( object.position.y - z_nose ) / z_slope) * 100) / 100) + "</Z>\n";
+				output += "\t\t</Coordinates>\n"
+				
+				output += "\t</Antenna>\n";
+			}
+		}
+		output += "</Antennas>";
+		saveString(output, 'Antennas.xml');
+	} );
+	options.add( option );
+		//var output = editor.scene.children
 
 	//
 
