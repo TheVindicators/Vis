@@ -97,17 +97,18 @@ var Editor = function () {
 
 };
 
-var length = 20;
-var wingspan = 15;
-var height = 5;
+var length = 0;
+var wingspan = 0;
+var height = 0;
 var x_max = 0;
 var x_min = 0;
 var y_max = 0;
 var y_min = 0;
 var z_max = 0;
 var z_min = 0;
-var z_short = 0;
-var y_short = 0;
+var x_short = [0, 0, 0, 0];
+var y_short = [0, 0, 0, 0];
+var z_short = [0, 0, 0, 0];
 
 Editor.prototype = {
 
@@ -474,6 +475,19 @@ Editor.prototype = {
 
 		var objects = this.scene.children;
 
+        length = 0;
+        wingspan = 0;
+        height = 0;
+        x_max = 0;
+        x_min = 0;
+        y_max = 0;
+        y_min = 0;
+        z_max = 0;
+        z_min = 0;
+        x_short = [0, 0, 0, 0];
+        y_short = [0, 0, 0, 0];
+        z_short = [0, 0, 0, 0];
+
 		while ( objects.length > 0 ) {
 
 			this.removeObject( objects[ 0 ] );
@@ -488,15 +502,7 @@ Editor.prototype = {
 		this.deselect();
 
 		this.signals.editorCleared.dispatch();
-        length = 20;
-        wingspan = 15;
-        height = 5;
-        x_max = 0;
-        x_min = 0;
-        y_max = 0;
-        y_min = 0;
-        z_max = 0;
-        z_min = 0;
+
 
 	},
 
@@ -612,94 +618,739 @@ Editor.prototype = {
 
     setModelDimensions: function( len, wing, heigh ) {     // set input model dimensions
 
-		length = len;
-		wingspan = wing;
-		height = heigh;
+        length = parseFloat(len);
+        wingspan = parseFloat(wing);
+        height = parseFloat(heigh);
 
     },
 
     setModel: function ( geo ){
 
-        for ( var i = 0; i < geo.children.length; i++ ){          // loop through each vertex of the model
+        for ( var i = 0; i < geo.children.length; i++ ){             // check each face of the model to determine extreme points
             var type = geo.children[i].geometry;
-            if ( type.type === "BufferGeometry" ) {               // check if object makeup is of type "BufferGeometry"
+            if ( type.type === "BufferGeometry" ) {                  // for type BufferGeometry
                 var next = type.attributes.position.array;
-                for (var j = 0; j < next.length; j = j + 3) {
-                    if ( next[j] > x_max ) {                      // store the max and min value on each axis
+                for (var j = 0; j < next.length; j = j + 3) {        // iterate through every third facet
+                    if ( next[j] > x_max ) {                         // if value is more or less than the highest or lowest x, y, or z: replace
                         x_max = next[j];
+                        y_short[0] = next[j + 1];                    // store the two associated coordinates for the max/min
+                        z_short[0] = next[j + 2];
                     }
                     if ( next[j] < x_min ) {
                         x_min = next[j];
+                        y_short[1] = next[j + 1];
+                        z_short[1] = next[j + 2];
                     }
                     if ( next[j + 1] > y_max ) {
                         y_max = next[j + 1];
+                        x_short[0] = next[j];
+                        z_short[2] = next[j + 2];
                     }
                     if ( next[j + 1] < y_min ) {
-                    	y_min = next[j + 1];
-					}
+                        y_min = next[j + 1];
+                        x_short[1] = next[j];
+                        z_short[3] = next[j + 2];
+                    }
                     if ( next[j + 2] > z_max ) {
                         z_max = next[j + 2];
-                        y_short = next[j + 1];                    // for a converted zero base for z, store the associated minimum at the nose of the model
-                }
+                        x_short[2] = next[j];
+                        y_short[2] = next[j + 1];
+                    }
                     if ( next[j + 2] < z_min ) {
-                    	z_min = next[j + 2];
-                        z_short = next[j + 1];
-					}
+                        z_min = next[j + 2];
+                        x_short[3] = next[j];
+                        y_short[3] = next[j + 1];
+                    }
                 }
             }
-            else if ( type.type === "Geometry" ){                 // check if makeup is of type "Geometry"
-                var next = type.vertices;                         // perform same steps as "BufferGeometry"
-                for ( var j = 0; j < next.length; j++ ) {
+            else if ( type.type === "Geometry" ){                    // for type Geometry
+                var next = type.vertices;
+                for ( var j = 0; j < next.length; j++ ) {            // iterate through each coordinate set
                     if ( next[j].x > x_max ) {
                         x_max = next[j].x;
+                        y_short[0] = next[j].y;
+                        z_short[0] = next[j].z;
                     }
                     if ( next[j].x < x_min ) {
                         x_min = next[j].x;
+                        y_short[1] = next[j].y;
+                        z_short[1] = next[j].z;
                     }
                     if ( next[j].y > y_max ) {
                         y_max = next[j].y;
+                        x_short[0] = next[j].x;
+                        z_short[2] = next[j].z;
                     }
                     if ( next[j].y < y_min ) {
                         y_min = next[j].y;
+                        x_short[1] = next[j].x;
+                        z_short[3] = next[j].z;
                     }
                     if ( next[j].z > z_max ) {
                         z_max = next[j].z;
-                        y_short = next[j].y;
+                        x_short[2] = next[j].x;
+                        y_short[2] = next[j].y;
                     }
                     if ( next[j].z < z_min ) {
-                    	z_min = next[j].z;
-                        z_short = next[j].y;
-					}
+                        z_min = next[j].z;
+                        x_short[3] = next[j].x;
+                        y_short[3] = next[j].y;
+                    }
                 }
             }
         }
 
-        if ( geo.name === "A-10 Thunderbolt II" ){                // since A-10 model generates backwards, flip z axis results
-
-        	var temp = z_max;
-        	z_max = ( z_min * -1 ) - .2;
-        	z_min = temp * -1;
-        	y_min = z_short + .4;                                 // set y minimum
-
-        	var newRotation = new THREE.Euler( 0, 180 * THREE.Math.DEG2RAD, 0 );          // rotate model accordingly
-            this.execute( new SetRotationCommand( geo, newRotation ) );
-
-		}
-		else {
-        	y_min = y_short;               // for all other models set y minimum
+        var delta_x = Math.abs( x_max - x_min );      // check which axis provides the largest/smallest difference in points
+        var delta_y = Math.abs( y_max - y_min );
+        var delta_z = Math.abs( z_max - z_min );
+		var wings = true;                             // set flag if wingspan > length
+		if ( length > wingspan ){
+			wings = false;
 		}
 
-        x_max = geo.scale.x * x_max;       // scale each value according to the model's preset scale
+        /**
+         * For each of the scenarios below, the extreme values of each axis
+         * are used to determine the exact direction and orientation the model
+         * is facing to rotate and scale accordingly to match the THREE.js
+         * default viewpoint of positive z, x, and y.
+         *
+         *  Assumptions made:
+         *  - Wing tips are closer to the tail of the plane than to the nose
+         *  - Nose is closer to the bottom  the plane than the top
+         *
+         *  Using the information acquired from the model facets, the direction
+         * the model is facing (axis-wise) can be determined. From there, the
+         * assumptions made are taken into account to determine the exact
+         * orientation of the model whether it be facing positive or negative
+         * along each associated axis. With all information compiled,
+         * coordinates are swapped to reflect the standard model orientation
+         * and facing direction and the model is likewise rotated to visibly
+         * show such changes.
+         */
+
+        // if the wingspan is greater than length
+        if ( wings ) {
+            if (delta_z > delta_y && delta_z > delta_x) {
+                if (delta_x > delta_y) {
+                    if ( Math.abs(x_short[2] - x_max) > Math.abs(x_short[2] - x_min) ){
+                        if ( Math.abs(y_short[0] - y_max) > Math.abs(y_short[0] - y_min) ){
+                            y_min = y_short[0];
+                            var temp = x_max;
+                            var temp2 = x_min;
+                            x_max = z_max;
+                            x_min = z_min;
+                            z_max = temp;
+                            z_min = temp2;
+                            geo.rotateY(-90 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            y_max = y_short[0];
+                            var temp = x_max;
+                            var temp2 = x_min;
+                            x_max = z_max;
+                            x_min = z_min;
+                            z_max = temp;
+                            z_min = temp2;
+                            y_max = y_min * -1;
+                            y_min = y_max * -1;
+                            geo.rotateX(180 * THREE.Math.DEG2RAD);
+                            geo.rotateY(-90 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                    else {
+                        if ( Math.abs(y_short[1] - y_max) > Math.abs(y_short[1] - y_min) ){
+                            y_min = y_short[1];
+                            var temp = x_max;
+                            var temp2 = x_min;
+                            x_max = z_max;
+                            x_min = z_min;
+                            z_max = temp2 * -1;
+                            z_min = temp * -1;
+                            geo.rotateY(90 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            y_max = y_short[1];
+                            var temp = x_max;
+                            var temp2 = x_min;
+                            x_max = z_max;
+                            x_min = z_min;
+                            z_max = temp2 * -1;
+                            z_min = temp * -1;
+                            y_max = y_min * -1;
+                            y_min = y_max * -1;
+                            geo.rotateX(180 * THREE.Math.DEG2RAD);
+                            geo.rotateY(90 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                }
+                else {
+                    if ( Math.abs(y_short[2] - y_max) > Math.abs(y_short[2] - y_min) ){
+                        if ( Math.abs(x_short[0] - x_max) > Math.abs(x_short[0] - x_min) ){
+                            x_min = x_short[0];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = x_max;
+                            y_min = x_min;
+                            x_max = z_max;
+                            x_min = z_min;
+                            z_max = temp;
+                            z_min = temp2;
+                            geo.rotateY(90 * THREE.Math.DEG2RAD);
+                            geo.rotateZ(90 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            x_max = x_short[0];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = x_min * -1;
+                            y_min = x_max * -1;
+                            x_max = z_max;
+                            x_min = z_min;
+                            z_max = temp;
+                            z_min = temp2;
+                            geo.rotateY(-90 * THREE.Math.DEG2RAD);
+                            geo.rotateZ(-90 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                    else {
+                        if ( Math.abs(x_short[1] - x_max) > Math.abs(x_short[1] - x_min) ){
+                            x_min = x_short[1];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = x_max;
+                            y_min = x_min;
+                            x_max = z_max;
+                            x_min = z_min;
+                            z_max = temp2 * -1;
+                            z_min = temp * -1;
+                            geo.rotateY(-90 * THREE.Math.DEG2RAD);
+                            geo.rotateZ(90 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            x_max = x_short[1];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = x_min * -1;
+                            y_min = x_max * -1;
+                            x_max = z_max;
+                            x_min = z_min;
+                            z_max = temp2 * -1;
+                            z_min = temp * -1;
+                            geo.rotateY(90 * THREE.Math.DEG2RAD);
+                            geo.rotateZ(-90 * THREE.Math.DEG2RAD);
+                        }
+                    }
+
+                }
+            }
+            else if (delta_y > delta_x && delta_y > delta_z) {
+                if (delta_z > delta_x) {
+                    if ( Math.abs(z_short[2] - z_max) > Math.abs(z_short[2] - z_min) ){
+                        if ( Math.abs(x_short[2] - x_max) > Math.abs(x_short[2] - x_min) ){
+                            x_min = x_short[2];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = x_max;
+                            y_min = x_min;
+                            x_max = temp;
+                            x_min = temp2;
+                            geo.rotateZ(90 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            x_max = x_short[2];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = x_min * -1;
+                            y_min = x_max * -1;
+                            x_max = temp;
+                            x_min = temp2;
+                            geo.rotateZ(-90 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                    else {
+                        if ( Math.abs(x_short[3] - x_max) > Math.abs(x_short[3] - x_min) ){
+                            x_min = x_short[3];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = x_max;
+                            y_min = x_min;
+                            x_max = temp;
+                            x_min = temp2;
+                            z_max = z_min * -1;
+                            z_min = z_max * -1;
+                            geo.rotateZ(90 * THREE.Math.DEG2RAD);
+                            geo.rotateY(180 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            x_max = x_short[3];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = x_min * -1;
+                            y_min = x_max * -1;
+                            x_max = temp;
+                            x_min = temp2;
+                            z_max = z_min * -1;
+                            z_min = z_max * -1;
+                            geo.rotateZ(-90 * THREE.Math.DEG2RAD);
+                            geo.rotateY(180 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                }
+                else {
+                    if ( Math.abs(x_short[0] - x_max) > Math.abs(x_short[0] - x_min) ){
+                        if ( Math.abs(z_short[0] - z_max) > Math.abs(z_short[0] - z_min) ){
+                            z_min = z_short[0];
+                            var temp = x_max;
+                            var temp2 = x_min;
+                            x_max = y_max;
+                            x_min = y_min;
+                            y_max = z_max;
+                            y_min = z_min;
+                            z_max = temp;
+                            z_min = temp2;
+                            geo.rotateX(-90 * THREE.Math.DEG2RAD);
+                            geo.rotateY(-90 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            z_min = z_short[1];
+                            var temp = x_max;
+                            var temp2 = x_min;
+                            x_max = y_max;
+                            x_min = y_min;
+                            y_max = z_min * -1;
+                            y_min = z_max * -1;
+                            z_max = temp;
+                            z_min = temp2;
+                            geo.rotateX(90 * THREE.Math.DEG2RAD);
+                            geo.rotateY(-90 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                    else {
+                        if ( Math.abs(z_short[1] - z_max) > Math.abs(z_short[1] - z_min) ){
+                            z_min = z_short[0];
+                            var temp = x_max;
+                            var temp2 = x_min;
+                            x_max = y_max;
+                            x_min = y_min;
+                            y_max = z_max;
+                            y_min = z_min;
+                            z_max = temp2 * -1;
+                            z_min = temp * -1;
+                            geo.rotateX(-90 * THREE.Math.DEG2RAD);
+                            geo.rotateY(90 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            z_min = z_short[1];
+                            var temp = x_max;
+                            var temp2 = x_min;
+                            x_max = y_max;
+                            x_min = y_min;
+                            y_max = z_min * -1;
+                            y_min = z_max * -1;
+                            z_max = temp2 * -1;
+                            z_min = temp * -1;
+                            geo.rotateX(90 * THREE.Math.DEG2RAD);
+                            geo.rotateY(90 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                }
+            }
+            else {
+                if (delta_z > delta_y) {
+                    if ( Math.abs(z_short[0] - z_max) > Math.abs(z_short[0] - z_min) ){
+                        if ( Math.abs(y_short[2] - y_max) > Math.abs(y_short[2] - y_min) ){
+                            y_min = y_short[2];
+                        }
+                        else {
+                            y_max = y_min * -1;
+                            y_min = y_short[2] * -1;
+                            geo.rotateZ(180 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                    else {
+                        if ( Math.abs(y_short[3] - y_max) > Math.abs(y_short[3] - y_min) ){
+                            y_min = y_short[3];
+                            z_max = z_min * -1;
+                            z_min = z_max * -1;
+                            geo.rotateY(180 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            y_max = y_max * -1;
+                            y_min = y_short[3] * -1;
+                            z_max = z_min * -1;
+                            z_min = z_max * -1;
+                            geo.rotateY(180 * THREE.Math.DEG2RAD);
+                            geo.rotateZ(180 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                }
+                else {
+                    if ( Math.abs(y_short[0] - y_max) > Math.abs(y_short[0] - y_min) || geo.name === "C-130 Hercules.obj" ){
+                        if ( Math.abs(z_short[2] - z_max) > Math.abs(z_short[2] - z_min) ){
+                            z_min = z_short[2];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = z_max;
+                            y_min = z_min;
+                            z_max = temp;
+                            z_min = temp2;
+                            geo.rotateY(180 * THREE.Math.DEG2RAD);
+                            geo.rotateX(-90 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            z_max = z_short[2];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = z_min * -1;
+                            y_min = z_max * -1;
+                            z_max = temp;
+                            z_min = temp2;
+                            geo.rotateX(90 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                    else {
+                        if ( Math.abs(z_short[3] - z_max) > Math.abs(z_short[3] - z_min) || geo.name === "MQ-9 Reaper.obj" ) {
+                            z_min = z_short[3];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = z_max;
+                            y_min = z_min;
+                            z_max = temp2 * -1;
+                            z_min = temp * -1;
+                            geo.rotateX(-90 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            z_max = z_short[3];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = z_min * -1;
+                            y_min = z_max * -1;
+                            z_max = temp2 * -1;
+                            z_min = temp * -1;
+                            geo.rotateY(180 * THREE.Math.DEG2RAD);
+                            geo.rotateX(90 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                }
+            }
+        }
+
+        // if length is greater than wingspan
+        else {
+            if ( delta_x > delta_y && delta_x > delta_z ){
+                if ( delta_z > delta_y ){
+                    if ( Math.abs(x_short[2] - x_max) > Math.abs(x_short[2] - x_min) ){
+                        if ( Math.abs(y_short[0] - y_max) > Math.abs(y_short[0] - y_min) ){
+                            y_min = y_short[0];
+                            var temp = x_max;
+                            var temp2 = x_min;
+                            x_max = z_max;
+                            x_min = z_min;
+                            z_max = temp;
+                            z_min = temp2;
+                            geo.rotateY(-90 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            y_max = y_short[0];
+                            var temp = x_max;
+                            var temp2 = x_min;
+                            x_max = z_max;
+                            x_min = z_min;
+                            z_max = temp;
+                            z_min = temp2;
+                            y_max = y_min * -1;
+                            y_min = y_max * -1;
+                            geo.rotateX(180 * THREE.Math.DEG2RAD);
+                            geo.rotateY(-90 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                    else {
+                        if ( Math.abs(y_short[1] - y_max) > Math.abs(y_short[1] - y_min) ){
+                            y_min = y_short[1];
+                            var temp = x_max;
+                            var temp2 = x_min;
+                            x_max = z_max;
+                            x_min = z_min;
+                            z_max = temp2 * -1;
+                            z_min = temp * -1;
+                            geo.rotateY(90 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            y_max = y_short[1];
+                            var temp = x_max;
+                            var temp2 = x_min;
+                            x_max = z_max;
+                            x_min = z_min;
+                            z_max = temp2 * -1;
+                            z_min = temp * -1;
+                            y_max = y_min * -1;
+                            y_min = y_max * -1;
+                            geo.rotateX(180 * THREE.Math.DEG2RAD);
+                            geo.rotateY(90 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                }
+                else {
+                    if ( Math.abs(x_short[0] - x_max) > Math.abs(x_short[0] - x_min) ){
+                        if ( Math.abs(z_short[0] - z_max) > Math.abs(z_short[0] - z_min) ){
+                            z_min = z_short[0];
+                            var temp = x_max;
+                            var temp2 = x_min;
+                            x_max = y_max;
+                            x_min = y_min;
+                            y_max = z_max;
+                            y_min = z_min;
+                            z_max = temp;
+                            z_min = temp2;
+                            geo.rotateX(-90 * THREE.Math.DEG2RAD);
+                            geo.rotateY(-90 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            z_min = z_short[1];
+                            var temp = x_max;
+                            var temp2 = x_min;
+                            x_max = y_max;
+                            x_min = y_min;
+                            y_max = z_min * -1;
+                            y_min = z_max * -1;
+                            z_max = temp;
+                            z_min = temp2;
+                            geo.rotateX(90 * THREE.Math.DEG2RAD);
+                            geo.rotateY(-90 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                    else {
+                        if ( Math.abs(z_short[1] - z_max) > Math.abs(z_short[1] - z_min) ){
+                            z_min = z_short[0];
+                            var temp = x_max;
+                            var temp2 = x_min;
+                            x_max = y_max;
+                            x_min = y_min;
+                            y_max = z_max;
+                            y_min = z_min;
+                            z_max = temp2 * -1;
+                            z_min = temp * -1;
+                            geo.rotateX(-90 * THREE.Math.DEG2RAD);
+                            geo.rotateY(90 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            z_min = z_short[1];
+                            var temp = x_max;
+                            var temp2 = x_min;
+                            x_max = y_max;
+                            x_min = y_min;
+                            y_max = z_min * -1;
+                            y_min = z_max * -1;
+                            z_max = temp2 * -1;
+                            z_min = temp * -1;
+                            geo.rotateX(90 * THREE.Math.DEG2RAD);
+                            geo.rotateY(90 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                }
+            }
+            else if ( delta_y > delta_x && delta_y > delta_z ){
+                if ( delta_z > delta_x ){
+                    if ( Math.abs(y_short[2] - y_max) > Math.abs(y_short[2] - y_min) ){
+                        if ( Math.abs(x_short[0] - x_max) > Math.abs(x_short[0] - x_min) ){
+                            x_min = x_short[0];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = x_max;
+                            y_min = x_min;
+                            x_max = z_max;
+                            x_min = z_min;
+                            z_max = temp;
+                            z_min = temp2;
+                            geo.rotateY(90 * THREE.Math.DEG2RAD);
+                            geo.rotateZ(90 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            x_max = x_short[0];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = x_min * -1;
+                            y_min = x_max * -1;
+                            x_max = z_max;
+                            x_min = z_min;
+                            z_max = temp;
+                            z_min = temp2;
+                            geo.rotateY(-90 * THREE.Math.DEG2RAD);
+                            geo.rotateZ(-90 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                    else {
+                        if ( Math.abs(x_short[1] - x_max) > Math.abs(x_short[1] - x_min) ){
+                            x_min = x_short[1];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = x_max;
+                            y_min = x_min;
+                            x_max = z_max;
+                            x_min = z_min;
+                            z_max = temp2 * -1;
+                            z_min = temp * -1;
+                            geo.rotateY(-90 * THREE.Math.DEG2RAD);
+                            geo.rotateZ(90 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            x_max = x_short[1];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = x_min * -1;
+                            y_min = x_max * -1;
+                            x_max = z_max;
+                            x_min = z_min;
+                            z_max = temp2 * -1;
+                            z_min = temp * -1;
+                            geo.rotateY(90 * THREE.Math.DEG2RAD);
+                            geo.rotateZ(-90 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                }
+                else {
+                    if ( Math.abs(y_short[0] - y_max) > Math.abs(y_short[0] - y_min) ){
+                        if ( Math.abs(z_short[2] - z_max) > Math.abs(z_short[2] - z_min) ){
+                            z_min = z_short[2];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = z_max;
+                            y_min = z_min;
+                            z_max = temp;
+                            z_min = temp2;
+                            geo.rotateY(180 * THREE.Math.DEG2RAD);
+                            geo.rotateX(-90 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            z_max = z_short[2];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = z_min * -1;
+                            y_min = z_max * -1;
+                            z_max = temp;
+                            z_min = temp2;
+                            geo.rotateX(90 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                    else {
+                        if ( Math.abs(z_short[3] - z_max) > Math.abs(z_short[3] - z_min) ){
+                            z_min = z_short[3];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = z_max;
+                            y_min = z_min;
+                            z_max = temp2 * -1;
+                            z_min = temp * -1;
+                            geo.rotateX(-90 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            z_max = z_short[3];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = z_min * -1;
+                            y_min = z_max * -1;
+                            z_max = temp2 * -1;
+                            z_min = temp * -1;
+                            geo.rotateY(180 * THREE.Math.DEG2RAD);
+                            geo.rotateX(90 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                }
+            }
+            else {
+                if ( delta_x > delta_y ){
+                    if ( Math.abs(z_short[0] - z_max) > Math.abs(z_short[0] - z_min) ){
+                        if ( Math.abs(y_short[2] - y_max) > Math.abs(y_short[2] - y_min) ){
+                            y_min = y_short[2];
+                        }
+                        else {
+                            y_max = y_min * -1;
+                            y_min = y_short[2] * -1;
+                            geo.rotateZ(180 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                    else {
+                        if ( Math.abs(y_short[3] - y_max) > Math.abs(y_short[3] - y_min) ){
+                            y_min = y_short[3];
+                            z_max = z_min * -1;
+                            z_min = z_max * -1;
+                            geo.rotateY(180 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            y_max = y_max * -1;
+                            y_min = y_short[3] * -1;
+                            z_max = z_min * -1;
+                            z_min = z_max * -1;
+                            geo.rotateY(180 * THREE.Math.DEG2RAD);
+                            geo.rotateZ(180 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                }
+                else {
+                    if ( Math.abs(z_short[2] - z_max) > Math.abs(z_short[2] - z_min) ){
+                        if ( Math.abs(x_short[2] - x_max) > Math.abs(x_short[2] - x_min) ){
+                            x_min = x_short[2];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = x_max;
+                            y_min = x_min;
+                            x_max = temp;
+                            x_min = temp2;
+                            geo.rotateZ(90 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            x_max = x_short[2];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = x_min * -1;
+                            y_min = x_max * -1;
+                            x_max = temp;
+                            x_min = temp2;
+                            geo.rotateZ(-90 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                    else {
+                        if ( Math.abs(x_short[3] - x_max) > Math.abs(x_short[3] - x_min) ){
+                            x_min = x_short[3];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = x_max;
+                            y_min = x_min;
+                            x_max = temp;
+                            x_min = temp2;
+                            z_max = z_min * -1;
+                            z_min = z_max * -1;
+                            geo.rotateZ(90 * THREE.Math.DEG2RAD);
+                            geo.rotateY(180 * THREE.Math.DEG2RAD);
+                        }
+                        else {
+                            x_max = x_short[3];
+                            var temp = y_max;
+                            var temp2 = y_min;
+                            y_max = x_min * -1;
+                            y_min = x_max * -1;
+                            x_max = temp;
+                            x_min = temp2;
+                            z_max = z_min * -1;
+                            z_min = z_max * -1;
+                            geo.rotateZ(-90 * THREE.Math.DEG2RAD);
+                            geo.rotateY(180 * THREE.Math.DEG2RAD);
+                        }
+                    }
+                }
+            }
+        }
+
+        x_max = geo.scale.x * x_max;    // model points adjusted based on model scale
         x_min = geo.scale.x * x_min;
         y_max = geo.scale.y * y_max;
         y_min = geo.scale.y * y_min;
         z_max = geo.scale.z * z_max;
         z_min = geo.scale.z * z_min;
 
-        var scale = z_max - z_min;
+        var scale = Math.abs(z_max) + Math.abs(z_min);      // camera scale adjusted and camera view changed in relation to new model
         var newPos = new THREE.Vector3( scale , scale/2, scale );
         this.execute( new SetPositionCommand( this.camera, newPos ) );
-
     },
 
     getModel: function (){                 // return all axis extreme values

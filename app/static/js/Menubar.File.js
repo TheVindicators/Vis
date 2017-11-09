@@ -64,7 +64,48 @@ Menubar.File = function ( editor ) {
 
 	options.add( new UI.HorizontalRule() );
 
-	// Import
+
+	// Aircraft Dimension Variables
+
+    var check = false;                          // set a flag to check if button already pressed
+
+    var l, w, h;                                // initialize length, wingspan, and height variables for inputs
+    var input_pane = new UI.Panel();            // create interface elements to display input option
+    var l_row = new UI.Row();
+    var w_row = new UI.Row();
+    var h_row = new UI.Row();
+    var input;                                      // initialize general input button
+
+    var text = new UI.Text("Aircraft Dimensions");  // instruction text and spacing
+    var text2 = new UI.Text("(in meters)");
+	text.setMarginLeft('11px');
+    text.setMarginRight('11px');
+    text2.setMarginLeft('39px');
+    text2.setMarginRight('39px');
+    text2.setPaddingBottom('12px');
+
+    var text_l = new UI.Text("Length:").setMarginRight('62px').setMarginLeft('4px');              // input text, area, and spacing
+    var text_w = new UI.Text("Wingspan:").setMarginRight('43px').setMarginLeft('4px');
+    var text_h = new UI.Text("Height (nose up):").setMarginRight('2px').setMarginLeft('4px');;
+    var input_l = new UI.Number().setWidth( '30px' );
+    var input_w = new UI.Number().setWidth( '30px' );
+    var input_h = new UI.Number().setWidth( '30px' );
+
+    input_pane.add(text);                       // ready all contents to be displayed once added to the main panel
+    input_pane.add(text2);
+	l_row.add(text_l);
+    l_row.add(input_l);
+    w_row.add(text_w);
+    w_row.add(input_w);
+    h_row.add(text_h);
+    h_row.add(input_h);
+    h_row.setPaddingBottom('15px');
+    input_pane.add(l_row);
+    input_pane.add(w_row);
+    input_pane.add(h_row);
+
+
+    // Import
 
 	var form = document.createElement( 'form' );
 	form.style.display = 'none';
@@ -99,9 +140,37 @@ Menubar.File = function ( editor ) {
 	option.setTextContent( 'Import' );
 	option.onClick( function () {
 
-		fileInput.click();
+        if (check === true){                     // check if prior button state already displayed
+            options.newInput();                  // if so, remove the display
+            input_pane.remove(input);
+        }
+        check = true;                            // set flag to true as new display will populate
+
+        input = new UI.Button();                 // set input button spacing and function
+        input.setMarginLeft('42px');
+        input.setClass("input");
+        input.setTextContent("Enter");
+        input.onClick( function () {
+
+            l = input_l.getValue();              // store entered values and set internal model dimensions
+            w = input_w.getValue();
+            h = input_h.getValue();
+            editor.setModelDimensions(l, w, h);
+
+            fileInput.click();                   // import the model
+
+            input_pane.remove(input);    // remove additional input display
+            options.newInput();
+            check = false;
+        } );
+
+        input_pane.add(input);           // add input display to menubar panel
+		options.remove(opt1);
+		options.remove(opt2);
+        options.add(input_pane);
 
 	} );
+
 	options.add( option );
 
 	//
@@ -156,10 +225,10 @@ Menubar.File = function ( editor ) {
 
 	// Export Object
 
-	var option = new UI.Row();
-	option.setClass( 'option' );
-	option.setTextContent( 'Export Object' );
-	option.onClick( function () {
+	var opt1 = new UI.Row();
+	opt1.setClass( 'option' );
+	opt1.setTextContent( 'Export Object' );
+	opt1.onClick( function () {
 
 		var object = editor.selected;
 
@@ -186,14 +255,14 @@ Menubar.File = function ( editor ) {
 		saveString( output, 'model.json' );
 
 	} );
-	options.add( option );
+	options.add( opt1 );
 
 	// Export
 
-	var option = new UI.Row();
-	option.setClass( 'option' );
-	option.setTextContent( 'Export Scene' );
-	option.onClick( function () {
+	var opt2 = new UI.Row();
+	opt2.setClass( 'option' );
+	opt2.setTextContent( 'Export Scene' );
+	opt2.onClick( function () {
 
 		var output = editor.scene.toJSON();
 
@@ -211,7 +280,7 @@ Menubar.File = function ( editor ) {
 		saveString( output, 'scene.json' );
 
 	} );
-	options.add( option );
+	options.add( opt2 );
 
 	//
 
@@ -390,6 +459,15 @@ Menubar.File = function ( editor ) {
 		save( new Blob( [ text ], { type: 'text/plain' } ), filename );
 
 	}
+
+    options.newInput = function(){       // reset all input values and displays
+        input_l.setValue(0);
+        input_w.setValue(0);
+        input_h.setValue(0);
+        options.remove(input_pane);
+        options.add(opt1);
+        options.add(opt2);
+    };
 
 	return container;
 
