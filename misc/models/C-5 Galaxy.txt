@@ -1,4 +1,4 @@
------ c-5 Galaxy -----
+----- C-5 Galaxy -----
 
 Length: 75.5 m
 Wingspan: 67.9 m

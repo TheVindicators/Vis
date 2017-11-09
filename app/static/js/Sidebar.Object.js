@@ -116,7 +116,7 @@ Sidebar.Object = function ( editor ) {
     objectRotationRow.add( new UI.Text( 'Rotation' ).setWidth( '90px' ) );
     objectRotationRow.add( objectRotationZ, objectRotationX, objectRotationY );
 
-    //container.add( objectRotationRow );
+    container.add( objectRotationRow );
 
     // scale
 
@@ -261,13 +261,21 @@ Sidebar.Object = function ( editor ) {
 
     //wireframe
     var materialWireframeRow = new UI.Row();
-    var materialWireframe = new UI.Checkbox( false ).onChange( update );
-
+    //var materialWireframe = new UI.Checkbox( false ).onChange( update );
+    var materialWireframe = new UI.Checkbox(false).onChange( update );
     materialWireframeRow.add( new UI.Text( 'Wireframe' ).setWidth( '90px' ) );
     materialWireframeRow.add( materialWireframe );
 
     container.add( materialWireframeRow );
 
+    //snap button
+    var snapButtonRow = new UI.Row();
+    var snapButton = new UI.Button( 'Snap' ).setMarginLeft( '7px' ).onClick( function(){} );
+
+    snapButtonRow.add( new UI.Text( 'Snapping' ).setWidth( '90px ') );
+    snapButtonRow.add( snapButton );
+
+    container.add( snapButtonRow );
 
     // user data
 
@@ -361,7 +369,7 @@ Sidebar.Object = function ( editor ) {
             var right_wing = editor.getModel()[0];          // convert entered coordinates to three.js standard
             var left_wing = editor.getModel()[1];
             var y_slope = ( right_wing - left_wing ) / editor.getModelWingspan();
-            var x = ( objectPositionX.getValue() * y_slope );
+            var x = ( objectPositionX.getValue() * y_slope ) + ( left_wing + right_wing ) / 2;
 
             var z_nose = editor.getModel()[3];
             var z_tail = editor.getModel()[2];
@@ -461,7 +469,7 @@ Sidebar.Object = function ( editor ) {
 
             }
 
-            if ( (editor.getObjectMaterial((object.children)[0])).wireframe !== undefined && (editor.getObjectMaterial((object.children)[0])).wireframe !== materialWireframe.getValue() ){
+            if ( object.type !== "Antenna" && (editor.getObjectMaterial((object.children)[0])).wireframe !== undefined && (editor.getObjectMaterial((object.children)[0])).wireframe !== materialWireframe.getValue() ){
 
                 var objects = object.children;
 
@@ -477,6 +485,11 @@ Sidebar.Object = function ( editor ) {
               }
 
               editor.execute( new MultiCmdsCommand(cmds) );
+
+            }
+            //Added
+            if ( object.WireFrame !== materialWireframe.getValue() ) {
+                editor.execute( new SetValueCommand( object, 'Wireframe', materialWireframe.getValue() ) );
 
             }
 
@@ -610,7 +623,7 @@ Sidebar.Object = function ( editor ) {
         var right_wing = editor.getModel()[0];              // convert three.js coordinates back to meters for display
         var left_wing = editor.getModel()[1];
         var y_slope = ( right_wing - left_wing ) / editor.getModelWingspan();
-        var x = object.position.x / y_slope;
+        var x =( object.position.x - ( left_wing + right_wing ) / 2 ) / y_slope;
         objectPositionX.setValue( x );
 
         var z_nose = editor.getModel()[3];
@@ -711,8 +724,19 @@ Sidebar.Object = function ( editor ) {
             objectShadowRadius.setValue( object.shadow.radius );
 
         }
+        //Added
+        /*if ( object.visible !== objectVisible.getValue() ) {
 
+            editor.execute( new SetValueCommand( object, 'visible', objectVisible.getValue() ) );
+
+        }*/
         objectVisible.setValue( object.visible );
+        //Added
+        //materialWireframe.setValue(object.Wireframe);
+        if ( object.type !== "Antenna" ) {
+          console.log(object);
+          materialWireframe.setValue( (editor.getObjectMaterial((object.children)[0])).wireframe );
+        }
 
         try {
 

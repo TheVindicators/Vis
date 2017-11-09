@@ -29,13 +29,7 @@ Menubar.Add = function ( editor ) {
 		cameraCount = 0;
 
 	} );
-	/*
-    var light = new THREE.SpotLight( 0xffffff, 1, 0, Math.PI * 0.1, 0 );
-    light.name = 'SpotLight';
-    light.target.name = 'SpotLight Target';
-    light.position.set( 5000, 5500, 0 );
-    editor.execute( new AddObjectCommand( light ) );
-    */
+
     // Input Variables
 
     var check = false;                          // set a flag to check if button already pressed
@@ -44,7 +38,7 @@ Menubar.Add = function ( editor ) {
     var input_pane = new UI.Panel();            // create interface elements to display input option
     var input_row = new UI.Row();
     var filler = new UI.HorizontalRule();
-    var input;                                  // initialize general input button
+    var input;                                    // initialize general input button
 
     var text = new UI.Text("Input Coordinates");  // instruction text and spacing
     text.setMarginLeft('18px');
@@ -69,7 +63,7 @@ Menubar.Add = function ( editor ) {
     input_pane.add(new UI.Break());
 
 	// Antenna
-	
+
 	var option = new UI.Row();                    // basic point for antenna representation
 	option.setClass( 'option' );
 	option.setTextContent( 'Antenna' );
@@ -103,11 +97,11 @@ Menubar.Add = function ( editor ) {
             var left_wing = editor.getModel()[1];
             var y_slope = ( right_wing - left_wing ) / editor.getModelWingspan();
 
-            var x_NG = y * y_slope;
+            var x_NG = ( y * y_slope ) + ( left_wing + right_wing ) / 2;
             var y_NG = ( z * z_slope ) + z_nose;
             var z_NG = x_nose + ( x * x_slope );
 
-            var radius = ( right_wing - left_wing ) / 180;      // create sphere object according to model size
+            var radius = Math.abs( right_wing - left_wing ) / 180;      // create sphere object according to model size
             var widthSegments = 32;
             var heightSegments = 16;
             var phiStart = 0;
@@ -115,10 +109,21 @@ Menubar.Add = function ( editor ) {
             var thetaStart = 0;
             var thetaLength = Math.PI;
 
-            var geometry = new THREE.SphereBufferGeometry( radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength );
-            var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+
+            var material = new THREE.MeshBasicMaterial( {color: 0xffffff, vertexColors: THREE.FaceColors} );
+            var geometry = new THREE.SphereGeometry( radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength );
+            for ( var i = 0; i < geometry.faces.length; i++ ){
+                var face = geometry.faces[i];
+                if ( i < 96 ) {
+                    face.color.setRGB( 0, 0, 256 );
+                }
+                else {
+                	face.color.setRGB( 256, 0, 0 );
+	    		}
+            }
             var mesh = new THREE.Mesh( geometry, material );
-            mesh.name = 'Antenna' + ( ++ meshCount );
+            mesh.name = 'Antenna' + ( ++meshCount );
+            mesh.type = "Antenna";
 
             editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( x_NG, y_NG, z_NG ) ) );     // move object to desired coordinates
 
