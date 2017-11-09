@@ -121,13 +121,13 @@ Menubar.Add = function ( editor ) {
                 	face.color.setRGB( 256, 0, 0 );
 	    		}
             }
-            var mesh = new THREE.Mesh( geometry, material );
+            var geo = new THREE.BufferGeometry().fromGeometry( geometry );               // convert to BufferGeometry type
+            var mesh = new THREE.Mesh( geo, material );
             mesh.name = 'Antenna' + ( ++meshCount );
             mesh.type = "Antenna";
 
             editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( x_NG, y_NG, z_NG ) ) );     // move object to desired coordinates
-
-            editor.execute( new AddObjectCommand( mesh ) );        // add object to scene
+            editor.execute( new AddObjectCommand( mesh ) );                                              // add object to scene
 
             input_pane.remove(input);    // remove additional input display
             options.newInput();
