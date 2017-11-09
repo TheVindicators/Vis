@@ -463,33 +463,36 @@ Sidebar.Object = function ( editor ) {
 
             }
 
-            if ( object.visible !== objectVisible.getValue() ) {
+            if ( object.children.length > 0
+              && ( editor.getObjectMaterial( (object.children)[0]) ) !== undefined
+              && ( editor.getObjectMaterial( (object.children)[0]) ).wireframe !== undefined
+              && ( editor.getObjectMaterial( (object.children)[0]) ).wireframe !== materialWireframe.getValue() ) {
 
-                editor.execute( new SetValueCommand( object, 'visible', objectVisible.getValue() ) );
-
-            }
-
-            if ( object.type !== "Antenna" && (editor.getObjectMaterial((object.children)[0])).wireframe !== undefined && (editor.getObjectMaterial((object.children)[0])).wireframe !== materialWireframe.getValue() ){
-
-                var objects = object.children;
-
-                var cmds = [];
-                var currentObject;
-
-              editor.execute(new SetMaterialValueCommand( objects[ 3 ], 'wireframe', materialWireframe.getValue()));
+              var objects = object.children;
+              var cmds = [];
+              var currentObject;
 
               for ( var i = 0, l = objects.length; i < l; i ++ ) {
                 currentObject = objects[ i ];
-
-                cmds.push(new SetMaterialValueCommand( currentObject, 'wireframe', materialWireframe.getValue()));
+                if ( editor.getObjectMaterial( currentObject ) !== undefined && editor.getObjectMaterial(currentObject).wireframe !== undefined ) {
+                  cmds.push(new SetMaterialValueCommand( currentObject, 'wireframe', materialWireframe.getValue()));
+                };
               }
 
               editor.execute( new MultiCmdsCommand(cmds) );
 
+            } else if( object.children.length == 0
+              && editor.getObjectMaterial( object ) !== undefined
+              && ( editor.getObjectMaterial( object ) ).wireframe !== undefined
+              && ( editor.getObjectMaterial( object ) ).wireframe !== materialWireframe.getValue() ) {
+
+              editor.execute(new SetMaterialValueCommand( object, 'wireframe', materialWireframe.getValue()));
+
             }
-            //Added
-            if ( object.WireFrame !== materialWireframe.getValue() ) {
-                editor.execute( new SetValueCommand( object, 'Wireframe', materialWireframe.getValue() ) );
+
+            if ( object.visible !== objectVisible.getValue() ) {
+
+                editor.execute( new SetValueCommand( object, 'visible', objectVisible.getValue() ) );
 
             }
 
@@ -647,6 +650,7 @@ Sidebar.Object = function ( editor ) {
         objectScaleY.setValue( object.scale.y );
         objectScaleZ.setValue( object.scale.z );
 
+
         if ( object.fov !== undefined ) {
 
             objectFov.setValue( object.fov );
@@ -724,19 +728,28 @@ Sidebar.Object = function ( editor ) {
             objectShadowRadius.setValue( object.shadow.radius );
 
         }
-        //Added
-        /*if ( object.visible !== objectVisible.getValue() ) {
 
-            editor.execute( new SetValueCommand( object, 'visible', objectVisible.getValue() ) );
 
-        }*/
         objectVisible.setValue( object.visible );
-        //Added
-        //materialWireframe.setValue(object.Wireframe);
-        if ( object.type !== "Antenna" ) {
-          console.log(object);
-          materialWireframe.setValue( (editor.getObjectMaterial((object.children)[0])).wireframe );
+
+
+        if ( object.children.length > 0
+          && editor.getObjectMaterial( (object.children)[0] ) !== undefined
+          && ( editor.getObjectMaterial( (object.children)[0] ) ).wireframe !== undefined ) {
+
+          for (var i = 0; i < object.children.length; i++) {
+            if (editor.getObjectMaterial( (object.children)[i] ) !== undefined && editor.getObjectMaterial( (object.children)[i]).wireframe !== undefined) {
+              materialWireframe.setValue( (editor.getObjectMaterial((object.children)[i])).wireframe );
+            }
+          }
+
+        } else if (object.children.length == 0
+          && editor.getObjectMaterial( object ) !== undefined
+          && editor.getObjectMaterial( object ).wireframe !== undefined ) {
+
+          materialWireframe.setValue( (editor.getObjectMaterial( object )).wireframe );
         }
+
 
         try {
 
@@ -747,6 +760,7 @@ Sidebar.Object = function ( editor ) {
             console.log( error );
 
         }
+
 
         objectUserData.setBorderColor( 'transparent' );
         objectUserData.setBackgroundColor( '' );
