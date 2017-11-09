@@ -122,8 +122,7 @@ Menubar.Add = function ( editor ) {
 	    		}
             }
             var mesh = new THREE.Mesh( geometry, material );
-            mesh.name = 'Antenna' + ( ++meshCount );
-            mesh.type = "Antenna";
+            mesh.name = 'Antenna ' + ( ++meshCount );
 
             editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( x_NG, y_NG, z_NG ) ) );     // move object to desired coordinates
 
