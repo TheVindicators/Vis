@@ -469,7 +469,7 @@ Sidebar.Object = function ( editor ) {
 
             }
 
-            if ( (editor.getObjectMaterial((object.children)[0])).wireframe !== undefined && (editor.getObjectMaterial((object.children)[0])).wireframe !== materialWireframe.getValue() ){
+            if ( object.type !== "Antenna" && (editor.getObjectMaterial((object.children)[0])).wireframe !== undefined && (editor.getObjectMaterial((object.children)[0])).wireframe !== materialWireframe.getValue() ){
 
                 var objects = object.children;
 
@@ -733,7 +733,11 @@ Sidebar.Object = function ( editor ) {
         objectVisible.setValue( object.visible );
         //Added
         //materialWireframe.setValue(object.Wireframe);
-        materialWireframe.setValue( (editor.getObjectMaterial((object.children)[0])).wireframe );
+        if ( object.type !== "Antenna" ) {
+          console.log(object);
+          materialWireframe.setValue( (editor.getObjectMaterial((object.children)[0])).wireframe );
+        }
+
         try {
 
             objectUserData.setValue( JSON.stringify( object.userData, null, '  ' ) );

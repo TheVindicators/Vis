@@ -385,28 +385,28 @@ Editor.prototype = {
 
 	select: function ( object ) {
 		if ( this.selected === object ) return;
-		
-		if(this.scene == object || this.scene === object.parent){
+
+		if(object === null || this.scene == object || this.scene === object.parent){
 			var uuid = null;
 
 			if ( object !== null ) {
-	
+
 				uuid = object.uuid;
-	
+
 			}
 
 			this.selected = object;
 
 			this.config.setKey( 'selected', uuid );
 			this.signals.objectSelected.dispatch( object );
-			
+
 		} else {
 			var uuid = null;
 
 			if ( object.parent !== null ) {
-	
+
 				uuid = object.parent.uuid;
-	
+
 			}
 
 			this.selected = object.parent;

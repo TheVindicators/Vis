@@ -63,7 +63,7 @@ Menubar.Add = function ( editor ) {
     input_pane.add(new UI.Break());
 
 	// Antenna
-	
+
 	var option = new UI.Row();                    // basic point for antenna representation
 	option.setClass( 'option' );
 	option.setTextContent( 'Antenna' );
@@ -123,6 +123,7 @@ Menubar.Add = function ( editor ) {
             }
             var mesh = new THREE.Mesh( geometry, material );
             mesh.name = 'Antenna' + ( ++meshCount );
+            mesh.type = "Antenna";
 
             editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( x_NG, y_NG, z_NG ) ) );     // move object to desired coordinates
 
