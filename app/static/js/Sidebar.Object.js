@@ -116,7 +116,7 @@ Sidebar.Object = function ( editor ) {
     objectRotationRow.add( new UI.Text( 'Rotation' ).setWidth( '90px' ) );
     objectRotationRow.add( objectRotationZ, objectRotationX, objectRotationY );
 
-    //container.add( objectRotationRow );
+    container.add( objectRotationRow );
 
     // scale
 
@@ -360,7 +360,7 @@ Sidebar.Object = function ( editor ) {
             var right_wing = editor.getModel()[0];          // convert entered coordinates to three.js standard
             var left_wing = editor.getModel()[1];
             var y_slope = ( right_wing - left_wing ) / editor.getModelWingspan();
-            var x = ( objectPositionX.getValue() * y_slope );
+            var x = ( objectPositionX.getValue() * y_slope ) + ( left_wing + right_wing ) / 2;
 
             var z_nose = editor.getModel()[3];
             var z_tail = editor.getModel()[2];
@@ -609,7 +609,7 @@ Sidebar.Object = function ( editor ) {
         var right_wing = editor.getModel()[0];              // convert three.js coordinates back to meters for display
         var left_wing = editor.getModel()[1];
         var y_slope = ( right_wing - left_wing ) / editor.getModelWingspan();
-        var x = object.position.x / y_slope;
+        var x =( object.position.x - ( left_wing + right_wing ) / 2 ) / y_slope;
         objectPositionX.setValue( x );
 
         var z_nose = editor.getModel()[3];

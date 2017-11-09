@@ -38,7 +38,7 @@ Menubar.Add = function ( editor ) {
     var input_pane = new UI.Panel();            // create interface elements to display input option
     var input_row = new UI.Row();
     var filler = new UI.HorizontalRule();
-    var input;                                  // initialize general input button
+    var input;                                    // initialize general input button
 
     var text = new UI.Text("Input Coordinates");  // instruction text and spacing
     text.setMarginLeft('18px');
@@ -97,11 +97,11 @@ Menubar.Add = function ( editor ) {
             var left_wing = editor.getModel()[1];
             var y_slope = ( right_wing - left_wing ) / editor.getModelWingspan();
 
-            var x_NG = y * y_slope;
+            var x_NG = ( y * y_slope ) + ( left_wing + right_wing ) / 2;
             var y_NG = ( z * z_slope ) + z_nose;
             var z_NG = x_nose + ( x * x_slope );
 
-            var radius = ( right_wing - left_wing ) / 180;      // create sphere object according to model size
+            var radius = Math.abs( right_wing - left_wing ) / 180;      // create sphere object according to model size
             var widthSegments = 32;
             var heightSegments = 16;
             var phiStart = 0;
