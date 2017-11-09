@@ -161,7 +161,7 @@ var Viewport = function ( editor ) {
 				if (intersects.length>0) {
 					var right_wing = editor.getModel()[0];
             		var left_wing = editor.getModel()[1];
-					var radius = 64;      // create sphere object according to model size
+					var radius = ( right_wing - left_wing ) / 180;      // create sphere object according to model size
             		var widthSegments = 32;
             		var heightSegments = 16;
             		var phiStart = 0;
