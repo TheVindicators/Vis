@@ -156,20 +156,30 @@ var Viewport = function ( editor ) {
 
 			var intersects = getIntersects( onUpPosition, objects );
 
-			//if ( editor.getAntennaSnapping() ) {
+			if ( editor.getAntennaSnapping() ) {
 
 				if (intersects.length>0) {
-					var localPoint = interestsRay[0].point;
-					var geometry = new THREE.SphereBufferGeometry( radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength );
-            		var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
-            		var mesh = new THREE.Mesh( geometry, material );
-            		mesh.name = 'Antenna' + ( ++ meshCount );
+					var right_wing = editor.getModel()[0];
+            		var left_wing = editor.getModel()[1];
+					var radius = 64;      // create sphere object according to model size
+            		var widthSegments = 32;
+            		var heightSegments = 16;
+            		var phiStart = 0;
+            		var phiLength = Math.PI * 2;
+            		var thetaStart = 0;
+            		var thetaLength = Math.PI;
 
-            		editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( localPoint.x, loclaPoint.y, localPoint.z ) ) );     // move object to desired coordinates
+					var localPoint = intersects[0].point;
+					var geometrySphere = new THREE.SphereBufferGeometry( radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength );
+            		var materialAntenna = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+            		var mesh = new THREE.Mesh( geometrySphere, materialAntenna );
+            		mesh.name = 'Antenna';
+
+            		editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( localPoint.x, localPoint.y, localPoint.z ) ) );     // move object to desired coordinates
             		editor.execute( new AddObjectCommand( mesh ) );
 
 				}
-			//} else {
+			} else {
 
 				if ( intersects.length > 0 ) {
 
@@ -192,7 +202,7 @@ var Viewport = function ( editor ) {
 					editor.select( null );
 
 				}
-			//}
+			}
 
 			render();
 
