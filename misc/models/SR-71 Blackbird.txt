@@ -1,0 +1,12 @@
+----- SR-71 Blackbird -----
+
+Length: 33.2 m
+Wingspan: 16.9 m
+Height (from nose up): 3.4 m
+
+Nose: -0.7, 0, 0
+L. wing tip: -29.5, 8.4, -0.1
+R. wing tip: -29.5, -8.4, -0.1
+L. Vertical Tail: -29.9, 3.4, -3.4
+R. Vertical Tail: -29.9, -3.4, -3.4
+Body Tail: -33.2, 0, -0.4

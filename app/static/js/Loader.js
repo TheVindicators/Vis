@@ -33,6 +33,7 @@ var Loader = function ( editor ) {
 					var object = loader.parse( event.target.result );
 
 					editor.execute( new AddObjectCommand( object ) );
+                    editor.setModel( object );
 
 				}, false );
 				reader.readAsArrayBuffer( file );
