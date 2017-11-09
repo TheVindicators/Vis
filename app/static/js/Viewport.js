@@ -181,9 +181,10 @@ var Viewport = function ( editor ) {
                 		else {
                 			face.color.setRGB( 256, 0, 0 );
 	    				}
-            	}
+            		}
 
-            		var mesh = new THREE.Mesh( geometrySphere, materialAntenna );
+            		var geo = new THREE.BufferGeometry().fromGeometry(geometrySphere);
+            		var mesh = new THREE.Mesh( geo, materialAntenna );
             		mesh.name = 'Antenna';
 
             		editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( localPoint.x, localPoint.y, localPoint.z ) ) );     // move object to desired coordinates
