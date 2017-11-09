@@ -11,6 +11,7 @@ var Editor = function () {
 	this.project_uuid = "";
 
     var Signal = signals.Signal;
+    
 
 	this.signals = {
 
@@ -106,6 +107,9 @@ var y_max = 0;
 var y_min = 0;
 var z_max = 0;
 var z_min = 0;
+var z_short = 0;
+var y_short = 0;
+var antennaSnapping = false;
 var x_short = [0, 0, 0, 0];
 var y_short = [0, 0, 0, 0];
 var z_short = [0, 0, 0, 0];
@@ -148,6 +152,16 @@ Editor.prototype = {
 	},
 
 	//
+
+	setAntennaSnapping: function (checkboxValue) {
+		antennaSnapping = checkboxValue;
+	},
+
+	//
+
+	getAntennaSnapping: function () {
+		return antennaSnapping;
+	},
 
 	addObject: function ( object ) {
 
