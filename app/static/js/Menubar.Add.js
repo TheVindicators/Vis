@@ -124,7 +124,8 @@ Menubar.Add = function ( editor ) {
 
             var geo = new THREE.BufferGeometry().fromGeometry( geometry );               // convert to BufferGeometry type
             var mesh = new THREE.Mesh( geo, material );
-            mesh.name = 'Antenna' + ( ++meshCount );
+            mesh.name = 'Antenna ' + ( ++meshCount );
+            mesh.isAntenna = true;
 
             editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( x_NG, y_NG, z_NG ) ) );     // move object to desired coordinates
             editor.execute( new AddObjectCommand( mesh ) );                                              // add object to scene
