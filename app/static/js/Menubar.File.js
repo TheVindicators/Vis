@@ -293,14 +293,88 @@ Menubar.File = function ( editor ) {
 				} else {
 					alert('Please use Antennas xml file');
 				}
-				
-				
-				
-				
-			
 			}, false );
 			reader.readAsText( xmlInput.files[ 0 ] );
-		} else {
+		} else if(extension === 'csv'){
+			var reader = new FileReader();
+			reader.addEventListener( 'load', function ( event ) {
+				var csvString = event.target.result;
+				var allRows = csvString.split(/\r?\n|\r/);
+				if( allRows[0] === 'Name,X_Position,Y_Position,Z_Position,X_Rotation,Y_Rotation,Z_Rotation' ){
+					for (var singleRow = 1; singleRow < allRows.length; singleRow++) {
+						var rowCells = allRows[singleRow].split(',');
+						if(rowCells.length === 7){
+							var name = rowCells[0];
+							var xCoord = rowCells[1];
+							var yCoord = rowCells[2]; 
+							var zCoord = rowCells[3];
+							var xRot = rowCells[4];
+							var yRot = rowCells[5];
+							var zRot = rowCells[6];
+							
+							// convert entered values to meters coordinate system		
+							var x_nose = editor.getModel()[4];           	
+							var x_tail = editor.getModel()[5];
+							var x_slope = ( x_nose - x_tail ) / editor.getModelLength();
+
+							var z_nose = editor.getModel()[3];
+							var z_tail = editor.getModel()[2];
+							var z_slope = ( z_nose - z_tail ) / editor.getModelHeight();
+
+							var right_wing = editor.getModel()[0];
+							var left_wing = editor.getModel()[1];
+							var y_slope = ( right_wing - left_wing ) / editor.getModelWingspan();
+
+							var xCoord_NG = ( yCoord * y_slope ) + ( left_wing + right_wing ) / 2;
+							var yCoord_NG = ( zCoord * z_slope ) + z_nose;
+							var zCoord_NG = x_nose + ( xCoord * x_slope );
+							
+							//covert entered values to meters rotation system
+							var xRot_NG = yRot * THREE.Math.DEG2RAD;
+							var yRot_NG = zRot * THREE.Math.DEG2RAD;
+							var zRot_NG = xRot * THREE.Math.DEG2RAD;
+							
+							// create sphere object according to model size
+							var radius = Math.abs( right_wing - left_wing ) / 180;      
+							var widthSegments = 32;
+							var heightSegments = 16;
+							var phiStart = 0;
+							var phiLength = Math.PI * 2;
+							var thetaStart = 0;
+							var thetaLength = Math.PI;
+
+
+							var material = new THREE.MeshBasicMaterial( {color: 0xffffff, vertexColors: THREE.FaceColors} );
+							var geometry = new THREE.SphereGeometry( radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength );
+							for ( var g = 0; g < geometry.faces.length; g++ ){
+								var face = geometry.faces[g];
+								if ( g < 96 ) {
+									face.color.setRGB( 0, 0, 256 );
+								}
+								else {
+									face.color.setRGB( 256, 0, 0 );
+								}
+							}
+
+							// convert to BufferGeometry type
+							var geo = new THREE.BufferGeometry().fromGeometry( geometry );            
+							var mesh = new THREE.Mesh( geo, material );
+							mesh.name = name;
+
+							// move object to desired coordinates and rotation
+							editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( xCoord_NG, yCoord_NG, zCoord_NG ) ) ); 
+							editor.execute( new SetRotationCommand( mesh, new THREE.Euler( xRot_NG, yRot_NG, zRot_NG ) ) );
+							editor.execute( new AddObjectCommand( mesh ) ); 							
+						} else {
+							alert("Incorrect format at row " + (singleRow));
+						}
+					}
+				} else {
+					alert('Incorrect title');
+				}
+			}, false );
+			reader.readAsText( xmlInput.files[ 0 ] );
+		}else {
 			alert('Unsupported file format (' + extension +  ').');
 		}
 		form.reset();
@@ -368,12 +442,12 @@ Menubar.File = function ( editor ) {
 
 	*/
 
-	// Export Object
+	// Export Antennas XML
 	var option = new UI.Row();
 	option.setClass( 'option' );
-	option.setTextContent( 'Export Antennas' );
+	option.setTextContent( 'Export Antennas XML' );
 	option.onClick( function () {
-	var output = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+		var output = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 		var objects = editor.scene.children
 		
         var right_wing = editor.getModel()[0];              // convert three.js coordinates back to meters for display
@@ -413,6 +487,45 @@ Menubar.File = function ( editor ) {
 		}
 		output += "</Antennas>";
 		saveString(output, 'Antennas.xml');
+	} );
+	options.add( option );
+	
+	// Export Antennas CSV
+	var option = new UI.Row();
+	option.setClass( 'option' );
+	option.setTextContent( 'Export Antennas CSV' );
+	option.onClick( function () {
+		var output = "Name,X_Position,Y_Position,Z_Position,X_Rotation,Y_Rotation,Z_Rotation";
+		var objects = editor.scene.children
+		
+        var right_wing = editor.getModel()[0];              // convert three.js coordinates back to meters for display
+        var left_wing = editor.getModel()[1];
+        var y_slope = ( right_wing - left_wing ) / editor.getModelWingspan();
+		
+		var z_nose = editor.getModel()[3];
+        var z_tail = editor.getModel()[2];
+        var z_slope = ( z_nose - z_tail ) / editor.getModelHeight();
+		
+		var x_nose = editor.getModel()[4];
+        var x_tail = editor.getModel()[5];
+        var x_slope = ( x_nose - x_tail ) / editor.getModelLength();
+		
+		for ( var i = 0, l = objects.length; i < l; i ++ ) {
+			var object = objects[ i ];
+			
+			if(object.geometry !== undefined && object.geometry.type === 'BufferGeometry'){
+				output += "\n" + object.name + ",";
+				
+				output += (Math.round((( object.position.z - x_nose ) / x_slope) * 100) / 100) + ",";
+				output += (Math.round((( object.position.x - ( left_wing + right_wing ) / 2 ) / y_slope) * 100) / 100) + ",";
+				output += (Math.round((( object.position.y - z_nose ) / z_slope) * 100) / 100) + ",";
+				
+				output += (Math.round((object.rotation.z * THREE.Math.RAD2DEG) * 100) / 100) + ",";
+				output += (Math.round((object.rotation.x * THREE.Math.RAD2DEG) * 100) / 100) + ",";
+				output += (Math.round((object.rotation.y * THREE.Math.RAD2DEG) * 100) / 100);
+			}
+		}
+		saveString(output, 'Antennas.csv');
 	} );
 	options.add( option );
 	
