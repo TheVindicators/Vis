@@ -43,7 +43,7 @@ Menubar.File = function ( editor ) {
 	} );
 	options.add( option );
 
-// Load/Resume State
+    // Load/Resume State
 	var option = new UI.Row();
 	option.setClass( 'option' );
 	option.setTextContent( 'Load' );
@@ -167,6 +167,9 @@ Menubar.File = function ( editor ) {
         input_pane.add(input);           // add input display to menubar panel
 		options.remove(opt1);
 		options.remove(opt2);
+		options.remove(opt3);
+        options.remove(opt4);
+        options.remove(opt5);
         options.add(input_pane);
 
 	} );
@@ -381,72 +384,28 @@ Menubar.File = function ( editor ) {
 
 	} );
 	form.appendChild( xmlInput );
-	
-	var option = new UI.Row();
-	option.setClass( 'option' );
-	option.setTextContent( 'Import Antennas' );
-	option.onClick( function () {
+
+	// Import Antennas
+
+	var opt1 = new UI.Row();
+	opt1.setClass( 'option' );
+	opt1.setTextContent( 'Import Antennas' );
+	opt1.onClick( function () {
 
 		xmlInput.click();
 
 	} );
-	options.add( option );
+	options.add( opt1 );
 
 	//
 
 	options.add( new UI.HorizontalRule() );
 
-	/*
-	// Export Geometry
-
-	var option = new UI.Row();
-	option.setClass( 'option' );
-	option.setTextContent( 'Export Geometry' );
-	option.onClick( function () {
-
-		var object = editor.selected;
-
-		if ( object === null ) {
-
-			alert( 'No object selected.' );
-			return;
-
-		}
-
-		var geometry = object.geometry;
-
-		if ( geometry === undefined ) {
-
-			alert( 'The selected object doesn\'t have geometry.' );
-			return;
-
-		}
-
-		var output = geometry.toJSON();
-
-		try {
-
-			output = JSON.stringify( output, parseNumber, '\t' );
-			output = output.replace( /[\n\t]+([\d\.e\-\[\]]+)/g, '$1' );
-
-		} catch ( e ) {
-
-			output = JSON.stringify( output );
-
-		}
-
-		saveString( output, 'geometry.json' );
-
-	} );
-	options.add( option );
-
-	*/
-
 	// Export Antennas XML
-	var option = new UI.Row();
-	option.setClass( 'option' );
-	option.setTextContent( 'Export Antennas XML' );
-	option.onClick( function () {
+	var opt2 = new UI.Row();
+	opt2.setClass( 'option' );
+	opt2.setTextContent( 'Export Antennas XML' );
+	opt2.onClick( function () {
 		var output = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 		var objects = editor.scene.children
 		
@@ -488,13 +447,13 @@ Menubar.File = function ( editor ) {
 		output += "</Antennas>";
 		saveString(output, 'Antennas.xml');
 	} );
-	options.add( option );
+	options.add( opt2 );
 	
 	// Export Antennas CSV
-	var option = new UI.Row();
-	option.setClass( 'option' );
-	option.setTextContent( 'Export Antennas CSV' );
-	option.onClick( function () {
+	var opt3 = new UI.Row();
+	opt3.setClass( 'option' );
+	opt3.setTextContent( 'Export Antennas CSV' );
+	opt3.onClick( function () {
 		var output = "Name,X_Position,Y_Position,Z_Position,X_Rotation,Y_Rotation,Z_Rotation";
 		var objects = editor.scene.children
 		
@@ -527,13 +486,13 @@ Menubar.File = function ( editor ) {
 		}
 		saveString(output, 'Antennas.csv');
 	} );
-	options.add( option );
+	options.add( opt3 );
 	
 
-	var opt1 = new UI.Row();
-	opt1.setClass( 'option' );
-	opt1.setTextContent( 'Export Object' );
-	opt1.onClick( function () {
+	var opt4 = new UI.Row();
+	opt4.setClass( 'option' );
+	opt4.setTextContent( 'Export Object' );
+	opt4.onClick( function () {
 
 		var object = editor.selected;
 
@@ -560,14 +519,14 @@ Menubar.File = function ( editor ) {
 		saveString( output, 'model.json' );
 
 	} );
-	options.add( opt1 );
+	options.add( opt4 );
 
 	// Export
 
-	var opt2 = new UI.Row();
-	opt2.setClass( 'option' );
-	opt2.setTextContent( 'Export Scene' );
-	opt2.onClick( function () {
+	var opt5 = new UI.Row();
+	opt5.setClass( 'option' );
+	opt5.setTextContent( 'Export Scene' );
+	opt5.onClick( function () {
 
 		var output = editor.scene.toJSON();
 
@@ -585,7 +544,7 @@ Menubar.File = function ( editor ) {
 		saveString( output, 'scene.json' );
 
 	} );
-	options.add( opt2 );
+	options.add( opt5 );
 
 	//
 
@@ -772,6 +731,9 @@ Menubar.File = function ( editor ) {
         options.remove(input_pane);
         options.add(opt1);
         options.add(opt2);
+        options.add(opt3);
+        options.add(opt4);
+        options.add(opt5);
     };
 
 	return container;
