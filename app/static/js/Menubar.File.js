@@ -178,6 +178,7 @@ Menubar.File = function ( editor ) {
         options.remove(opt1);
         options.remove(opt2);
         options.remove(opt3);
+        options.remove(line)
         options.remove(opt4);
         options.add(input_pane);
 
@@ -499,6 +500,8 @@ Menubar.File = function ( editor ) {
 
     // Export
 
+    var line = new UI.HorizontalRule();
+    options.add( line );
     var opt4 = new UI.Row();
     opt4.setClass( 'option' );
     opt4.setTextContent( 'Export Scene' );
@@ -552,6 +555,7 @@ Menubar.File = function ( editor ) {
         options.add(opt1);
         options.add(opt2);
         options.add(opt3);
+        options.add( line );
         options.add(opt4);
     };
 
