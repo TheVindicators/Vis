@@ -17,15 +17,18 @@ class Config:
 
 class DevelopmentConfig(Config):
     JSON_STORE_DATA = basedir + "/app/json_save_states/"
+    FILE_CONVERSION_WORK_DIR = basedir + "/app/conversion_work/"
     DEBUG = True
     MODE = 'Development'
 
 class ProductionConfig(Config):
     JSON_STORE_DATA = basedir + "/app/json_save_states/"
+    FILE_CONVERSION_WORK_DIR = basedir + "/app/conversion_work/"
     MODE ='Production'
 
 class TestingConfig(Config):
     JSON_STORE_DATA = basedir + "/app/json_save_states/"
+    FILE_CONVERSION_WORK_DIR = basedir + "/app/conversion_work/"
     MODE = 'Testing'
 
 
