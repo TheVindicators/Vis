@@ -69,7 +69,14 @@ Menubar.Add = function ( editor ) {
 	option.setTextContent( 'Antenna' );
 	option.onClick( function () {
 
-        if (check === true){                     // check if prior button state already displayed
+        for ( var i = 0; i < 4; i ++ ){           // lock menubar
+            if ( i !== 2 ){
+                editor.getMenubar()[i].setClass( 'options3' );
+            }
+        }
+        options.setClass( 'options2' );
+
+	    if (check === true){                     // check if prior button state already displayed
             options.newInput();                  // if so, remove the display
             input_pane.remove(input);
         }
@@ -80,6 +87,13 @@ Menubar.Add = function ( editor ) {
         input.setClass("input");
         input.setTextContent("Enter");
         input.onClick( function () {
+
+            options.setClass( 'options' );       // restore menubar functionality
+            for ( var i = 0; i < 4; i ++ ){
+                if ( i !== 2 ){
+                    editor.getMenubar()[i].setClass( 'options' );
+                }
+            }
 
             x = input_x.getValue();              // store entered values
             y = input_y.getValue();
@@ -151,6 +165,8 @@ Menubar.Add = function ( editor ) {
         options.remove(filler);
     };
 
-	return container;
+    editor.setMenubar(options);          // store menubar configuration
+
+    return container;
 
 };

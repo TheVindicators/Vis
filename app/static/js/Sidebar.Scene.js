@@ -139,7 +139,33 @@ Sidebar.Scene = function ( editor ) {
     container.add( wingspanRow );
     container.add( heightRow );
 
-    // snapping
+    // Model Reset
+
+    var resetRow = new UI.Row();
+    var resetButton = new UI.Button('RESET').onClick( function(){
+
+        if ( editor.scene.children[1] !== null ) {
+            var model = editor.scene.children[1];
+            model.position.x = editor.getModelPosition()[0];
+            model.position.y = editor.getModelPosition()[1];
+            model.position.z = editor.getModelPosition()[2];
+            model.rotation.x = editor.getModelRotation()[0];
+            model.rotation.y = editor.getModelRotation()[1];
+            model.rotation.z = editor.getModelRotation()[2];
+            model.scale.x = editor.getModelScale()[0];
+            model.scale.y = editor.getModelScale()[1];
+            model.scale.z = editor.getModelScale()[2];
+            signals.objectSelected.dispatch( model );
+        }
+    });
+
+    resetRow.add( new UI.Text( 'Model Position/Size' ).setWidth( '150px' ) );
+    resetRow.add( resetButton );
+
+    container.add( resetRow );
+
+    // Antenna Snapping
+
     container.add( new UI.HorizontalRule() );
     var isSnapOn = false;
     var snapRow = new UI.Row();
@@ -153,6 +179,7 @@ Sidebar.Scene = function ( editor ) {
     snapRow.add( snapBox );
 
     container.add( snapRow );
+
 	// fog
 
 	function onFogChanged() {
