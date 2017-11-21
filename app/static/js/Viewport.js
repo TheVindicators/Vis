@@ -156,26 +156,64 @@ var Viewport = function ( editor ) {
 
 			var intersects = getIntersects( onUpPosition, objects );
 
-			if ( intersects.length > 0 ) {
+			if ( editor.getAntennaSnapping() ) {
 
-				var object = intersects[ 0 ].object;
+				if (intersects.length>0) {
+					var right_wing = editor.getModel()[0];
+            		var left_wing = editor.getModel()[1];
+					var radius = ( right_wing - left_wing ) / 180;      // create sphere object according to model size
+            		var widthSegments = 32;
+            		var heightSegments = 16;
+            		var phiStart = 0;
+            		var phiLength = Math.PI * 2;
+            		var thetaStart = 0;
+            		var thetaLength = Math.PI;
 
-				if ( object.userData.object !== undefined ) {
+					var localPoint = intersects[0].point;
+					var geometrySphere = new THREE.SphereGeometry( radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength );
+            		var materialAntenna = new THREE.MeshBasicMaterial( {color: 0xffffff, vertexColors: THREE.FaceColors} );
+
+            		for ( var i = 0; i < geometrySphere.faces.length; i++ ){
+                		var face = geometrySphere.faces[i];
+                		if ( i < 96 ) {
+                	    	face.color.setRGB( 0, 0, 256 );
+                		}
+                		else {
+                			face.color.setRGB( 256, 0, 0 );
+	    				}
+            		}
+
+            		var geo = new THREE.BufferGeometry().fromGeometry(geometrySphere);
+            		var mesh = new THREE.Mesh( geo, materialAntenna );
+            		mesh.name = 'Antenna';
+
+            		editor.execute( new SetPositionCommand( mesh, new THREE.Vector3( localPoint.x, localPoint.y, localPoint.z ) ) );     // move object to desired coordinates
+            		editor.execute( new AddObjectCommand( mesh ) );
+
+				}
+			} else {
+
+				if ( intersects.length > 0 ) {
+
+					var object = intersects[ 0 ].object;
+
+					if ( object.userData.object !== undefined ) {
 
 					// helper
 
-					editor.select( object.userData.object );
+						editor.select( object.userData.object );
+
+					} else {
+
+						editor.select( object );
+
+					}
 
 				} else {
 
-					editor.select( object );
+					editor.select( null );
 
 				}
-
-			} else {
-
-				editor.select( null );
-
 			}
 
 			render();

@@ -33,6 +33,7 @@ var Loader = function ( editor ) {
 					var object = loader.parse( event.target.result );
 
 					editor.execute( new AddObjectCommand( object ) );
+                    editor.setModel( object );
 
 				}, false );
 				reader.readAsArrayBuffer( file );
@@ -168,6 +169,22 @@ var Loader = function ( editor ) {
 				reader.readAsArrayBuffer( file );
 
 				break;
+
+        case 'flt':
+  					var xhr = new XMLHttpRequest();
+  					xhr.onreadystatechange = function() {
+  				if (this.readyState == 4 && this.status == 200) {
+  						console.log("Loading converted FLT->OBJ");
+  						var contents = this.responseText;
+
+  						var object = new THREE.OBJLoader().parse( contents );
+  						object.name = filename;
+
+  						editor.execute( new AddObjectCommand( object ) );
+  				}
+  			};
+  					xhr.open('POST', '/rest/convert_object');
+  					xhr.send(file);
 
 			case 'glb':
 			case 'gltf':

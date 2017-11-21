@@ -116,7 +116,7 @@ Sidebar.Object = function ( editor ) {
     objectRotationRow.add( new UI.Text( 'Rotation' ).setWidth( '90px' ) );
     objectRotationRow.add( objectRotationZ, objectRotationX, objectRotationY );
 
-    //container.add( objectRotationRow );
+    container.add( objectRotationRow );
 
     // scale
 
@@ -261,8 +261,8 @@ Sidebar.Object = function ( editor ) {
 
     //wireframe
     var materialWireframeRow = new UI.Row();
-    var materialWireframe = new UI.Checkbox( false ).onChange( update );
-
+    //var materialWireframe = new UI.Checkbox( false ).onChange( update );
+    var materialWireframe = new UI.Checkbox(false).onChange( update );
     materialWireframeRow.add( new UI.Text( 'Wireframe' ).setWidth( '90px' ) );
     materialWireframeRow.add( materialWireframe );
 
@@ -360,7 +360,7 @@ Sidebar.Object = function ( editor ) {
             var right_wing = editor.getModel()[0];          // convert entered coordinates to three.js standard
             var left_wing = editor.getModel()[1];
             var y_slope = ( right_wing - left_wing ) / editor.getModelWingspan();
-            var x = ( objectPositionX.getValue() * y_slope );
+            var x = ( objectPositionX.getValue() * y_slope ) + ( left_wing + right_wing ) / 2;
 
             var z_nose = editor.getModel()[3];
             var z_tail = editor.getModel()[2];
@@ -454,28 +454,36 @@ Sidebar.Object = function ( editor ) {
 
             }
 
-            if ( object.visible !== objectVisible.getValue() ) {
+            if ( object.children.length > 0
+              && ( editor.getObjectMaterial( (object.children)[0]) ) !== undefined
+              && ( editor.getObjectMaterial( (object.children)[0]) ).wireframe !== undefined
+              && ( editor.getObjectMaterial( (object.children)[0]) ).wireframe !== materialWireframe.getValue() ) {
 
-                editor.execute( new SetValueCommand( object, 'visible', objectVisible.getValue() ) );
-
-            }
-
-            if ( (editor.getObjectMaterial((object.children)[0])).wireframe !== undefined && (editor.getObjectMaterial((object.children)[0])).wireframe !== materialWireframe.getValue() ){
-
-                var objects = object.children;
-
-                var cmds = [];
-                var currentObject;
-
-              editor.execute(new SetMaterialValueCommand( objects[ 3 ], 'wireframe', materialWireframe.getValue()));
+              var objects = object.children;
+              var cmds = [];
+              var currentObject;
 
               for ( var i = 0, l = objects.length; i < l; i ++ ) {
                 currentObject = objects[ i ];
-
-                cmds.push(new SetMaterialValueCommand( currentObject, 'wireframe', materialWireframe.getValue()));
+                if ( editor.getObjectMaterial( currentObject ) !== undefined && editor.getObjectMaterial(currentObject).wireframe !== undefined ) {
+                  cmds.push(new SetMaterialValueCommand( currentObject, 'wireframe', materialWireframe.getValue()));
+                };
               }
 
               editor.execute( new MultiCmdsCommand(cmds) );
+
+            } else if( object.children.length == 0
+              && editor.getObjectMaterial( object ) !== undefined
+              && ( editor.getObjectMaterial( object ) ).wireframe !== undefined
+              && ( editor.getObjectMaterial( object ) ).wireframe !== materialWireframe.getValue() ) {
+
+              editor.execute(new SetMaterialValueCommand( object, 'wireframe', materialWireframe.getValue()));
+
+            }
+
+            if ( object.visible !== objectVisible.getValue() ) {
+
+                editor.execute( new SetValueCommand( object, 'visible', objectVisible.getValue() ) );
 
             }
 
@@ -609,7 +617,7 @@ Sidebar.Object = function ( editor ) {
         var right_wing = editor.getModel()[0];              // convert three.js coordinates back to meters for display
         var left_wing = editor.getModel()[1];
         var y_slope = ( right_wing - left_wing ) / editor.getModelWingspan();
-        var x = object.position.x / y_slope;
+        var x =( object.position.x - ( left_wing + right_wing ) / 2 ) / y_slope;
         objectPositionX.setValue( x );
 
         var z_nose = editor.getModel()[3];
@@ -632,6 +640,7 @@ Sidebar.Object = function ( editor ) {
         objectScaleX.setValue( object.scale.x );
         objectScaleY.setValue( object.scale.y );
         objectScaleZ.setValue( object.scale.z );
+
 
         if ( object.fov !== undefined ) {
 
@@ -711,7 +720,27 @@ Sidebar.Object = function ( editor ) {
 
         }
 
+
         objectVisible.setValue( object.visible );
+
+
+        if ( object.children.length > 0
+          && editor.getObjectMaterial( (object.children)[0] ) !== undefined
+          && ( editor.getObjectMaterial( (object.children)[0] ) ).wireframe !== undefined ) {
+
+          for (var i = 0; i < object.children.length; i++) {
+            if (editor.getObjectMaterial( (object.children)[i] ) !== undefined && editor.getObjectMaterial( (object.children)[i]).wireframe !== undefined) {
+              materialWireframe.setValue( (editor.getObjectMaterial((object.children)[i])).wireframe );
+            }
+          }
+
+        } else if (object.children.length == 0
+          && editor.getObjectMaterial( object ) !== undefined
+          && editor.getObjectMaterial( object ).wireframe !== undefined ) {
+
+          materialWireframe.setValue( (editor.getObjectMaterial( object )).wireframe );
+        }
+
 
         try {
 
@@ -722,6 +751,7 @@ Sidebar.Object = function ( editor ) {
             console.log( error );
 
         }
+
 
         objectUserData.setBorderColor( 'transparent' );
         objectUserData.setBackgroundColor( '' );
