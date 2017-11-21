@@ -113,6 +113,10 @@ var antennaSnapping = false;
 var x_short = [0, 0, 0, 0];
 var y_short = [0, 0, 0, 0];
 var z_short = [0, 0, 0, 0];
+var menu = [null, null, null, null];
+var position = [0, 0, 0];
+var rotation = [0, 0, 0];
+var scale1 = [0, 0, 0];
 
 Editor.prototype = {
 
@@ -183,37 +187,6 @@ Editor.prototype = {
 
 	},
 
-	moveObject: function ( object, parent, before ) {
-
-		if ( parent === undefined ) {
-
-			parent = this.scene;
-
-		}
-
-		parent.add( object );
-
-		// sort children array
-
-		if ( before !== undefined ) {
-
-			var index = parent.children.indexOf( before );
-			parent.children.splice( index, 0, object );
-			parent.children.pop();
-
-		}
-
-		this.signals.sceneGraphChanged.dispatch();
-
-	},
-
-	nameObject: function ( object, name ) {
-
-		object.name = name;
-		this.signals.sceneGraphChanged.dispatch();
-
-	},
-
 	removeObject: function ( object ) {
 
 		if ( object.parent === null ) return; // avoid deleting the camera or scene
@@ -239,33 +212,11 @@ Editor.prototype = {
 
 	},
 
-	setGeometryName: function ( geometry, name ) {
-
-		geometry.name = name;
-		this.signals.sceneGraphChanged.dispatch();
-
-	},
-
 	addMaterial: function ( material ) {
 
 		this.materials[ material.uuid ] = material;
 
 	},
-
-	setMaterialName: function ( material, name ) {
-
-		material.name = name;
-		this.signals.sceneGraphChanged.dispatch();
-
-	},
-
-	addTexture: function ( texture ) {
-
-		this.textures[ texture.uuid ] = texture;
-
-	},
-
-	//
 
 	addHelper: function () {
 
@@ -336,38 +287,6 @@ Editor.prototype = {
 
 	},
 
-	//
-
-	addScript: function ( object, script ) {
-
-		if ( this.scripts[ object.uuid ] === undefined ) {
-
-			this.scripts[ object.uuid ] = [];
-
-		}
-
-		this.scripts[ object.uuid ].push( script );
-
-		this.signals.scriptAdded.dispatch( script );
-
-	},
-
-	removeScript: function ( object, script ) {
-
-		if ( this.scripts[ object.uuid ] === undefined ) return;
-
-		var index = this.scripts[ object.uuid ].indexOf( script );
-
-		if ( index !== - 1 ) {
-
-			this.scripts[ object.uuid ].splice( index, 1 );
-
-		}
-
-		this.signals.scriptRemoved.dispatch( script );
-
-	},
-
 	getObjectMaterial: function ( object, slot ) {
 
 		var material = object.material;
@@ -395,8 +314,6 @@ Editor.prototype = {
 		}
 
 	},
-
-	//
 
 	select: function ( object ) {
 		if ( this.selected === object ) return;
@@ -501,6 +418,9 @@ Editor.prototype = {
         x_short = [0, 0, 0, 0];
         y_short = [0, 0, 0, 0];
         z_short = [0, 0, 0, 0];
+        position = [0, 0, 0];
+        rotation = [0, 0, 0];
+        scale1 = [0, 0, 0];
 
 		while ( objects.length > 0 ) {
 
@@ -1362,6 +1282,16 @@ Editor.prototype = {
         z_max = geo.scale.z * z_max;
         z_min = geo.scale.z * z_min;
 
+        position[0] = geo.position.x;
+        position[1] = geo.position.y;
+        position[2] = geo.position.z;
+        rotation[0] = geo.rotation.x;
+        rotation[1] = geo.rotation.y;
+        rotation[2] = geo.rotation.z;
+        scale1[0] = geo.scale.x;
+        scale1[1] = geo.scale.y;
+        scale1[2] = geo.scale.z;
+
         var scale = Math.abs(z_max) + Math.abs(z_min);      // camera scale adjusted and camera view changed in relation to new model
         var newPos = new THREE.Vector3( scale , scale/2, scale );
         this.execute( new SetPositionCommand( this.camera, newPos ) );
@@ -1378,7 +1308,40 @@ Editor.prototype = {
         array[5] = z_min;
         return array;
 
-    }
+    },
 
+    getModelPosition: function (){
+
+        return position;
+
+    },
+
+    getModelRotation: function (){
+
+        return rotation;
+
+    },
+
+    getModelScale: function (){
+
+        return scale1;
+
+    },
+
+    setMenubar: function ( file ){
+
+        var i = 0;
+        while (menu[i] !== null){
+            i++;
+        }
+        menu[i] = file;
+
+    },
+
+    getMenubar: function (){
+
+        return menu;
+
+    }
 
 };
