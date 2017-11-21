@@ -78,30 +78,7 @@ Menubar.Edit = function ( editor ) {
 
 	} );
 
-	// ---
-
 	options.add( new UI.HorizontalRule() );
-
-	// Clone
-
-	/*
-	var option = new UI.Row();
-	option.setClass( 'option' );
-	option.setTextContent( 'Clone' );
-	option.onClick( function () {
-
-		var object = editor.selected;
-
-		if ( object.parent === null ) return; // avoid cloning the camera or scene
-
-		object = object.clone();
-
-		editor.execute( new AddObjectCommand( object ) );
-
-	} );
-	options.add( option );
-
-	*/
 	
 	// Delete
 
@@ -122,89 +99,8 @@ Menubar.Edit = function ( editor ) {
 	} );
 	options.add( option );
 
-	// Minify shaders
+    editor.setMenubar(options);          // store menubar configuration
 
-	/*
-	var option = new UI.Row();
-	option.setClass( 'option' );
-	option.setTextContent( 'Minify Shaders' );
-	option.onClick( function() {
-
-		var root = editor.selected || editor.scene;
-
-		var errors = [];
-		var nMaterialsChanged = 0;
-
-		var path = [];
-
-		function getPath ( object ) {
-
-			path.length = 0;
-
-			var parent = object.parent;
-			if ( parent !== undefined ) getPath( parent );
-
-			path.push( object.name || object.uuid );
-
-			return path;
-
-		}
-
-		var cmds = [];
-		root.traverse( function ( object ) {
-
-			var material = object.material;
-
-			if ( material instanceof THREE.ShaderMaterial ) {
-
-				try {
-
-					var shader = glslprep.minifyGlsl( [
-							material.vertexShader, material.fragmentShader ] );
-
-					cmds.push( new SetMaterialValueCommand( object, 'vertexShader', shader[ 0 ] ) );
-					cmds.push( new SetMaterialValueCommand( object, 'fragmentShader', shader[ 1 ] ) );
-
-					++nMaterialsChanged;
-
-				} catch ( e ) {
-
-					var path = getPath( object ).join( "/" );
-
-					if ( e instanceof glslprep.SyntaxError )
-
-						errors.push( path + ":" +
-								e.line + ":" + e.column + ": " + e.message );
-
-					else {
-
-						errors.push( path +
-								": Unexpected error (see console for details)." );
-
-						console.error( e.stack || e );
-
-					}
-
-				}
-
-			}
-
-		} );
-
-		if ( nMaterialsChanged > 0 ) {
-
-			editor.execute( new MultiCmdsCommand( cmds ), 'Minify Shaders' );
-
-		}
-
-		window.alert( nMaterialsChanged +
-				" material(s) were changed.\n" + errors.join( "\n" ) );
-
-	} );
-	options.add( option );
-
-	*/
-	
 	return container;
 
 };

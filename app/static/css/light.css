@@ -105,47 +105,116 @@ select {
 			padding: 8px;
 		}
 
-		#menubar .menu .options {
-			position: fixed;
-			display: none;
-			padding: 5px 0;
-			background: #eee;
-			width: 150px;
-			max-height: calc(100% - 80px);
-			overflow: auto;
-		}
+        #menubar .menu .options {
+        	position: absolute;
+        	display: none;
+        	padding: 5px 0;
+        	background: #eee;
+        	width: 150px;
+        }
 
-		#menubar .menu:hover .options {
-			display: block;
-		}
+            #menubar .menu:hover .options {
+            	display: block;
+            }
 
-			#menubar .menu .options hr {
-				border-color: #ddd;
-			}
+            #menubar .menu .options hr {
+            	border-color: #ddd;
+            }
 
-			#menubar .menu .options .option {
-				color: #666;
-				background-color: transparent;
-				padding: 5px 10px;
-				margin: 0 !important;
-			}
+            #menubar .menu .options .option {
+            	color: #666;
+            	background-color: transparent;
+            	padding: 5px 10px;
+            	margin: 0 !important;
+            }
 
-				#menubar .menu .options .option:hover {
-					color: #fff;
-					background-color: #08f;
-				}
+                #menubar .menu .options .option:hover {
+                	color: #fff;
+                	background-color: #08f;
+                }
 
-				#menubar .menu .options .option:active {
-					color: #666;
-					background: transparent;
-				}
+                #menubar .menu .options .option:active {
+                	color: #666;
+                	background: transparent;
+                }
 
-		#menubar .menu .options .inactive {
-			color: #bbb;
-			background-color: transparent;
-			padding: 5px 10px;
-			margin: 0 !important;
-		}
+        #menubar .menu .options .inactive {
+        	color: #bbb;
+        	background-color: transparent;
+        	padding: 5px 10px;
+        	margin: 0 !important;
+        }
+
+        #menubar .menu .options2 {
+        	position: absolute;
+        	display: block;
+        	padding: 5px 0;
+        	background: #eee;
+        	width: 150px;
+        }
+
+            #menubar .menu:hover .options2 {
+            	display: block;
+            }
+
+            #menubar .menu .options2 hr {
+            	border-color: #ddd;
+            }
+
+            #menubar .menu .options2 .option {
+            	color: #666;
+            	background-color: transparent;
+            	padding: 5px 10px;
+            	margin: 0 !important;
+            }
+
+                #menubar .menu .options2 .option:hover {
+                	color: #fff;
+                	background-color: #08f;
+                }
+
+                #menubar .menu .options2 .option:active {
+                	color: #666;
+                	background: transparent;
+                }
+
+        #menubar .menu .options2 .inactive {
+        	color: #bbb;
+        	background-color: transparent;
+        	padding: 5px 10px;
+        	margin: 0 !important;
+        }
+
+        #menubar .menu .options3 {
+        	position: absolute;
+        	display: none;
+        	padding: 5px 0;
+        	background: #eee;
+        	width: 150px;
+        }
+
+            #menubar .menu .options3 hr {
+            	border-color: #ddd;
+            }
+
+            #menubar .menu .options3 .option {
+            	color: #666;
+            	background-color: transparent;
+            	padding: 5px 10px;
+            	margin: 0 !important;
+            }
+
+                #menubar .menu .options3 .option:active {
+                	color: #666;
+                	background: transparent;
+                }
+
+        #menubar .menu .options3 .inactive {
+        	color: #bbb;
+        	background-color: transparent;
+        	padding: 5px 10px;
+        	margin: 0 !important;
+        }
 
 #sidebar {
 	position: absolute;

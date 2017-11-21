@@ -1,0 +1,13 @@
+----- C-130 Hercules -----
+
+Length: 29.8 m
+Wingspan: 40.4 m
+Height (from nose up): 9.5 m
+
+Nose: 0, 0, 0
+L. wing tip: -12.8, 20.2, -2.75
+R. wing tip: -12.8, -20.2, -2.75
+Tail: -27.5, 0, -9.5
+L. Horizontal Tail: -27.3, 7.9, -2.6
+R. Horixontal Tail: -27.3, -7.9, -2.6
+Body Tail: -29.8, 0, -2.75

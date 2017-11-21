@@ -1,4 +1,4 @@
------ F-15E Strike Eagle -----
+----- F-15C Eagle -----
 
 Length: 21.3 m
 Wingspan: 13.1 m

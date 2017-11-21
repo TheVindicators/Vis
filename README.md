@@ -12,7 +12,7 @@ Our program is an extension of the three.js development evironment modified to a
 
 ### For Users
 
-If you're interested in trying out Vis yourself, please visit http://vis.ipwnage.com. From there, you'll be able to upload models, add antennas, and modify wireframe status easily.
+If you're interested in trying out Vis yourself, please visit our landing page at https://thevindicators.github.io/Vis/ for information regarding our project. You can also head directly over to the application at http://vis.ipwnage.com. From there, you'll be able to upload models, add antennas, and modify wireframe status easily.
 
 ### For Developers
 

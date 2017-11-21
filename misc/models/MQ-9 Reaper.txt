@@ -1,0 +1,13 @@
+----- MQ-9 Reaper -----
+
+Length (with front rod): 11.8 m
+Wingspan: 20 m
+Height (from nose up): 2.6 m
+
+Nose: -1, 0, 0
+L. wing tip: -6.3, 10, 0
+R. wing tip: -6.3, -10, 0
+L. Rear Vertical Strut: -10.5, 3.5, -2.6
+R. Rear Vertical Strut: -10.5, -3.5, -2.6
+Rear Downward Strut: -10, 0, 2.1
+Tail: -11.8, 0, 0

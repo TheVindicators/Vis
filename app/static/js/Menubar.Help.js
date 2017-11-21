@@ -44,44 +44,46 @@ Menubar.Help = function ( editor ) {
 	} );
 	options.add( option );
 
-    // Downloads
+  // Downloads
 
-    var option = new UI.Row();
-    option.setClass( 'option' );
-    option.setTextContent( 'Download Models' );
-    option.onClick( function () {
+  var option = new UI.Row();
+  option.setClass( 'option' );
+  option.setTextContent( 'Download Models' );
+  option.onClick( function () {
 
-        window.open( 'https://github.com/TheVindicators/Vis/tree/master/misc/models' );
+      window.open( 'https://github.com/TheVindicators/Vis/tree/master/misc/models' );
 
-    } );
-    options.add( option );
-    options.add( new UI.HorizontalRule() );
+  } );
+  options.add( option );
+  options.add( new UI.HorizontalRule() );
 
 
-    // Report Issues
+  // Report Issues
 
-    var option = new UI.Row();
-    option.setClass( 'option' );
-    option.setTextContent( 'Report Issues' );
-    option.onClick( function () {
+  var option = new UI.Row();
+  option.setClass( 'option' );
+  option.setTextContent( 'Report Issues' );
+  option.onClick( function () {
 
-        window.open( 'https://github.com/TheVindicators/Vis/issues' );
+      window.open( 'https://github.com/TheVindicators/Vis/issues' );
 
-    } );
-    options.add( option );
+  } );
+  options.add( option );
 
-    // Feedback
+  // Feedback
 
-    var option = new UI.Row();
-    option.setClass( 'option' );
-    option.setTextContent( 'Leave Feedback' );
-    option.onClick( function () {
+  var option = new UI.Row();
+  option.setClass( 'option' );
+  option.setTextContent( 'Leave Feedback' );
+  option.onClick( function () {
 
-        window.open( 'https://docs.google.com/forms/d/e/1FAIpQLSd-ruWSfoWmraXibXSOOzVwI7VNOERSUqEyeJ8dPQ_XdbOv8g/viewform?usp=sf_link' );
+      window.open( 'https://docs.google.com/forms/d/e/1FAIpQLSd-ruWSfoWmraXibXSOOzVwI7VNOERSUqEyeJ8dPQ_XdbOv8g/viewform?usp=sf_link' );
 
-    } );
-    options.add( option );
+  } );
+  options.add( option );
 
+  editor.setMenubar(options);          // store menubar configuration
+  
 	return container;
 
 };
