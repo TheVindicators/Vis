@@ -140,6 +140,11 @@ Menubar.File = function ( editor ) {
     option.setTextContent( 'Import' );
     option.onClick( function () {
 
+        for ( var i = 1; i < 4; i ++ ){           // lock menubar
+            editor.getMenubar()[i].setClass( 'options3' );
+        }
+        options.setClass( 'options2' );
+
         if (check === true){                     // check if prior button state already displayed
             options.newInput();                  // if so, remove the display
             input_pane.remove(input);
@@ -151,6 +156,11 @@ Menubar.File = function ( editor ) {
         input.setClass("input");
         input.setTextContent("Enter");
         input.onClick( function () {
+
+            options.setClass( 'options' );       // restore menubar functionality
+            for ( var i = 1; i < 4; i ++ ){
+                editor.getMenubar()[i].setClass( 'options' );
+            }
 
             l = input_l.getValue();              // store entered values and set internal model dimensions
             w = input_w.getValue();
@@ -548,162 +558,6 @@ Menubar.File = function ( editor ) {
 
     //
 
-    /*
-    options.add( new UI.HorizontalRule() );
-
-    // Export GLTF
-
-    var option = new UI.Row();
-    option.setClass( 'option' );
-    option.setTextContent( 'Export GLTF' );
-    option.onClick( function () {
-
-        var exporter = new THREE.GLTFExporter();
-
-        exporter.parse( editor.scene, function ( result ) {
-
-            saveString( JSON.stringify( result, null, 2 ), 'scene.gltf' );
-
-        } );
-
-
-    } );
-    options.add( option );
-
-    // Export OBJ
-
-    var option = new UI.Row();
-    option.setClass( 'option' );
-    option.setTextContent( 'Export OBJ' );
-    option.onClick( function () {
-
-        var object = editor.selected;
-
-        if ( object === null ) {
-
-            alert( 'No object selected.' );
-            return;
-
-        }
-
-        var exporter = new THREE.OBJExporter();
-
-        saveString( exporter.parse( object ), 'model.obj' );
-
-    } );
-    options.add( option );
-
-    // Export STL
-
-    var option = new UI.Row();
-    option.setClass( 'option' );
-    option.setTextContent( 'Export STL' );
-    option.onClick( function () {
-
-        var exporter = new THREE.STLExporter();
-
-        saveString( exporter.parse( editor.scene ), 'model.stl' );
-
-    } );
-    options.add( option );
-
-    //
-
-    options.add( new UI.HorizontalRule() );
-
-    // Publish
-
-    var option = new UI.Row();
-    option.setClass( 'option' );
-    option.setTextContent( 'Publish' );
-    option.onClick( function () {
-
-        var zip = new JSZip();
-
-        //
-
-        var output = editor.toJSON();
-        output.metadata.type = 'App';
-        delete output.history;
-
-        var vr = output.project.vr;
-
-        output = JSON.stringify( output, parseNumber, '\t' );
-        output = output.replace( /[\n\t]+([\d\.e\-\[\]]+)/g, '$1' );
-
-        zip.file( 'app.json', output );
-
-        //
-
-        var manager = new THREE.LoadingManager( function () {
-
-            save( zip.generate( { type: 'blob' } ), 'download.zip' );
-
-        } );
-
-        var loader = new THREE.FileLoader( manager );
-        loader.load( 'js/libs/app/index.html', function ( content ) {
-
-            var includes = [];
-
-            if ( vr ) {
-
-                includes.push( '<script src="js/WebVR.js"></script>' );
-
-            }
-
-            content = content.replace( '<!-- includes -->', includes.join( '\n\t\t' ) );
-
-            zip.file( 'index.html', content );
-
-        } );
-        loader.load( 'js/libs/app.js', function ( content ) {
-
-            zip.file( 'js/app.js', content );
-
-        } );
-        loader.load( '../build/three.min.js', function ( content ) {
-
-            zip.file( 'js/three.min.js', content );
-
-        } );
-
-        if ( vr ) {
-
-            loader.load( '../examples/js/vr/WebVR.js', function ( content ) {
-
-                zip.file( 'js/WebVR.js', content );
-
-            } );
-
-        }
-
-    } );
-    options.add( option );
-
-    /*
-    // Publish (Dropbox)
-
-    var option = new UI.Row();
-    option.setClass( 'option' );
-    option.setTextContent( 'Publish (Dropbox)' );
-    option.onClick( function () {
-
-        var parameters = {
-            files: [
-                { 'url': 'data:text/plain;base64,' + window.btoa( "Hello, World" ), 'filename': 'app/test.txt' }
-            ]
-        };
-
-        Dropbox.save( parameters );
-
-    } );
-    options.add( option );
-    */
-
-
-    //
-
     var link = document.createElement( 'a' );
     link.style.display = 'none';
     document.body.appendChild( link ); // Firefox workaround, see #6594
@@ -735,6 +589,8 @@ Menubar.File = function ( editor ) {
         options.add(opt4);
         options.add(opt5);
     };
+
+    editor.setMenubar(options);          // store menubar configuration
 
     return container;
 

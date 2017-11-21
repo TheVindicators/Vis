@@ -85,21 +85,25 @@ var Editor = function () {
 	this.scene.name = 'Scene';
 	this.scene.background = new THREE.Color( 0xaaaaaa );
 
-  this.scene.length = 0;
-  this.scene.wingspan = 0;
-  this.scene.height = 0;
-  this.scene.x_max = 0;
-  this.scene.x_min = 0;
-  this.scene.y_max = 0;
-  this.scene.y_min = 0;
-  this.scene.z_max = 0;
-  this.scene.z_min = 0;
-  this.scene.z_short = 0;
-  this.scene.y_short = 0;
-  this.scene.antennaSnapping = false;
-  this.scene.x_short = [0, 0, 0, 0];
-  this.scene.y_short = [0, 0, 0, 0];
-  this.scene.z_short = [0, 0, 0, 0];
+    this.scene.length = 0;
+    this.scene.wingspan = 0;
+    this.scene.height = 0;
+    this.scene.x_max = 0;
+    this.scene.x_min = 0;
+    this.scene.y_max = 0;
+    this.scene.y_min = 0;
+    this.scene.z_max = 0;
+    this.scene.z_min = 0;
+    this.scene.z_short = 0;
+    this.scene.y_short = 0;
+    this.scene.antennaSnapping = false;
+    this.scene.x_short = [0, 0, 0, 0];
+    this.scene.y_short = [0, 0, 0, 0];
+    this.scene.z_short = [0, 0, 0, 0];
+    this.scene.menu = [null, null, null, null];
+    this.scene.posi = [0, 0, 0, 0];
+    this.scene.rota = [0, 0, 0 ,0];
+    this.scene.scal = [0, 0, 0, 0];
 
 	this.sceneHelpers = new THREE.Scene();
 
@@ -505,6 +509,10 @@ Editor.prototype = {
     this.scene.x_short = [0, 0, 0, 0];
     this.scene.y_short = [0, 0, 0, 0];
     this.scene.z_short = [0, 0, 0, 0];
+    this.scene.menu = [null, null, null, null];
+    this.scene.posi = [0, 0, 0, 0];
+    this.scene.rota = [0, 0, 0 ,0];
+    this.scene.scal = [0, 0, 0, 0];
 
 		while ( objects.length > 0 ) {
 
@@ -1407,6 +1415,16 @@ Editor.prototype = {
         this.scene.z_max = geo.scale.z * this.scene.z_max;
         this.scene.z_min = geo.scale.z * this.scene.z_min;
 
+        this.scene.posi[0] = geo.position.x;
+        this.scene.posi[1] = geo.position.y;
+        this.scene.posi[2] = geo.position.z;
+        this.scene.rota[0] = geo.rotation.x;
+        this.scene.rota[1] = geo.rotation.y;
+        this.scene.rota[2] = geo.rotation.z;
+        this.scene.scal[0] = geo.scale.x;
+        this.scene.scal[1] = geo.scale.y;
+        this.scene.scal[2] = geo.scale.z;
+
         var scale = Math.abs(this.scene.z_max) + Math.abs(this.scene.z_min);      // camera scale adjusted and camera view changed in relation to new model
         var newPos = new THREE.Vector3( scale , scale/2, scale );
         this.execute( new SetPositionCommand( this.camera, newPos ) );
@@ -1422,6 +1440,40 @@ Editor.prototype = {
         array[4] = this.scene.z_max;
         array[5] = this.scene.z_min;
         return array;
+
+    },
+
+    getModelPosition: function (){        // return the initial model position
+
+        return this.scene.posi;
+
+    },
+
+    getModelRotation: function (){        // return the initial model rotation
+
+        return this.scene.rota;
+
+    },
+
+    getModelScale: function (){           // return the initial model scale
+
+        return this.scene.scal;
+
+    },
+
+    setMenubar: function ( file ){       // set reference to the menubar
+
+        var i = 0;
+        while (this.scene.menu[i] !== null){
+            i++;
+        }
+        this.scene.menu[i] = file;
+
+    },
+
+    getMenubar: function (){             // return reference to the menubar
+
+        return this.scene.menu;
 
     }
 

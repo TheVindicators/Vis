@@ -44,6 +44,8 @@ Menubar.Help = function ( editor ) {
 	} );
 	options.add( option );
 
+    editor.setMenubar(options);          // store menubar configuration
+
 	return container;
 
 };
