@@ -179,7 +179,6 @@ Menubar.File = function ( editor ) {
         options.remove(opt2);
         options.remove(opt3);
         options.remove(opt4);
-        options.remove(opt5);
         options.add(input_pane);
 
     } );
@@ -498,45 +497,12 @@ Menubar.File = function ( editor ) {
     } );
     options.add( opt3 );
 
+    // Export
 
     var opt4 = new UI.Row();
     opt4.setClass( 'option' );
-    opt4.setTextContent( 'Export Object' );
+    opt4.setTextContent( 'Export Scene' );
     opt4.onClick( function () {
-
-        var object = editor.selected;
-
-        if ( object === null ) {
-
-            alert( 'No object selected' );
-            return;
-
-        }
-
-        var output = object.toJSON();
-
-        try {
-
-            output = JSON.stringify( output, parseNumber, '\t' );
-            output = output.replace( /[\n\t]+([\d\.e\-\[\]]+)/g, '$1' );
-
-        } catch ( e ) {
-
-            output = JSON.stringify( output );
-
-        }
-
-        saveString( output, 'model.json' );
-
-    } );
-    options.add( opt4 );
-
-    // Export
-
-    var opt5 = new UI.Row();
-    opt5.setClass( 'option' );
-    opt5.setTextContent( 'Export Scene' );
-    opt5.onClick( function () {
 
         var output = editor.scene.toJSON();
 
@@ -554,7 +520,7 @@ Menubar.File = function ( editor ) {
         saveString( output, 'scene.json' );
 
     } );
-    options.add( opt5 );
+    options.add( opt4 );
 
     //
 
@@ -587,7 +553,6 @@ Menubar.File = function ( editor ) {
         options.add(opt2);
         options.add(opt3);
         options.add(opt4);
-        options.add(opt5);
     };
 
     editor.setMenubar(options);          // store menubar configuration
