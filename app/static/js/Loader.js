@@ -189,6 +189,7 @@ var Loader = function ( editor ) {
           },
           type: 'POST'
         });
+        break;
 
 			case 'glb':
 			case 'gltf':

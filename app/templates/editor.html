@@ -285,11 +285,7 @@
 
 						timeout = setTimeout( function () {
 
-							editor.storage.set( editor.toJSON(), function (uuid) {
-								if (editor.project_uuid == "") {
-									editor.project_uuid = uuid;
-								}
-							} );
+							editor.storage.set( editor.toJSON() );
 
 							editor.signals.savingFinished.dispatch();
 
@@ -461,19 +457,20 @@
 	       	}
 
 	       	function fetchStates() {
-	       		var fs = new XMLHttpRequest();
-	       		fs.onreadystatechange = function() {
-	       	    if (this.readyState == 4 && this.status == 200) {
-	       			 var all_uuids = this.responseText.split(",");
-	       			 saves.innerHTML = "";
-	       			 for (var i = 0; i < all_uuids.length; i++)
-
-	       			 saves.insertAdjacentHTML("beforeend", "<a href=\"#\" onClick=\"loadProject('" + all_uuids[i] + "');\" class=\"list-group-item list-group-item-action\">" + all_uuids[i] + "</a>");
- 	       				//document.getElementById("saves").insertAdjacentHTML()
-	       		}
-	       		};
-	       		fs.open("GET", "/rest/resume_state/", true);
-	       		fs.send();
+            $.ajax({
+               url: '/rest/resume_state/',
+               data: {
+                  format: 'json'
+               },
+               dataType: 'json',
+               success: function (data) {
+                 var all_uuids = this.responseText.split(",");
+                 saves.innerHTML = "";
+                 for (var i = 0; i < all_uuids.length; i++)
+                 saves.insertAdjacentHTML("beforeend", "<a href=\"#\" onClick=\"loadProject('" + all_uuids[i] + "');\" class=\"list-group-item list-group-item-action\">" + all_uuids[i] + "</a>");
+               },
+               type: 'GET'
+            });
 	       	}
 
 	       	var span = document.getElementsByClassName("close-win");

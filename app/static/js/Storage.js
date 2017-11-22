@@ -108,7 +108,10 @@ var Storage = function () {
             } // Other error
             console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server.', data.reason, data.error);
           }
-          console.log('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Saved state to server. ');
+          console.log('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Saved state to server as UUID', data.uuid);
+          if ( editor.project_uuid == "" ) {
+            editor.project_uuid = data.uuid; //Set the initial UUID if this the first save-state for this session.
+          }
         },
         error: function() {
           console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server. ');
