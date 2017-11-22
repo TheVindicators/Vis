@@ -494,25 +494,24 @@ Editor.prototype = {
 
 		var objects = this.scene.children;
 
-    this.scene.length = 0;
-    this.scene.wingspan = 0;
-    this.scene.height = 0;
-    this.scene.x_max = 0;
-    this.scene.x_min = 0;
-    this.scene.y_max = 0;
-    this.scene.y_min = 0;
-    this.scene.z_max = 0;
-    this.scene.z_min = 0;
-    this.scene.z_short = 0;
-    this.scene.y_short = 0;
-    this.scene.antennaSnapping = false;
-    this.scene.x_short = [0, 0, 0, 0];
-    this.scene.y_short = [0, 0, 0, 0];
-    this.scene.z_short = [0, 0, 0, 0];
-    this.scene.menu = [null, null, null, null];
-    this.scene.posi = [0, 0, 0, 0];
-    this.scene.rota = [0, 0, 0 ,0];
-    this.scene.scal = [0, 0, 0, 0];
+        this.scene.length = 0;
+        this.scene.wingspan = 0;
+        this.scene.height = 0;
+        this.scene.x_max = 0;
+        this.scene.x_min = 0;
+        this.scene.y_max = 0;
+        this.scene.y_min = 0;
+        this.scene.z_max = 0;
+        this.scene.z_min = 0;
+        this.scene.z_short = 0;
+        this.scene.y_short = 0;
+        this.scene.antennaSnapping = false;
+        this.scene.x_short = [0, 0, 0, 0];
+        this.scene.y_short = [0, 0, 0, 0];
+        this.scene.z_short = [0, 0, 0, 0];
+        this.scene.posi = [0, 0, 0, 0];
+        this.scene.rota = [0, 0, 0 ,0];
+        this.scene.scal = [0, 0, 0, 0];
 
 		while ( objects.length > 0 ) {
 
