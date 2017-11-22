@@ -458,16 +458,17 @@
 
 	       	function fetchStates() {
             $.ajax({
-               url: '/rest/resume_state/',
-               data: {
-                  format: 'json'
-               },
+               url: '/rest/resume_state',
                dataType: 'json',
                success: function (data) {
-                 var all_uuids = this.responseText.split(",");
-                 saves.innerHTML = "";
-                 for (var i = 0; i < all_uuids.length; i++)
-                 saves.insertAdjacentHTML("beforeend", "<a href=\"#\" onClick=\"loadProject('" + all_uuids[i] + "');\" class=\"list-group-item list-group-item-action\">" + all_uuids[i] + "</a>");
+                 if ( data.results == "SUCCESS" ) {
+                   var all_uuids = data.data.split(",");
+                   saves.innerHTML = "";
+                   for (var i = 0; i < all_uuids.length; i++)
+                   saves.insertAdjacentHTML("beforeend", "<a href=\"#\" onClick=\"loadProject('" + all_uuids[i] + "');\" class=\"list-group-item list-group-item-action\">" + all_uuids[i] + "</a>");
+                 } else {
+                     console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to fetch save state from server.', data.reason, data.error);
+                   }
                },
                type: 'GET'
             });

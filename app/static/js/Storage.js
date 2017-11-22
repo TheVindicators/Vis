@@ -95,23 +95,24 @@ var Storage = function () {
         contentType: "application/json",
         dataType: "json",
         success: function(data) {
-          if (data.results == "FAIL") {
-            if (data.reason == "IOERROR") {
-              // The server had a disk or permissions error. Let the user know
-              if (data.error == 13) { // No permission
-                console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server. The server doesn\'t have permission to write to disk.');
-              } else if (data.error == 28) { // Disk full
-                console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server. The server doesn\'t have enough space to save to disk.');
-              } else { //Other IO error
-                console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server. There was an I/O Error.', data.errorstring);
-              }
-            } // Other error
-            console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server.', data.reason, data.error);
-          }
-          console.log('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Saved state to server as UUID', data.uuid);
-          if ( editor.project_uuid == "" ) {
-            editor.project_uuid = data.uuid; //Set the initial UUID if this the first save-state for this session.
-          }
+          if ( data.results == "SUCCESS" ) {
+            console.log('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Saved state to server as UUID', data.uuid);
+            if ( editor.project_uuid == "" ) {
+              editor.project_uuid = data.uuid; //Set the initial UUID if this the first save-state for this session.
+            }
+          } else {
+              if (data.reason == "IOERROR") {
+                // The server had a disk or permissions error. Let the user know
+                if (data.error == 13) { // No permission
+                  console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server. The server doesn\'t have permission to write to disk.');
+                } else if (data.error == 28) { // Disk full
+                  console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server. The server doesn\'t have enough space to save to disk.');
+                } else { //Other IO error
+                  console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server. There was an I/O Error.', data.errorstring);
+                }
+              } // Other error
+              console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server.', data.reason, data.error);
+            }
         },
         error: function() {
           console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server. ');
