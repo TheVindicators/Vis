@@ -53,25 +53,24 @@ var Storage = function () {
 		get: function ( uuid, callback ) {
 
 			if (uuid != "None") {
-				var xhr = new XMLHttpRequest();
-
-				xhr.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-					var myArr = JSON.parse(this.responseText);
-					callback(myArr);
-			}
-	};
-				xhr.open("GET", "/rest/resume_state/" + uuid, true);
-				xhr.send();
+        $.ajax({
+           url: '/rest/resume_state/' + uuid,
+           data: {
+              format: 'json'
+           },
+           dataType: 'json',
+           success: function (data) {
+             callback(data);
+           },
+           type: 'GET'
+        });
 			} else {
 				var transaction = database.transaction( [ 'states' ], 'readwrite' );
 				var objectStore = transaction.objectStore( 'states' );
 
 				var request = objectStore.get( 0 );
 				request.onsuccess = function ( event ) {
-
 					callback( event.target.result );
-
 				};
 			}
 
@@ -90,16 +89,32 @@ var Storage = function () {
 			var request = objectStore.put( data, 0 );
 
 
-
-			var xhr = new XMLHttpRequest();
-			xhr.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-				var myArr = this.responseText;
-				callback(myArr);
-		}
-};
-			xhr.open('POST', '/rest/save_state');
-			xhr.send(JSON.stringify(data));
+      $.ajax({
+        url: '/rest/save_state',
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        dataType: "json",
+        success: function(data) {
+          if (data.results == "FAIL") {
+            if (data.reason == "IOERROR") {
+              // The server had a disk or permissions error. Let the user know
+              if (data.error == 13) { // No permission
+                console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server. The server doesn\'t have permission to write to disk.');
+              } else if (data.error == 28) { // Disk full
+                console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server. The server doesn\'t have enough space to save to disk.');
+              } else { //Other IO error
+                console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server. There was an I/O Error.', data.errorstring);
+              }
+            } // Other error
+            console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server.', data.reason, data.error);
+          }
+          console.log('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Saved state to server. ');
+        },
+        error: function() {
+          console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server. ');
+        },
+        type: 'POST'
+      });
 
 			//console.log(data);
 
