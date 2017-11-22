@@ -24,7 +24,7 @@ def convert_object():
             with open(current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".flt", 'w+') as flt_file:
                 flt_file.write(file_data)
             print "osgconv " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".flt " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".obj"
-            subprocess.check_output("osgconv " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".flt " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".obj", shell=True)
+            subprocess.call("osgconv " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".flt " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".obj", shell=True)
             with open(current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".obj", 'r') as converted_file:
                 return converted_file.read()
         except Exception as e:
