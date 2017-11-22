@@ -24,7 +24,7 @@ def convert_object():
             with open(current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".flt", 'w+') as flt_file:
                 flt_file.write(file_data)
             print "osgconv " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".flt " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".obj"
-            subprocess.check_output("osgconv " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".flt " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".obj", shell=True)
+            subprocess.call("osgconv " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".flt " + current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".obj", shell=True)
             with open(current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".obj", 'r') as converted_file:
                 return converted_file.read()
         except Exception as e:
@@ -52,6 +52,7 @@ def save_state():
                 save_state_file.write(json.dumps(state))
             print "I'm saving: " + state["project"]["uuid"]
             return jsonify({"results": "SUCCESS", "uuid": state["project"]["uuid"]}) #Return the UUID if successful. This is used by the client to receive the UUID on the first initial save.
+        except
         except IOError as error: #Disk error on save
             return jsonify({"results": "FAIL", "reason": "IOERROR", "error": str(error.errno), "errorstring": str(error.strerror)})
         except TypeError as error: #Save state format error

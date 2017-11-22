@@ -110,8 +110,10 @@ var Storage = function () {
                 } else { //Other IO error
                   console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server. There was an I/O Error.', data.errorstring);
                 }
-              } // Other error
-              console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server.', data.reason, data.error);
+              } else { // Other error
+                console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server.', data.reason, data.error);
+              }
+
             }
         },
         error: function() {
