@@ -52,7 +52,6 @@ def save_state():
                 save_state_file.write(json.dumps(state))
             print "I'm saving: " + state["project"]["uuid"]
             return jsonify({"results": "SUCCESS", "uuid": state["project"]["uuid"]}) #Return the UUID if successful. This is used by the client to receive the UUID on the first initial save.
-        except
         except IOError as error: #Disk error on save
             return jsonify({"results": "FAIL", "reason": "IOERROR", "error": str(error.errno), "errorstring": str(error.strerror)})
         except TypeError as error: #Save state format error
