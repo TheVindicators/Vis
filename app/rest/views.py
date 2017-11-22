@@ -1,4 +1,4 @@
-from flask import render_template, request, current_app
+from flask import render_template, request, current_app, jsonify
 from werkzeug.utils import secure_filename
 from . import rest
 import json, uuid, os, subprocess, time
@@ -51,30 +51,35 @@ def save_state():
             with open(current_app.config["JSON_STORE_DATA"] + secure_filename(str(state["project"]["uuid"])) + ".json", 'w+') as save_state_file:
                 save_state_file.write(json.dumps(state))
             print "I'm saving: " + state["project"]["uuid"]
-            return state["project"]["uuid"] #Return the UUID if successful. This is used by the client to receive the UUID on the first initial save.
-        except:
-            return "FAIL" #Something went wrong. Let's be purposely dense about what went wrong.
-    return "FAIL" #How'd we get here? Someone trying to load the page?
+            return jsonify({"results": "SUCCESS", "uuid": state["project"]["uuid"]}) #Return the UUID if successful. This is used by the client to receive the UUID on the first initial save.
+        except IOError as error: #Disk error on save
+            return jsonify({"results": "FAIL", "reason": "IOERROR", "error": str(error.errno), "errorstring": str(error.strerror)})
+        except TypeError as error: #Save state format error
+            return jsonify({"results": "FAIL", "reason": "BADPOST", "error": str(error)})
+        except Exception as error: #Other general error
+            return jsonify({"results": "FAIL", "reason": "OTHER", "error": str(error)})
+    return jsonify({"results": "FAIL", "reason": "NOTPOST"}) #How'd we get here? Someone trying to load the page?
 
 
 #This URL (website.com/rest/resume_state) is used to fetch the JSON file of the state requested by the user.
 #The user requests the UUID of the specific JSON file, which is fetched and dumped back to client.
 #JSON schema TBD
-@rest.route('/resume_state/', methods=["GET", "POST"])
+@rest.route('/resume_state', methods=["GET", "POST"])
 @rest.route('/resume_state/<uuid>', methods=["GET", "POST"])
 def resume_state(uuid=None):
     if uuid == None: #We're looking to see which save states we have
         states = ""
         try:
             for save_state in os.listdir(current_app.config["JSON_STORE_DATA"]):
-                states += save_state[:-5] + "," #Only return the UUID, remove .json ending
-            return str(states[:-1])
-        except:
-            return "FAIL" #Something went wrong. Let's be purposely dense about what went wrong.
+                if save_state[-5:] == ".json":
+                    states += save_state[:-5] + "," #Only return the UUID, remove .json ending
+            return jsonify({"results": "SUCCESS", "data": str(states[:-1])})
+        except Exception as error: #There was an error listing the directory, return general error
+            return jsonify({"results": "FAIL", "reason": "OTHER", "error": str(error)})
     else: #We're requesting a specific UUID to resume from.
         try:
             with open(current_app.config["JSON_STORE_DATA"] + secure_filename(str(uuid))+ ".json", 'r') as save_state_file:
                 return save_state_file.read()
-        except:
-            return "FAIL"
+        except Exception as error: #Other general error
+            return jsonify({"results": "FAIL", "reason": "OTHER", "error": str(error)})
     return "FAIL" #How'd we get here?
