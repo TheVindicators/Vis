@@ -116,22 +116,37 @@ Menubar.File = function ( editor ) {
     fileInput.addEventListener( 'change', function ( event ) {
 
         editor.loader.loadFile( fileInput.files[ 0 ] );
+        if ( editor.scene.children.length == 0 ) {
+          var color = 0xffffff;                 // create spotlight when new model imported
+          var intensity = 1;
+          var distance = 0;
+          var angle = Math.PI * 0.1;
+          var penumbra = 0;
+          var light = new THREE.SpotLight( color, intensity, distance, angle, penumbra );
+          light.name = 'SpotLight';
+          light.target.name = 'SpotLight Target';
+          light.position.set( 0, 5500, 5000 );
+          editor.execute( new AddObjectCommand( light ) );
+        } else {
+          for( var i = 0; i < editor.scene.children.Length; i++ ) {
+            if ( editor.scene.children[i].type == "SpotLight" ) {
+              break;
+            } else if ( i == editor.scene.children.length - 1 )  {
+              var color = 0xffffff;                 // create spotlight when new model imported
+              var intensity = 1;
+              var distance = 0;
+              var angle = Math.PI * 0.1;
+              var penumbra = 0;
+              var light = new THREE.SpotLight( color, intensity, distance, angle, penumbra );
+              light.name = 'SpotLight';
+              light.target.name = 'SpotLight Target';
+              light.position.set( 0, 5500, 5000 );
+              editor.execute( new AddObjectCommand( light ) );
+            }
+          }
+        }
+
         form.reset();
-
-        var color = 0xffffff;                 // create spotlight when new model imported
-        var intensity = 1;
-        var distance = 0;
-        var angle = Math.PI * 0.1;
-        var penumbra = 0;
-
-        var light = new THREE.SpotLight( color, intensity, distance, angle, penumbra );
-        light.name = 'SpotLight';
-        light.target.name = 'SpotLight Target';
-
-        light.position.set( 0, 5500, 5000 );
-
-        editor.execute( new AddObjectCommand( light ) );
-
     } );
     form.appendChild( fileInput );
 

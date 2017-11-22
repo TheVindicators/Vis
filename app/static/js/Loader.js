@@ -170,6 +170,27 @@ var Loader = function ( editor ) {
 
 				break;
 
+        case 'flt':
+        $.ajax({
+          url: '/rest/convert_object',
+          data: file,
+          processData: false,
+          contentType: false,
+          dataType: "text",
+          success: function(data) {
+            console.log("Loading converted FLT->OBJ");
+            var object = new THREE.OBJLoader().parse( data );
+            object.name = filename;
+            editor.execute( new AddObjectCommand( object ) );
+            editor.setModel( object );
+          },
+          error: function() {
+            console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to send file to server. ');
+          },
+          type: 'POST'
+        });
+        break;
+
 			case 'glb':
 			case 'gltf':
 

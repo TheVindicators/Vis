@@ -56,6 +56,7 @@
 		<link href="/static/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="/static/css/main.css" rel="stylesheet" />
 		<link id="theme" href="/static/css/light.css" rel="stylesheet" />
+    <script src="/static/js/libs/jquery-3.2.1.min.js"></script>
 
 		<script src="/static/js/three.js"></script>
 		<script src="/static/js/libs/system.min.js"></script>
@@ -284,11 +285,7 @@
 
 						timeout = setTimeout( function () {
 
-							editor.storage.set( editor.toJSON(), function (uuid) {
-								if (editor.project_uuid == "") {
-									editor.project_uuid = uuid;
-								}
-							} );
+							editor.storage.set( editor.toJSON() );
 
 							editor.signals.savingFinished.dispatch();
 
@@ -460,19 +457,21 @@
 	       	}
 
 	       	function fetchStates() {
-	       		var fs = new XMLHttpRequest();
-	       		fs.onreadystatechange = function() {
-	       	    if (this.readyState == 4 && this.status == 200) {
-	       			 var all_uuids = this.responseText.split(",");
-	       			 saves.innerHTML = "";
-	       			 for (var i = 0; i < all_uuids.length; i++)
-
-	       			 saves.insertAdjacentHTML("beforeend", "<a href=\"#\" onClick=\"loadProject('" + all_uuids[i] + "');\" class=\"list-group-item list-group-item-action\">" + all_uuids[i] + "</a>");
- 	       				//document.getElementById("saves").insertAdjacentHTML()
-	       		}
-	       		};
-	       		fs.open("GET", "/rest/resume_state/", true);
-	       		fs.send();
+            $.ajax({
+               url: '/rest/resume_state',
+               dataType: 'json',
+               success: function (data) {
+                 if ( data.results == "SUCCESS" ) {
+                   var all_uuids = data.data.split(",");
+                   saves.innerHTML = "";
+                   for (var i = 0; i < all_uuids.length; i++)
+                   saves.insertAdjacentHTML("beforeend", "<a href=\"#\" onClick=\"loadProject('" + all_uuids[i] + "');\" class=\"list-group-item list-group-item-action\">" + all_uuids[i] + "</a>");
+                 } else {
+                     console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to fetch save state from server.', data.reason, data.error);
+                   }
+               },
+               type: 'GET'
+            });
 	       	}
 
 	       	var span = document.getElementsByClassName("close-win");

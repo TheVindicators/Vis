@@ -36,7 +36,7 @@ Menubar.Status = function ( editor ) {
 
 	} );
 
-	var version = new UI.Text( 'prototype' );
+	var version = new UI.Text( 'v1.0.0' );
 	version.setClass( 'title' );
 	version.setOpacity( 0.5 );
 	container.add( version );
