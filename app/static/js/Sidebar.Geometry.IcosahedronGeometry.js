@@ -4,48 +4,48 @@
 
 Sidebar.Geometry.IcosahedronGeometry = function ( editor, object ) {
 
-	var signals = editor.signals;
+  var signals = editor.signals;
 
-	var container = new UI.Row();
+  var container = new UI.Row();
 
-	var geometry = object.geometry;
-	var parameters = geometry.parameters;
+  var geometry = object.geometry;
+  var parameters = geometry.parameters;
 
-	// radius
+  // radius
 
-	var radiusRow = new UI.Row();
-	var radius = new UI.Number( parameters.radius ).onChange( update );
+  var radiusRow = new UI.Row();
+  var radius = new UI.Number( parameters.radius ).onChange( update );
 
-	radiusRow.add( new UI.Text( 'Radius' ).setWidth( '90px' ) );
-	radiusRow.add( radius );
+  radiusRow.add( new UI.Text( 'Radius' ).setWidth( '90px' ) );
+  radiusRow.add( radius );
 
-	container.add( radiusRow );
+  container.add( radiusRow );
 
-	// detail
+  // detail
 
-	var detailRow = new UI.Row();
-	var detail = new UI.Integer( parameters.detail ).setRange( 0, Infinity ).onChange( update );
+  var detailRow = new UI.Row();
+  var detail = new UI.Integer( parameters.detail ).setRange( 0, Infinity ).onChange( update );
 
-	detailRow.add( new UI.Text( 'Detail' ).setWidth( '90px' ) );
-	detailRow.add( detail );
+  detailRow.add( new UI.Text( 'Detail' ).setWidth( '90px' ) );
+  detailRow.add( detail );
 
-	container.add( detailRow );
+  container.add( detailRow );
 
 
-	//
+  //
 
-	function update() {
+  function update() {
 
-		editor.execute( new SetGeometryCommand( object, new THREE[ geometry.type ](
-			radius.getValue(),
-			detail.getValue()
-		) ) );
+    editor.execute( new SetGeometryCommand( object, new THREE[ geometry.type ](
+      radius.getValue(),
+      detail.getValue()
+    ) ) );
 
-		signals.objectChanged.dispatch( object );
+    signals.objectChanged.dispatch( object );
 
-	}
+  }
 
-	return container;
+  return container;
 
 };
 

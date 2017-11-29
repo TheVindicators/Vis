@@ -4,59 +4,59 @@
 
 Menubar.Examples = function ( editor ) {
 
-	var container = new UI.Panel();
-	container.setClass( 'menu' );
+  var container = new UI.Panel();
+  container.setClass( 'menu' );
 
-	var title = new UI.Panel();
-	title.setClass( 'title' );
-	title.setTextContent( 'Examples' );
-	container.add( title );
+  var title = new UI.Panel();
+  title.setClass( 'title' );
+  title.setTextContent( 'Examples' );
+  container.add( title );
 
-	var options = new UI.Panel();
-	options.setClass( 'options' );
-	container.add( options );
+  var options = new UI.Panel();
+  options.setClass( 'options' );
+  container.add( options );
 
-	// Examples
+  // Examples
 
-	var items = [
-		{ title: 'Arkanoid', file: 'arkanoid.app.json' },
-		{ title: 'Camera', file: 'camera.app.json' },
-		{ title: 'Particles', file: 'particles.app.json' },
-		{ title: 'Pong', file: 'pong.app.json' },
-		{ title: 'Shaders', file: 'shaders.app.json' }
-	];
+  var items = [
+    { title: 'Arkanoid', file: 'arkanoid.app.json' },
+    { title: 'Camera', file: 'camera.app.json' },
+    { title: 'Particles', file: 'particles.app.json' },
+    { title: 'Pong', file: 'pong.app.json' },
+    { title: 'Shaders', file: 'shaders.app.json' }
+  ];
 
-	var loader = new THREE.FileLoader();
+  var loader = new THREE.FileLoader();
 
-	for ( var i = 0; i < items.length; i ++ ) {
+  for ( var i = 0; i < items.length; i ++ ) {
 
-		( function ( i ) {
+    ( function ( i ) {
 
-			var item = items[ i ];
+      var item = items[ i ];
 
-			var option = new UI.Row();
-			option.setClass( 'option' );
-			option.setTextContent( item.title );
-			option.onClick( function () {
+      var option = new UI.Row();
+      option.setClass( 'option' );
+      option.setTextContent( item.title );
+      option.onClick( function () {
 
-				if ( confirm( 'Any unsaved data will be lost. Are you sure?' ) ) {
+        if ( confirm( 'Any unsaved data will be lost. Are you sure?' ) ) {
 
-					loader.load( 'examples/' + item.file, function ( text ) {
+          loader.load( 'examples/' + item.file, function ( text ) {
 
-						editor.clear();
-						editor.fromJSON( JSON.parse( text ) );
+            editor.clear();
+            editor.fromJSON( JSON.parse( text ) );
 
-					} );
+          } );
 
-				}
+        }
 
-			} );
-			options.add( option );
+      } );
+      options.add( option );
 
-		} )( i )
+    } )( i )
 
-	}
+  }
 
-	return container;
+  return container;
 
 };

@@ -30,780 +30,780 @@ References:
 
 SEA3D.LZMA = function () {
 
-	var LZMA = LZMA || {};
+  var LZMA = LZMA || {};
 
-	LZMA.OutWindow = function () {
+  LZMA.OutWindow = function () {
 
-		this._windowSize = 0;
+    this._windowSize = 0;
 
-	};
+  };
 
-	LZMA.OutWindow.prototype.create = function ( windowSize ) {
+  LZMA.OutWindow.prototype.create = function ( windowSize ) {
 
-		if ( ( ! this._buffer ) || ( this._windowSize !== windowSize ) ) {
+    if ( ( ! this._buffer ) || ( this._windowSize !== windowSize ) ) {
 
-			this._buffer = [];
+      this._buffer = [];
 
-		}
-		this._windowSize = windowSize;
-		this._pos = 0;
-		this._streamPos = 0;
+    }
+    this._windowSize = windowSize;
+    this._pos = 0;
+    this._streamPos = 0;
 
-	};
+  };
 
-	LZMA.OutWindow.prototype.flush = function () {
+  LZMA.OutWindow.prototype.flush = function () {
 
-		var size = this._pos - this._streamPos;
-		if ( size !== 0 ) {
+    var size = this._pos - this._streamPos;
+    if ( size !== 0 ) {
 
-			while ( size -- ) {
+      while ( size -- ) {
 
-				this._stream.writeByte( this._buffer[ this._streamPos ++ ] );
+        this._stream.writeByte( this._buffer[ this._streamPos ++ ] );
 
-			}
-			if ( this._pos >= this._windowSize ) {
+      }
+      if ( this._pos >= this._windowSize ) {
 
-				this._pos = 0;
+        this._pos = 0;
 
-			}
-			this._streamPos = this._pos;
+      }
+      this._streamPos = this._pos;
 
-		}
+    }
 
-	};
+  };
 
-	LZMA.OutWindow.prototype.releaseStream = function () {
+  LZMA.OutWindow.prototype.releaseStream = function () {
 
-		this.flush();
-		this._stream = null;
+    this.flush();
+    this._stream = null;
 
-	};
+  };
 
-	LZMA.OutWindow.prototype.setStream = function ( stream ) {
+  LZMA.OutWindow.prototype.setStream = function ( stream ) {
 
-		this.releaseStream();
-		this._stream = stream;
+    this.releaseStream();
+    this._stream = stream;
 
-	};
+  };
 
-	LZMA.OutWindow.prototype.init = function ( solid ) {
+  LZMA.OutWindow.prototype.init = function ( solid ) {
 
-		if ( ! solid ) {
+    if ( ! solid ) {
 
-			this._streamPos = 0;
-			this._pos = 0;
+      this._streamPos = 0;
+      this._pos = 0;
 
-		}
+    }
 
-	};
+  };
 
-	LZMA.OutWindow.prototype.copyBlock = function ( distance, len ) {
+  LZMA.OutWindow.prototype.copyBlock = function ( distance, len ) {
 
-		var pos = this._pos - distance - 1;
-		if ( pos < 0 ) {
+    var pos = this._pos - distance - 1;
+    if ( pos < 0 ) {
 
-			pos += this._windowSize;
+      pos += this._windowSize;
 
-		}
-		while ( len -- ) {
+    }
+    while ( len -- ) {
 
-			if ( pos >= this._windowSize ) {
+      if ( pos >= this._windowSize ) {
 
-				pos = 0;
+        pos = 0;
 
-			}
-			this._buffer[ this._pos ++ ] = this._buffer[ pos ++ ];
-			if ( this._pos >= this._windowSize ) {
+      }
+      this._buffer[ this._pos ++ ] = this._buffer[ pos ++ ];
+      if ( this._pos >= this._windowSize ) {
 
-				this.flush();
+        this.flush();
 
-			}
+      }
 
-		}
+    }
 
-	};
+  };
 
-	LZMA.OutWindow.prototype.putByte = function ( b ) {
+  LZMA.OutWindow.prototype.putByte = function ( b ) {
 
-		this._buffer[ this._pos ++ ] = b;
-		if ( this._pos >= this._windowSize ) {
+    this._buffer[ this._pos ++ ] = b;
+    if ( this._pos >= this._windowSize ) {
 
-			this.flush();
+      this.flush();
 
-		}
+    }
 
-	};
+  };
 
-	LZMA.OutWindow.prototype.getByte = function ( distance ) {
+  LZMA.OutWindow.prototype.getByte = function ( distance ) {
 
-		var pos = this._pos - distance - 1;
-		if ( pos < 0 ) {
+    var pos = this._pos - distance - 1;
+    if ( pos < 0 ) {
 
-			pos += this._windowSize;
+      pos += this._windowSize;
 
-		}
-		return this._buffer[ pos ];
+    }
+    return this._buffer[ pos ];
 
-	};
+  };
 
-	LZMA.RangeDecoder = function () {
-	};
+  LZMA.RangeDecoder = function () {
+  };
 
-	LZMA.RangeDecoder.prototype.setStream = function ( stream ) {
+  LZMA.RangeDecoder.prototype.setStream = function ( stream ) {
 
-		this._stream = stream;
+    this._stream = stream;
 
-	};
+  };
 
-	LZMA.RangeDecoder.prototype.releaseStream = function () {
+  LZMA.RangeDecoder.prototype.releaseStream = function () {
 
-		this._stream = null;
+    this._stream = null;
 
-	};
+  };
 
-	LZMA.RangeDecoder.prototype.init = function () {
+  LZMA.RangeDecoder.prototype.init = function () {
 
-		var i = 5;
+    var i = 5;
 
-		this._code = 0;
-		this._range = - 1;
+    this._code = 0;
+    this._range = - 1;
 
-		while ( i -- ) {
+    while ( i -- ) {
 
-			this._code = ( this._code << 8 ) | this._stream.readByte();
+      this._code = ( this._code << 8 ) | this._stream.readByte();
 
-		}
+    }
 
-	};
+  };
 
-	LZMA.RangeDecoder.prototype.decodeDirectBits = function ( numTotalBits ) {
+  LZMA.RangeDecoder.prototype.decodeDirectBits = function ( numTotalBits ) {
 
-		var result = 0, i = numTotalBits, t;
+    var result = 0, i = numTotalBits, t;
 
-		while ( i -- ) {
+    while ( i -- ) {
 
-			this._range >>>= 1;
-			t = ( this._code - this._range ) >>> 31;
-			this._code -= this._range & ( t - 1 );
-			result = ( result << 1 ) | ( 1 - t );
+      this._range >>>= 1;
+      t = ( this._code - this._range ) >>> 31;
+      this._code -= this._range & ( t - 1 );
+      result = ( result << 1 ) | ( 1 - t );
 
-			if ( ( this._range & 0xff000000 ) === 0 ) {
+      if ( ( this._range & 0xff000000 ) === 0 ) {
 
-				this._code = ( this._code << 8 ) | this._stream.readByte();
-				this._range <<= 8;
+        this._code = ( this._code << 8 ) | this._stream.readByte();
+        this._range <<= 8;
 
-			}
+      }
 
-		}
+    }
 
-		return result;
+    return result;
 
-	};
+  };
 
-	LZMA.RangeDecoder.prototype.decodeBit = function ( probs, index ) {
+  LZMA.RangeDecoder.prototype.decodeBit = function ( probs, index ) {
 
-		var prob = probs[ index ],
-			newBound = ( this._range >>> 11 ) * prob;
+    var prob = probs[ index ],
+      newBound = ( this._range >>> 11 ) * prob;
 
-		if ( ( this._code ^ 0x80000000 ) < ( newBound ^ 0x80000000 ) ) {
+    if ( ( this._code ^ 0x80000000 ) < ( newBound ^ 0x80000000 ) ) {
 
-			this._range = newBound;
-			probs[ index ] += ( 2048 - prob ) >>> 5;
-			if ( ( this._range & 0xff000000 ) === 0 ) {
+      this._range = newBound;
+      probs[ index ] += ( 2048 - prob ) >>> 5;
+      if ( ( this._range & 0xff000000 ) === 0 ) {
 
-				this._code = ( this._code << 8 ) | this._stream.readByte();
-				this._range <<= 8;
+        this._code = ( this._code << 8 ) | this._stream.readByte();
+        this._range <<= 8;
 
-			}
-			return 0;
+      }
+      return 0;
 
-		}
+    }
 
-		this._range -= newBound;
-		this._code -= newBound;
-		probs[ index ] -= prob >>> 5;
-		if ( ( this._range & 0xff000000 ) === 0 ) {
+    this._range -= newBound;
+    this._code -= newBound;
+    probs[ index ] -= prob >>> 5;
+    if ( ( this._range & 0xff000000 ) === 0 ) {
 
-			this._code = ( this._code << 8 ) | this._stream.readByte();
-			this._range <<= 8;
+      this._code = ( this._code << 8 ) | this._stream.readByte();
+      this._range <<= 8;
 
-		}
-		return 1;
+    }
+    return 1;
 
-	};
+  };
 
-	LZMA.initBitModels = function ( probs, len ) {
+  LZMA.initBitModels = function ( probs, len ) {
 
-		while ( len -- ) {
+    while ( len -- ) {
 
-			probs[ len ] = 1024;
+      probs[ len ] = 1024;
 
-		}
+    }
 
-	};
+  };
 
-	LZMA.BitTreeDecoder = function ( numBitLevels ) {
+  LZMA.BitTreeDecoder = function ( numBitLevels ) {
 
-		this._models = [];
-		this._numBitLevels = numBitLevels;
+    this._models = [];
+    this._numBitLevels = numBitLevels;
 
-	};
+  };
 
-	LZMA.BitTreeDecoder.prototype.init = function () {
+  LZMA.BitTreeDecoder.prototype.init = function () {
 
-		LZMA.initBitModels( this._models, 1 << this._numBitLevels );
+    LZMA.initBitModels( this._models, 1 << this._numBitLevels );
 
-	};
+  };
 
-	LZMA.BitTreeDecoder.prototype.decode = function ( rangeDecoder ) {
+  LZMA.BitTreeDecoder.prototype.decode = function ( rangeDecoder ) {
 
-		var m = 1, i = this._numBitLevels;
+    var m = 1, i = this._numBitLevels;
 
-		while ( i -- ) {
+    while ( i -- ) {
 
-			m = ( m << 1 ) | rangeDecoder.decodeBit( this._models, m );
+      m = ( m << 1 ) | rangeDecoder.decodeBit( this._models, m );
 
-		}
-		return m - ( 1 << this._numBitLevels );
+    }
+    return m - ( 1 << this._numBitLevels );
 
-	};
+  };
 
-	LZMA.BitTreeDecoder.prototype.reverseDecode = function ( rangeDecoder ) {
+  LZMA.BitTreeDecoder.prototype.reverseDecode = function ( rangeDecoder ) {
 
-		var m = 1, symbol = 0, i = 0, bit;
+    var m = 1, symbol = 0, i = 0, bit;
 
-		for ( ; i < this._numBitLevels; ++ i ) {
+    for ( ; i < this._numBitLevels; ++ i ) {
 
-			bit = rangeDecoder.decodeBit( this._models, m );
-			m = ( m << 1 ) | bit;
-			symbol |= bit << i;
+      bit = rangeDecoder.decodeBit( this._models, m );
+      m = ( m << 1 ) | bit;
+      symbol |= bit << i;
 
-		}
-		return symbol;
+    }
+    return symbol;
 
-	};
+  };
 
-	LZMA.reverseDecode2 = function ( models, startIndex, rangeDecoder, numBitLevels ) {
+  LZMA.reverseDecode2 = function ( models, startIndex, rangeDecoder, numBitLevels ) {
 
-		var m = 1, symbol = 0, i = 0, bit;
+    var m = 1, symbol = 0, i = 0, bit;
 
-		for ( ; i < numBitLevels; ++ i ) {
+    for ( ; i < numBitLevels; ++ i ) {
 
-			bit = rangeDecoder.decodeBit( models, startIndex + m );
-			m = ( m << 1 ) | bit;
-			symbol |= bit << i;
+      bit = rangeDecoder.decodeBit( models, startIndex + m );
+      m = ( m << 1 ) | bit;
+      symbol |= bit << i;
 
-		}
-		return symbol;
+    }
+    return symbol;
 
-	};
+  };
 
-	LZMA.LenDecoder = function () {
+  LZMA.LenDecoder = function () {
 
-		this._choice = [];
-		this._lowCoder = [];
-		this._midCoder = [];
-		this._highCoder = new LZMA.BitTreeDecoder( 8 );
-		this._numPosStates = 0;
+    this._choice = [];
+    this._lowCoder = [];
+    this._midCoder = [];
+    this._highCoder = new LZMA.BitTreeDecoder( 8 );
+    this._numPosStates = 0;
 
-	};
+  };
 
-	LZMA.LenDecoder.prototype.create = function ( numPosStates ) {
+  LZMA.LenDecoder.prototype.create = function ( numPosStates ) {
 
-		for ( ; this._numPosStates < numPosStates; ++ this._numPosStates ) {
+    for ( ; this._numPosStates < numPosStates; ++ this._numPosStates ) {
 
-			this._lowCoder[ this._numPosStates ] = new LZMA.BitTreeDecoder( 3 );
-			this._midCoder[ this._numPosStates ] = new LZMA.BitTreeDecoder( 3 );
+      this._lowCoder[ this._numPosStates ] = new LZMA.BitTreeDecoder( 3 );
+      this._midCoder[ this._numPosStates ] = new LZMA.BitTreeDecoder( 3 );
 
-		}
+    }
 
-	};
+  };
 
-	LZMA.LenDecoder.prototype.init = function () {
+  LZMA.LenDecoder.prototype.init = function () {
 
-		var i = this._numPosStates;
-		LZMA.initBitModels( this._choice, 2 );
-		while ( i -- ) {
+    var i = this._numPosStates;
+    LZMA.initBitModels( this._choice, 2 );
+    while ( i -- ) {
 
-			this._lowCoder[ i ].init();
-			this._midCoder[ i ].init();
+      this._lowCoder[ i ].init();
+      this._midCoder[ i ].init();
 
-		}
-		this._highCoder.init();
+    }
+    this._highCoder.init();
 
-	};
+  };
 
-	LZMA.LenDecoder.prototype.decode = function ( rangeDecoder, posState ) {
+  LZMA.LenDecoder.prototype.decode = function ( rangeDecoder, posState ) {
 
-		if ( rangeDecoder.decodeBit( this._choice, 0 ) === 0 ) {
+    if ( rangeDecoder.decodeBit( this._choice, 0 ) === 0 ) {
 
-			return this._lowCoder[ posState ].decode( rangeDecoder );
+      return this._lowCoder[ posState ].decode( rangeDecoder );
 
-		}
-		if ( rangeDecoder.decodeBit( this._choice, 1 ) === 0 ) {
+    }
+    if ( rangeDecoder.decodeBit( this._choice, 1 ) === 0 ) {
 
-			return 8 + this._midCoder[ posState ].decode( rangeDecoder );
+      return 8 + this._midCoder[ posState ].decode( rangeDecoder );
 
-		}
-		return 16 + this._highCoder.decode( rangeDecoder );
+    }
+    return 16 + this._highCoder.decode( rangeDecoder );
 
-	};
+  };
 
-	LZMA.Decoder2 = function () {
+  LZMA.Decoder2 = function () {
 
-		this._decoders = [];
+    this._decoders = [];
 
-	};
+  };
 
-	LZMA.Decoder2.prototype.init = function () {
+  LZMA.Decoder2.prototype.init = function () {
 
-		LZMA.initBitModels( this._decoders, 0x300 );
+    LZMA.initBitModels( this._decoders, 0x300 );
 
-	};
+  };
 
-	LZMA.Decoder2.prototype.decodeNormal = function ( rangeDecoder ) {
+  LZMA.Decoder2.prototype.decodeNormal = function ( rangeDecoder ) {
 
-		var symbol = 1;
+    var symbol = 1;
 
-		do {
+    do {
 
-			symbol = ( symbol << 1 ) | rangeDecoder.decodeBit( this._decoders, symbol );
+      symbol = ( symbol << 1 ) | rangeDecoder.decodeBit( this._decoders, symbol );
 
-		}while ( symbol < 0x100 );
+    }while ( symbol < 0x100 );
 
-		return symbol & 0xff;
+    return symbol & 0xff;
 
-	};
+  };
 
-	LZMA.Decoder2.prototype.decodeWithMatchByte = function ( rangeDecoder, matchByte ) {
+  LZMA.Decoder2.prototype.decodeWithMatchByte = function ( rangeDecoder, matchByte ) {
 
-		var symbol = 1, matchBit, bit;
+    var symbol = 1, matchBit, bit;
 
-		do {
+    do {
 
-			matchBit = ( matchByte >> 7 ) & 1;
-			matchByte <<= 1;
-			bit = rangeDecoder.decodeBit( this._decoders, ( ( 1 + matchBit ) << 8 ) + symbol );
-			symbol = ( symbol << 1 ) | bit;
-			if ( matchBit !== bit ) {
+      matchBit = ( matchByte >> 7 ) & 1;
+      matchByte <<= 1;
+      bit = rangeDecoder.decodeBit( this._decoders, ( ( 1 + matchBit ) << 8 ) + symbol );
+      symbol = ( symbol << 1 ) | bit;
+      if ( matchBit !== bit ) {
 
-				while ( symbol < 0x100 ) {
+        while ( symbol < 0x100 ) {
 
-					symbol = ( symbol << 1 ) | rangeDecoder.decodeBit( this._decoders, symbol );
+          symbol = ( symbol << 1 ) | rangeDecoder.decodeBit( this._decoders, symbol );
 
-				}
-				break;
+        }
+        break;
 
-			}
+      }
 
-		}while ( symbol < 0x100 );
+    }while ( symbol < 0x100 );
 
-		return symbol & 0xff;
+    return symbol & 0xff;
 
-	};
+  };
 
-	LZMA.LiteralDecoder = function () {
-	};
+  LZMA.LiteralDecoder = function () {
+  };
 
-	LZMA.LiteralDecoder.prototype.create = function ( numPosBits, numPrevBits ) {
+  LZMA.LiteralDecoder.prototype.create = function ( numPosBits, numPrevBits ) {
 
-		var i;
+    var i;
 
-		if ( this._coders
-			&& ( this._numPrevBits === numPrevBits )
-			&& ( this._numPosBits === numPosBits ) ) {
+    if ( this._coders
+      && ( this._numPrevBits === numPrevBits )
+      && ( this._numPosBits === numPosBits ) ) {
 
-			return;
+      return;
 
-		}
-		this._numPosBits = numPosBits;
-		this._posMask = ( 1 << numPosBits ) - 1;
-		this._numPrevBits = numPrevBits;
+    }
+    this._numPosBits = numPosBits;
+    this._posMask = ( 1 << numPosBits ) - 1;
+    this._numPrevBits = numPrevBits;
 
-		this._coders = [];
+    this._coders = [];
 
-		i = 1 << ( this._numPrevBits + this._numPosBits );
-		while ( i -- ) {
+    i = 1 << ( this._numPrevBits + this._numPosBits );
+    while ( i -- ) {
 
-			this._coders[ i ] = new LZMA.Decoder2();
+      this._coders[ i ] = new LZMA.Decoder2();
 
-		}
+    }
 
-	};
+  };
 
-	LZMA.LiteralDecoder.prototype.init = function () {
+  LZMA.LiteralDecoder.prototype.init = function () {
 
-		var i = 1 << ( this._numPrevBits + this._numPosBits );
-		while ( i -- ) {
+    var i = 1 << ( this._numPrevBits + this._numPosBits );
+    while ( i -- ) {
 
-			this._coders[ i ].init();
+      this._coders[ i ].init();
 
-		}
+    }
 
-	};
+  };
 
-	LZMA.LiteralDecoder.prototype.getDecoder = function ( pos, prevByte ) {
+  LZMA.LiteralDecoder.prototype.getDecoder = function ( pos, prevByte ) {
 
-		return this._coders[ ( ( pos & this._posMask ) << this._numPrevBits )
-			+ ( ( prevByte & 0xff ) >>> ( 8 - this._numPrevBits ) ) ];
+    return this._coders[ ( ( pos & this._posMask ) << this._numPrevBits )
+      + ( ( prevByte & 0xff ) >>> ( 8 - this._numPrevBits ) ) ];
 
-	};
+  };
 
-	LZMA.Decoder = function () {
+  LZMA.Decoder = function () {
 
-		this._outWindow = new LZMA.OutWindow();
-		this._rangeDecoder = new LZMA.RangeDecoder();
-		this._isMatchDecoders = [];
-		this._isRepDecoders = [];
-		this._isRepG0Decoders = [];
-		this._isRepG1Decoders = [];
-		this._isRepG2Decoders = [];
-		this._isRep0LongDecoders = [];
-		this._posSlotDecoder = [];
-		this._posDecoders = [];
-		this._posAlignDecoder = new LZMA.BitTreeDecoder( 4 );
-		this._lenDecoder = new LZMA.LenDecoder();
-		this._repLenDecoder = new LZMA.LenDecoder();
-		this._literalDecoder = new LZMA.LiteralDecoder();
-		this._dictionarySize = - 1;
-		this._dictionarySizeCheck = - 1;
+    this._outWindow = new LZMA.OutWindow();
+    this._rangeDecoder = new LZMA.RangeDecoder();
+    this._isMatchDecoders = [];
+    this._isRepDecoders = [];
+    this._isRepG0Decoders = [];
+    this._isRepG1Decoders = [];
+    this._isRepG2Decoders = [];
+    this._isRep0LongDecoders = [];
+    this._posSlotDecoder = [];
+    this._posDecoders = [];
+    this._posAlignDecoder = new LZMA.BitTreeDecoder( 4 );
+    this._lenDecoder = new LZMA.LenDecoder();
+    this._repLenDecoder = new LZMA.LenDecoder();
+    this._literalDecoder = new LZMA.LiteralDecoder();
+    this._dictionarySize = - 1;
+    this._dictionarySizeCheck = - 1;
 
-		this._posSlotDecoder[ 0 ] = new LZMA.BitTreeDecoder( 6 );
-		this._posSlotDecoder[ 1 ] = new LZMA.BitTreeDecoder( 6 );
-		this._posSlotDecoder[ 2 ] = new LZMA.BitTreeDecoder( 6 );
-		this._posSlotDecoder[ 3 ] = new LZMA.BitTreeDecoder( 6 );
+    this._posSlotDecoder[ 0 ] = new LZMA.BitTreeDecoder( 6 );
+    this._posSlotDecoder[ 1 ] = new LZMA.BitTreeDecoder( 6 );
+    this._posSlotDecoder[ 2 ] = new LZMA.BitTreeDecoder( 6 );
+    this._posSlotDecoder[ 3 ] = new LZMA.BitTreeDecoder( 6 );
 
-	};
+  };
 
-	LZMA.Decoder.prototype.setDictionarySize = function ( dictionarySize ) {
+  LZMA.Decoder.prototype.setDictionarySize = function ( dictionarySize ) {
 
-		if ( dictionarySize < 0 ) {
+    if ( dictionarySize < 0 ) {
 
-			return false;
+      return false;
 
-		}
-		if ( this._dictionarySize !== dictionarySize ) {
+    }
+    if ( this._dictionarySize !== dictionarySize ) {
 
-			this._dictionarySize = dictionarySize;
-			this._dictionarySizeCheck = Math.max( this._dictionarySize, 1 );
-			this._outWindow.create( Math.max( this._dictionarySizeCheck, 4096 ) );
+      this._dictionarySize = dictionarySize;
+      this._dictionarySizeCheck = Math.max( this._dictionarySize, 1 );
+      this._outWindow.create( Math.max( this._dictionarySizeCheck, 4096 ) );
 
-		}
-		return true;
+    }
+    return true;
 
-	};
+  };
 
-	LZMA.Decoder.prototype.setLcLpPb = function ( lc, lp, pb ) {
+  LZMA.Decoder.prototype.setLcLpPb = function ( lc, lp, pb ) {
 
-		var numPosStates = 1 << pb;
+    var numPosStates = 1 << pb;
 
-		if ( lc > 8 || lp > 4 || pb > 4 ) {
+    if ( lc > 8 || lp > 4 || pb > 4 ) {
 
-			return false;
+      return false;
 
-		}
+    }
 
-		this._literalDecoder.create( lp, lc );
+    this._literalDecoder.create( lp, lc );
 
-		this._lenDecoder.create( numPosStates );
-		this._repLenDecoder.create( numPosStates );
-		this._posStateMask = numPosStates - 1;
+    this._lenDecoder.create( numPosStates );
+    this._repLenDecoder.create( numPosStates );
+    this._posStateMask = numPosStates - 1;
 
-		return true;
+    return true;
 
-	};
+  };
 
-	LZMA.Decoder.prototype.init = function () {
+  LZMA.Decoder.prototype.init = function () {
 
-		var i = 4;
+    var i = 4;
 
-		this._outWindow.init( false );
+    this._outWindow.init( false );
 
-		LZMA.initBitModels( this._isMatchDecoders, 192 );
-		LZMA.initBitModels( this._isRep0LongDecoders, 192 );
-		LZMA.initBitModels( this._isRepDecoders, 12 );
-		LZMA.initBitModels( this._isRepG0Decoders, 12 );
-		LZMA.initBitModels( this._isRepG1Decoders, 12 );
-		LZMA.initBitModels( this._isRepG2Decoders, 12 );
-		LZMA.initBitModels( this._posDecoders, 114 );
+    LZMA.initBitModels( this._isMatchDecoders, 192 );
+    LZMA.initBitModels( this._isRep0LongDecoders, 192 );
+    LZMA.initBitModels( this._isRepDecoders, 12 );
+    LZMA.initBitModels( this._isRepG0Decoders, 12 );
+    LZMA.initBitModels( this._isRepG1Decoders, 12 );
+    LZMA.initBitModels( this._isRepG2Decoders, 12 );
+    LZMA.initBitModels( this._posDecoders, 114 );
 
-		this._literalDecoder.init();
+    this._literalDecoder.init();
 
-		while ( i -- ) {
+    while ( i -- ) {
 
-			this._posSlotDecoder[ i ].init();
+      this._posSlotDecoder[ i ].init();
 
-		}
+    }
 
-		this._lenDecoder.init();
-		this._repLenDecoder.init();
-		this._posAlignDecoder.init();
-		this._rangeDecoder.init();
+    this._lenDecoder.init();
+    this._repLenDecoder.init();
+    this._posAlignDecoder.init();
+    this._rangeDecoder.init();
 
-	};
+  };
 
-	LZMA.Decoder.prototype.decode = function ( inStream, outStream, outSize ) {
+  LZMA.Decoder.prototype.decode = function ( inStream, outStream, outSize ) {
 
-		var state = 0, rep0 = 0, rep1 = 0, rep2 = 0, rep3 = 0, nowPos64 = 0, prevByte = 0,
-			posState, decoder2, len, distance, posSlot, numDirectBits;
+    var state = 0, rep0 = 0, rep1 = 0, rep2 = 0, rep3 = 0, nowPos64 = 0, prevByte = 0,
+      posState, decoder2, len, distance, posSlot, numDirectBits;
 
-		this._rangeDecoder.setStream( inStream );
-		this._outWindow.setStream( outStream );
+    this._rangeDecoder.setStream( inStream );
+    this._outWindow.setStream( outStream );
 
-		this.init();
+    this.init();
 
-		while ( outSize < 0 || nowPos64 < outSize ) {
+    while ( outSize < 0 || nowPos64 < outSize ) {
 
-			posState = nowPos64 & this._posStateMask;
+      posState = nowPos64 & this._posStateMask;
 
-			if ( this._rangeDecoder.decodeBit( this._isMatchDecoders, ( state << 4 ) + posState ) === 0 ) {
+      if ( this._rangeDecoder.decodeBit( this._isMatchDecoders, ( state << 4 ) + posState ) === 0 ) {
 
-				decoder2 = this._literalDecoder.getDecoder( nowPos64 ++, prevByte );
+        decoder2 = this._literalDecoder.getDecoder( nowPos64 ++, prevByte );
 
-				if ( state >= 7 ) {
+        if ( state >= 7 ) {
 
-					prevByte = decoder2.decodeWithMatchByte( this._rangeDecoder, this._outWindow.getByte( rep0 ) );
+          prevByte = decoder2.decodeWithMatchByte( this._rangeDecoder, this._outWindow.getByte( rep0 ) );
 
-				} else {
+        } else {
 
-					prevByte = decoder2.decodeNormal( this._rangeDecoder );
+          prevByte = decoder2.decodeNormal( this._rangeDecoder );
 
-				}
-				this._outWindow.putByte( prevByte );
+        }
+        this._outWindow.putByte( prevByte );
 
-				state = state < 4 ? 0 : state - ( state < 10 ? 3 : 6 );
+        state = state < 4 ? 0 : state - ( state < 10 ? 3 : 6 );
 
-			} else {
+      } else {
 
-				if ( this._rangeDecoder.decodeBit( this._isRepDecoders, state ) === 1 ) {
+        if ( this._rangeDecoder.decodeBit( this._isRepDecoders, state ) === 1 ) {
 
-					len = 0;
-					if ( this._rangeDecoder.decodeBit( this._isRepG0Decoders, state ) === 0 ) {
+          len = 0;
+          if ( this._rangeDecoder.decodeBit( this._isRepG0Decoders, state ) === 0 ) {
 
-						if ( this._rangeDecoder.decodeBit( this._isRep0LongDecoders, ( state << 4 ) + posState ) === 0 ) {
+            if ( this._rangeDecoder.decodeBit( this._isRep0LongDecoders, ( state << 4 ) + posState ) === 0 ) {
 
-							state = state < 7 ? 9 : 11;
-							len = 1;
+              state = state < 7 ? 9 : 11;
+              len = 1;
 
-						}
+            }
 
-					} else {
+          } else {
 
-						if ( this._rangeDecoder.decodeBit( this._isRepG1Decoders, state ) === 0 ) {
+            if ( this._rangeDecoder.decodeBit( this._isRepG1Decoders, state ) === 0 ) {
 
-							distance = rep1;
+              distance = rep1;
 
-						} else {
+            } else {
 
-							if ( this._rangeDecoder.decodeBit( this._isRepG2Decoders, state ) === 0 ) {
+              if ( this._rangeDecoder.decodeBit( this._isRepG2Decoders, state ) === 0 ) {
 
-								distance = rep2;
+                distance = rep2;
 
-							} else {
+              } else {
 
-								distance = rep3;
-								rep3 = rep2;
+                distance = rep3;
+                rep3 = rep2;
 
-							}
-							rep2 = rep1;
+              }
+              rep2 = rep1;
 
-						}
-						rep1 = rep0;
-						rep0 = distance;
+            }
+            rep1 = rep0;
+            rep0 = distance;
 
-					}
-					if ( len === 0 ) {
+          }
+          if ( len === 0 ) {
 
-						len = 2 + this._repLenDecoder.decode( this._rangeDecoder, posState );
-						state = state < 7 ? 8 : 11;
+            len = 2 + this._repLenDecoder.decode( this._rangeDecoder, posState );
+            state = state < 7 ? 8 : 11;
 
-					}
+          }
 
-				} else {
+        } else {
 
-					rep3 = rep2;
-					rep2 = rep1;
-					rep1 = rep0;
+          rep3 = rep2;
+          rep2 = rep1;
+          rep1 = rep0;
 
-					len = 2 + this._lenDecoder.decode( this._rangeDecoder, posState );
-					state = state < 7 ? 7 : 10;
+          len = 2 + this._lenDecoder.decode( this._rangeDecoder, posState );
+          state = state < 7 ? 7 : 10;
 
-					posSlot = this._posSlotDecoder[ len <= 5 ? len - 2 : 3 ].decode( this._rangeDecoder );
-					if ( posSlot >= 4 ) {
+          posSlot = this._posSlotDecoder[ len <= 5 ? len - 2 : 3 ].decode( this._rangeDecoder );
+          if ( posSlot >= 4 ) {
 
-						numDirectBits = ( posSlot >> 1 ) - 1;
-						rep0 = ( 2 | ( posSlot & 1 ) ) << numDirectBits;
+            numDirectBits = ( posSlot >> 1 ) - 1;
+            rep0 = ( 2 | ( posSlot & 1 ) ) << numDirectBits;
 
-						if ( posSlot < 14 ) {
+            if ( posSlot < 14 ) {
 
-							rep0 += LZMA.reverseDecode2( this._posDecoders,
-								rep0 - posSlot - 1, this._rangeDecoder, numDirectBits );
+              rep0 += LZMA.reverseDecode2( this._posDecoders,
+                rep0 - posSlot - 1, this._rangeDecoder, numDirectBits );
 
-						} else {
+            } else {
 
-							rep0 += this._rangeDecoder.decodeDirectBits( numDirectBits - 4 ) << 4;
-							rep0 += this._posAlignDecoder.reverseDecode( this._rangeDecoder );
-							if ( rep0 < 0 ) {
+              rep0 += this._rangeDecoder.decodeDirectBits( numDirectBits - 4 ) << 4;
+              rep0 += this._posAlignDecoder.reverseDecode( this._rangeDecoder );
+              if ( rep0 < 0 ) {
 
-								if ( rep0 === - 1 ) {
+                if ( rep0 === - 1 ) {
 
-									break;
+                  break;
 
-								}
-								return false;
+                }
+                return false;
 
-							}
+              }
 
-						}
+            }
 
-					} else {
+          } else {
 
-						rep0 = posSlot;
+            rep0 = posSlot;
 
-					}
+          }
 
-				}
+        }
 
-				if ( rep0 >= nowPos64 || rep0 >= this._dictionarySizeCheck ) {
+        if ( rep0 >= nowPos64 || rep0 >= this._dictionarySizeCheck ) {
 
-					return false;
+          return false;
 
-				}
+        }
 
-				this._outWindow.copyBlock( rep0, len );
-				nowPos64 += len;
-				prevByte = this._outWindow.getByte( 0 );
+        this._outWindow.copyBlock( rep0, len );
+        nowPos64 += len;
+        prevByte = this._outWindow.getByte( 0 );
 
-			}
+      }
 
-		}
+    }
 
-		this._outWindow.flush();
-		this._outWindow.releaseStream();
-		this._rangeDecoder.releaseStream();
+    this._outWindow.flush();
+    this._outWindow.releaseStream();
+    this._rangeDecoder.releaseStream();
 
-		return true;
+    return true;
 
-	};
+  };
 
-	LZMA.Decoder.prototype.setDecoderProperties = function ( properties ) {
+  LZMA.Decoder.prototype.setDecoderProperties = function ( properties ) {
 
-		var value, lc, lp, pb, dictionarySize;
+    var value, lc, lp, pb, dictionarySize;
 
-		if ( properties.size < 5 ) {
+    if ( properties.size < 5 ) {
 
-			return false;
+      return false;
 
-		}
+    }
 
-		value = properties.readByte();
-		lc = value % 9;
-		value = ~~ ( value / 9 );
-		lp = value % 5;
-		pb = ~~ ( value / 5 );
+    value = properties.readByte();
+    lc = value % 9;
+    value = ~~ ( value / 9 );
+    lp = value % 5;
+    pb = ~~ ( value / 5 );
 
-		if ( ! this.setLcLpPb( lc, lp, pb ) ) {
+    if ( ! this.setLcLpPb( lc, lp, pb ) ) {
 
-			return false;
+      return false;
 
-		}
+    }
 
-		dictionarySize = properties.readByte();
-		dictionarySize |= properties.readByte() << 8;
-		dictionarySize |= properties.readByte() << 16;
-		dictionarySize += properties.readByte() * 16777216;
+    dictionarySize = properties.readByte();
+    dictionarySize |= properties.readByte() << 8;
+    dictionarySize |= properties.readByte() << 16;
+    dictionarySize += properties.readByte() * 16777216;
 
-		return this.setDictionarySize( dictionarySize );
+    return this.setDictionarySize( dictionarySize );
 
-	};
+  };
 
-	LZMA.decompress = function ( properties, inStream, outStream, outSize ) {
+  LZMA.decompress = function ( properties, inStream, outStream, outSize ) {
 
-		var decoder = new LZMA.Decoder();
+    var decoder = new LZMA.Decoder();
 
-		if ( ! decoder.setDecoderProperties( properties ) ) {
+    if ( ! decoder.setDecoderProperties( properties ) ) {
 
-			throw "Incorrect stream properties";
+      throw "Incorrect stream properties";
 
-		}
+    }
 
-		if ( ! decoder.decode( inStream, outStream, outSize ) ) {
+    if ( ! decoder.decode( inStream, outStream, outSize ) ) {
 
-			throw "Error in data stream";
+      throw "Error in data stream";
 
-		}
+    }
 
-		return true;
+    return true;
 
-	};
+  };
 
-	LZMA.decompressFile = function ( inStream, outStream ) {
+  LZMA.decompressFile = function ( inStream, outStream ) {
 
-		var decoder = new LZMA.Decoder(), outSize;
+    var decoder = new LZMA.Decoder(), outSize;
 
-		if ( ! decoder.setDecoderProperties( inStream ) ) {
+    if ( ! decoder.setDecoderProperties( inStream ) ) {
 
-			throw "Incorrect stream properties";
+      throw "Incorrect stream properties";
 
-		}
+    }
 
-		outSize = inStream.readByte();
-		outSize |= inStream.readByte() << 8;
-		outSize |= inStream.readByte() << 16;
-		outSize += inStream.readByte() * 16777216;
+    outSize = inStream.readByte();
+    outSize |= inStream.readByte() << 8;
+    outSize |= inStream.readByte() << 16;
+    outSize += inStream.readByte() * 16777216;
 
-		inStream.readByte();
-		inStream.readByte();
-		inStream.readByte();
-		inStream.readByte();
+    inStream.readByte();
+    inStream.readByte();
+    inStream.readByte();
+    inStream.readByte();
 
-		if ( ! decoder.decode( inStream, outStream, outSize ) ) {
+    if ( ! decoder.decode( inStream, outStream, outSize ) ) {
 
-			throw "Error in data stream";
+      throw "Error in data stream";
 
-		}
+    }
 
-		return true;
+    return true;
 
-	};
+  };
 
-	return LZMA;
+  return LZMA;
 
 }();
 
 
 /**
- * 	SEA3D LZMA
- * 	@author Sunag / http://www.sunag.com.br/
+ *  SEA3D LZMA
+ *  @author Sunag / http://www.sunag.com.br/
  */
 
 SEA3D.File.LZMAUncompress = function ( data ) {
 
-	data = new Uint8Array( data );
+  data = new Uint8Array( data );
 
-	var inStream = {
-		data: data,
-		position: 0,
-		readByte: function () {
+  var inStream = {
+    data: data,
+    position: 0,
+    readByte: function () {
 
-			return this.data[ this.position ++ ];
+      return this.data[ this.position ++ ];
 
-		}
-	};
+    }
+  };
 
-	var outStream = {
-		data: [],
-		position: 0,
-		writeByte: function ( value ) {
+  var outStream = {
+    data: [],
+    position: 0,
+    writeByte: function ( value ) {
 
-			this.data[ this.position ++ ] = value;
+      this.data[ this.position ++ ] = value;
 
-		}
-	};
+    }
+  };
 
-	SEA3D.LZMA.decompressFile( inStream, outStream );
+  SEA3D.LZMA.decompressFile( inStream, outStream );
 
-	return new Uint8Array( outStream.data ).buffer;
+  return new Uint8Array( outStream.data ).buffer;
 
 };
 

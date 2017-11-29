@@ -4,610 +4,610 @@
 
 THREE.ThreeMFLoader = function ( manager ) {
 
-	this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
-	this.availableExtensions = [];
+  this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
+  this.availableExtensions = [];
 
 };
 
 THREE.ThreeMFLoader.prototype = {
 
-	constructor: THREE.ThreeMFLoader,
+  constructor: THREE.ThreeMFLoader,
 
-	load: function ( url, onLoad, onProgress, onError ) {
+  load: function ( url, onLoad, onProgress, onError ) {
 
-		var scope = this;
-		var loader = new THREE.FileLoader( scope.manager );
-		loader.setResponseType( 'arraybuffer' );
-		loader.load( url, function ( buffer ) {
+    var scope = this;
+    var loader = new THREE.FileLoader( scope.manager );
+    loader.setResponseType( 'arraybuffer' );
+    loader.load( url, function ( buffer ) {
 
-			onLoad( scope.parse( buffer ) );
+      onLoad( scope.parse( buffer ) );
 
-		}, onProgress, onError );
+    }, onProgress, onError );
 
-	},
+  },
 
-	parse: function ( data ) {
+  parse: function ( data ) {
 
-		var scope = this;
+    var scope = this;
 
-		function loadDocument( data ) {
+    function loadDocument( data ) {
 
-			var zip = null;
-			var file = null;
+      var zip = null;
+      var file = null;
 
-			var relsName;
-			var modelPartNames = [];
-			var printTicketPartNames = [];
-			var texturesPartNames = [];
-			var otherPartNames = [];
+      var relsName;
+      var modelPartNames = [];
+      var printTicketPartNames = [];
+      var texturesPartNames = [];
+      var otherPartNames = [];
 
-			var rels;
-			var modelParts = {};
-			var printTicketParts = {};
-			var texturesParts = {};
-			var otherParts = {};
+      var rels;
+      var modelParts = {};
+      var printTicketParts = {};
+      var texturesParts = {};
+      var otherParts = {};
 
-			try {
+      try {
 
-				zip = new JSZip( data ); // eslint-disable-line no-undef
+        zip = new JSZip( data ); // eslint-disable-line no-undef
 
-			} catch ( e ) {
+      } catch ( e ) {
 
-				if ( e instanceof ReferenceError ) {
+        if ( e instanceof ReferenceError ) {
 
-					console.error( 'THREE.ThreeMFLoader: jszip missing and file is compressed.' );
-					return null;
+          console.error( 'THREE.ThreeMFLoader: jszip missing and file is compressed.' );
+          return null;
 
-				}
+        }
 
-			}
+      }
 
-			for ( file in zip.files ) {
+      for ( file in zip.files ) {
 
-				if ( file.match( /\.rels$/ ) ) {
+        if ( file.match( /\.rels$/ ) ) {
 
-					relsName = file;
+          relsName = file;
 
-				} else if ( file.match( /^3D\/.*\.model$/ ) ) {
+        } else if ( file.match( /^3D\/.*\.model$/ ) ) {
 
-					modelPartNames.push( file );
+          modelPartNames.push( file );
 
-				} else if ( file.match( /^3D\/Metadata\/.*\.xml$/ ) ) {
+        } else if ( file.match( /^3D\/Metadata\/.*\.xml$/ ) ) {
 
-					printTicketPartNames.push( file );
+          printTicketPartNames.push( file );
 
-				} else if ( file.match( /^3D\/Textures\/.*/ ) ) {
+        } else if ( file.match( /^3D\/Textures\/.*/ ) ) {
 
-					texturesPartNames.push( file );
+          texturesPartNames.push( file );
 
-				} else if ( file.match( /^3D\/Other\/.*/ ) ) {
+        } else if ( file.match( /^3D\/Other\/.*/ ) ) {
 
-					otherPartNames.push( file );
+          otherPartNames.push( file );
 
-				}
+        }
 
-			}
+      }
 
-			if ( window.TextDecoder === undefined ) {
+      if ( window.TextDecoder === undefined ) {
 
-				console.error( 'THREE.ThreeMFLoader: TextDecoder not present. Please use a TextDecoder polyfill.' );
-				return null;
+        console.error( 'THREE.ThreeMFLoader: TextDecoder not present. Please use a TextDecoder polyfill.' );
+        return null;
 
-			}
+      }
 
-			var relsView = new DataView( zip.file( relsName ).asArrayBuffer() );
-			var relsFileText = new TextDecoder( 'utf-8' ).decode( relsView );
-			rels = parseRelsXml( relsFileText );
+      var relsView = new DataView( zip.file( relsName ).asArrayBuffer() );
+      var relsFileText = new TextDecoder( 'utf-8' ).decode( relsView );
+      rels = parseRelsXml( relsFileText );
 
-			for ( var i = 0; i < modelPartNames.length; i ++ ) {
+      for ( var i = 0; i < modelPartNames.length; i ++ ) {
 
-				var modelPart = modelPartNames[ i ];
-				var view = new DataView( zip.file( modelPart ).asArrayBuffer() );
+        var modelPart = modelPartNames[ i ];
+        var view = new DataView( zip.file( modelPart ).asArrayBuffer() );
 
-				var fileText = new TextDecoder( 'utf-8' ).decode( view );
-				var xmlData = new DOMParser().parseFromString( fileText, 'application/xml' );
+        var fileText = new TextDecoder( 'utf-8' ).decode( view );
+        var xmlData = new DOMParser().parseFromString( fileText, 'application/xml' );
 
-				if ( xmlData.documentElement.nodeName.toLowerCase() !== 'model' ) {
+        if ( xmlData.documentElement.nodeName.toLowerCase() !== 'model' ) {
 
-					console.error( 'THREE.ThreeMFLoader: Error loading 3MF - no 3MF document found: ', modelPart );
+          console.error( 'THREE.ThreeMFLoader: Error loading 3MF - no 3MF document found: ', modelPart );
 
-				}
+        }
 
-				var modelNode = xmlData.querySelector( 'model' );
-				var extensions = {};
+        var modelNode = xmlData.querySelector( 'model' );
+        var extensions = {};
 
-				for ( var i = 0; i < modelNode.attributes.length; i ++ ) {
+        for ( var i = 0; i < modelNode.attributes.length; i ++ ) {
 
-					var attr = modelNode.attributes[ i ];
-					if ( attr.name.match( /^xmlns:(.+)$/ ) ) {
+          var attr = modelNode.attributes[ i ];
+          if ( attr.name.match( /^xmlns:(.+)$/ ) ) {
 
-						extensions[ attr.value ] = RegExp.$1;
+            extensions[ attr.value ] = RegExp.$1;
 
-					}
+          }
 
-				}
+        }
 
-				var modelData = parseModelNode( modelNode );
-				modelData[ 'xml' ] = modelNode;
+        var modelData = parseModelNode( modelNode );
+        modelData[ 'xml' ] = modelNode;
 
-				if ( 0 < Object.keys( extensions ).length ) {
+        if ( 0 < Object.keys( extensions ).length ) {
 
-					modelData[ 'extensions' ] = extensions;
+          modelData[ 'extensions' ] = extensions;
 
-				}
+        }
 
-				modelParts[ modelPart ] = modelData;
+        modelParts[ modelPart ] = modelData;
 
-			}
+      }
 
-			for ( var i = 0; i < texturesPartNames.length; i ++ ) {
+      for ( var i = 0; i < texturesPartNames.length; i ++ ) {
 
-				var texturesPartName = texturesPartNames[ i ];
-				texturesParts[ texturesPartName ] = zip.file( texturesPartName ).asBinary();
+        var texturesPartName = texturesPartNames[ i ];
+        texturesParts[ texturesPartName ] = zip.file( texturesPartName ).asBinary();
 
-			}
+      }
 
-			return {
-				rels: rels,
-				model: modelParts,
-				printTicket: printTicketParts,
-				texture: texturesParts,
-				other: otherParts
-			};
+      return {
+        rels: rels,
+        model: modelParts,
+        printTicket: printTicketParts,
+        texture: texturesParts,
+        other: otherParts
+      };
 
-		}
+    }
 
-		function parseRelsXml( relsFileText ) {
+    function parseRelsXml( relsFileText ) {
 
-			var relsXmlData = new DOMParser().parseFromString( relsFileText, 'application/xml' );
-			var relsNode = relsXmlData.querySelector( 'Relationship' );
-			var target = relsNode.getAttribute( 'Target' );
-			var id = relsNode.getAttribute( 'Id' );
-			var type = relsNode.getAttribute( 'Type' );
+      var relsXmlData = new DOMParser().parseFromString( relsFileText, 'application/xml' );
+      var relsNode = relsXmlData.querySelector( 'Relationship' );
+      var target = relsNode.getAttribute( 'Target' );
+      var id = relsNode.getAttribute( 'Id' );
+      var type = relsNode.getAttribute( 'Type' );
 
-			return {
-				target: target,
-				id: id,
-				type: type
-			};
+      return {
+        target: target,
+        id: id,
+        type: type
+      };
 
-		}
+    }
 
-		function parseMetadataNodes( metadataNodes ) {
+    function parseMetadataNodes( metadataNodes ) {
 
-			var metadataData = {};
+      var metadataData = {};
 
-			for ( var i = 0; i < metadataNodes.length; i ++ ) {
+      for ( var i = 0; i < metadataNodes.length; i ++ ) {
 
-				var metadataNode = metadataNodes[ i ];
-				var name = metadataNode.getAttribute( 'name' );
-				var validNames = [
-					'Title',
-					'Designer',
-					'Description',
-					'Copyright',
-					'LicenseTerms',
-					'Rating',
-					'CreationDate',
-					'ModificationDate'
-				];
+        var metadataNode = metadataNodes[ i ];
+        var name = metadataNode.getAttribute( 'name' );
+        var validNames = [
+          'Title',
+          'Designer',
+          'Description',
+          'Copyright',
+          'LicenseTerms',
+          'Rating',
+          'CreationDate',
+          'ModificationDate'
+        ];
 
-				if ( 0 <= validNames.indexOf( name ) ) {
+        if ( 0 <= validNames.indexOf( name ) ) {
 
-					metadataData[ name ] = metadataNode.textContent;
+          metadataData[ name ] = metadataNode.textContent;
 
-				}
+        }
 
-			}
+      }
 
-			return metadataData;
+      return metadataData;
 
-		}
+    }
 
-		function parseBasematerialsNode( basematerialsNode ) {
-		}
+    function parseBasematerialsNode( basematerialsNode ) {
+    }
 
-		function parseMeshNode( meshNode, extensions ) {
+    function parseMeshNode( meshNode, extensions ) {
 
-			var meshData = {};
+      var meshData = {};
 
-			var vertices = [];
-			var vertexNodes = meshNode.querySelectorAll( 'vertices vertex' );
+      var vertices = [];
+      var vertexNodes = meshNode.querySelectorAll( 'vertices vertex' );
 
-			for ( var i = 0; i < vertexNodes.length; i ++ ) {
+      for ( var i = 0; i < vertexNodes.length; i ++ ) {
 
-				var vertexNode = vertexNodes[ i ];
-				var x = vertexNode.getAttribute( 'x' );
-				var y = vertexNode.getAttribute( 'y' );
-				var z = vertexNode.getAttribute( 'z' );
+        var vertexNode = vertexNodes[ i ];
+        var x = vertexNode.getAttribute( 'x' );
+        var y = vertexNode.getAttribute( 'y' );
+        var z = vertexNode.getAttribute( 'z' );
 
-				vertices.push( parseFloat( x ), parseFloat( y ), parseFloat( z ) );
+        vertices.push( parseFloat( x ), parseFloat( y ), parseFloat( z ) );
 
-			}
+      }
 
-			meshData[ 'vertices' ] = new Float32Array( vertices.length );
+      meshData[ 'vertices' ] = new Float32Array( vertices.length );
 
-			for ( var i = 0; i < vertices.length; i ++ ) {
+      for ( var i = 0; i < vertices.length; i ++ ) {
 
-				meshData[ 'vertices' ][ i ] = vertices[ i ];
+        meshData[ 'vertices' ][ i ] = vertices[ i ];
 
-			}
+      }
 
-			var triangleProperties = [];
-			var triangles = [];
-			var triangleNodes = meshNode.querySelectorAll( 'triangles triangle' );
+      var triangleProperties = [];
+      var triangles = [];
+      var triangleNodes = meshNode.querySelectorAll( 'triangles triangle' );
 
-			for ( var i = 0; i < triangleNodes.length; i ++ ) {
+      for ( var i = 0; i < triangleNodes.length; i ++ ) {
 
-				var triangleNode = triangleNodes[ i ];
-				var v1 = triangleNode.getAttribute( 'v1' );
-				var v2 = triangleNode.getAttribute( 'v2' );
-				var v3 = triangleNode.getAttribute( 'v3' );
-				var p1 = triangleNode.getAttribute( 'p1' );
-				var p2 = triangleNode.getAttribute( 'p2' );
-				var p3 = triangleNode.getAttribute( 'p3' );
-				var pid = triangleNode.getAttribute( 'pid' );
+        var triangleNode = triangleNodes[ i ];
+        var v1 = triangleNode.getAttribute( 'v1' );
+        var v2 = triangleNode.getAttribute( 'v2' );
+        var v3 = triangleNode.getAttribute( 'v3' );
+        var p1 = triangleNode.getAttribute( 'p1' );
+        var p2 = triangleNode.getAttribute( 'p2' );
+        var p3 = triangleNode.getAttribute( 'p3' );
+        var pid = triangleNode.getAttribute( 'pid' );
 
-				triangles.push( parseInt( v1, 10 ), parseInt( v2, 10 ), parseInt( v3, 10 ) );
+        triangles.push( parseInt( v1, 10 ), parseInt( v2, 10 ), parseInt( v3, 10 ) );
 
-				var triangleProperty = {};
+        var triangleProperty = {};
 
-				if ( p1 ) {
+        if ( p1 ) {
 
-					triangleProperty[ 'p1' ] = parseInt( p1, 10 );
+          triangleProperty[ 'p1' ] = parseInt( p1, 10 );
 
-				}
+        }
 
-				if ( p2 ) {
+        if ( p2 ) {
 
-					triangleProperty[ 'p2' ] = parseInt( p2, 10 );
+          triangleProperty[ 'p2' ] = parseInt( p2, 10 );
 
-				}
+        }
 
-				if ( p3 ) {
+        if ( p3 ) {
 
-					triangleProperty[ 'p3' ] = parseInt( p3, 10 );
+          triangleProperty[ 'p3' ] = parseInt( p3, 10 );
 
-				}
+        }
 
-				if ( pid ) {
+        if ( pid ) {
 
-					triangleProperty[ 'pid' ] = pid;
+          triangleProperty[ 'pid' ] = pid;
 
-				}
+        }
 
-				if ( 0 < Object.keys( triangleProperty ).length ) {
+        if ( 0 < Object.keys( triangleProperty ).length ) {
 
-					triangleProperties.push( triangleProperty );
+          triangleProperties.push( triangleProperty );
 
-				}
+        }
 
-			}
+      }
 
-			meshData[ 'triangleProperties' ] = triangleProperties;
-			meshData[ 'triangles' ] = new Uint32Array( triangles.length );
+      meshData[ 'triangleProperties' ] = triangleProperties;
+      meshData[ 'triangles' ] = new Uint32Array( triangles.length );
 
-			for ( var i = 0; i < triangles.length; i ++ ) {
+      for ( var i = 0; i < triangles.length; i ++ ) {
 
-				meshData[ 'triangles' ][ i ] = triangles[ i ];
+        meshData[ 'triangles' ][ i ] = triangles[ i ];
 
-			}
+      }
 
-			return meshData;
+      return meshData;
 
-		}
+    }
 
-		function parseComponentsNode( componentsNode ) {
+    function parseComponentsNode( componentsNode ) {
 
-		}
+    }
 
-		function parseObjectNode( objectNode ) {
+    function parseObjectNode( objectNode ) {
 
-			var objectData = {
-				type: objectNode.getAttribute( 'type' )
-			};
+      var objectData = {
+        type: objectNode.getAttribute( 'type' )
+      };
 
-			var id = objectNode.getAttribute( 'id' );
+      var id = objectNode.getAttribute( 'id' );
 
-			if ( id ) {
+      if ( id ) {
 
-				objectData[ 'id' ] = id;
+        objectData[ 'id' ] = id;
 
-			}
+      }
 
-			var pid = objectNode.getAttribute( 'pid' );
+      var pid = objectNode.getAttribute( 'pid' );
 
-			if ( pid ) {
+      if ( pid ) {
 
-				objectData[ 'pid' ] = pid;
+        objectData[ 'pid' ] = pid;
 
-			}
+      }
 
-			var pindex = objectNode.getAttribute( 'pindex' );
+      var pindex = objectNode.getAttribute( 'pindex' );
 
-			if ( pindex ) {
+      if ( pindex ) {
 
-				objectData[ 'pindex' ] = pindex;
+        objectData[ 'pindex' ] = pindex;
 
-			}
+      }
 
-			var thumbnail = objectNode.getAttribute( 'thumbnail' );
+      var thumbnail = objectNode.getAttribute( 'thumbnail' );
 
-			if ( thumbnail ) {
+      if ( thumbnail ) {
 
-				objectData[ 'thumbnail' ] = thumbnail;
+        objectData[ 'thumbnail' ] = thumbnail;
 
-			}
+      }
 
-			var partnumber = objectNode.getAttribute( 'partnumber' );
+      var partnumber = objectNode.getAttribute( 'partnumber' );
 
-			if ( partnumber ) {
+      if ( partnumber ) {
 
-				objectData[ 'partnumber' ] = partnumber;
+        objectData[ 'partnumber' ] = partnumber;
 
-			}
+      }
 
-			var name = objectNode.getAttribute( 'name' );
+      var name = objectNode.getAttribute( 'name' );
 
-			if ( name ) {
+      if ( name ) {
 
-				objectData[ 'name' ] = name;
+        objectData[ 'name' ] = name;
 
-			}
+      }
 
-			var meshNode = objectNode.querySelector( 'mesh' );
+      var meshNode = objectNode.querySelector( 'mesh' );
 
-			if ( meshNode ) {
+      if ( meshNode ) {
 
-				objectData[ 'mesh' ] = parseMeshNode( meshNode );
+        objectData[ 'mesh' ] = parseMeshNode( meshNode );
 
-			}
+      }
 
-			var componentsNode = objectNode.querySelector( 'components' );
+      var componentsNode = objectNode.querySelector( 'components' );
 
-			if ( componentsNode ) {
+      if ( componentsNode ) {
 
-				objectData[ 'components' ] = parseComponentsNode( componentsNode );
+        objectData[ 'components' ] = parseComponentsNode( componentsNode );
 
-			}
+      }
 
-			return objectData;
+      return objectData;
 
-		}
+    }
 
-		function parseResourcesNode( resourcesNode ) {
+    function parseResourcesNode( resourcesNode ) {
 
-			var resourcesData = {};
-			var basematerialsNode = resourcesNode.querySelector( 'basematerials' );
+      var resourcesData = {};
+      var basematerialsNode = resourcesNode.querySelector( 'basematerials' );
 
-			if ( basematerialsNode ) {
+      if ( basematerialsNode ) {
 
-				resourcesData[ 'basematerial' ] = parseBasematerialsNode( basematerialsNode );
+        resourcesData[ 'basematerial' ] = parseBasematerialsNode( basematerialsNode );
 
-			}
+      }
 
-			resourcesData[ 'object' ] = {};
-			var objectNodes = resourcesNode.querySelectorAll( 'object' );
+      resourcesData[ 'object' ] = {};
+      var objectNodes = resourcesNode.querySelectorAll( 'object' );
 
-			for ( var i = 0; i < objectNodes.length; i ++ ) {
+      for ( var i = 0; i < objectNodes.length; i ++ ) {
 
-				var objectNode = objectNodes[ i ];
-				var objectData = parseObjectNode( objectNode );
-				resourcesData[ 'object' ][ objectData[ 'id' ] ] = objectData;
+        var objectNode = objectNodes[ i ];
+        var objectData = parseObjectNode( objectNode );
+        resourcesData[ 'object' ][ objectData[ 'id' ] ] = objectData;
 
-			}
+      }
 
-			return resourcesData;
+      return resourcesData;
 
-		}
+    }
 
-		function parseBuildNode( buildNode ) {
+    function parseBuildNode( buildNode ) {
 
-			var buildData = [];
-			var itemNodes = buildNode.querySelectorAll( 'item' );
+      var buildData = [];
+      var itemNodes = buildNode.querySelectorAll( 'item' );
 
-			for ( var i = 0; i < itemNodes.length; i ++ ) {
+      for ( var i = 0; i < itemNodes.length; i ++ ) {
 
-				var itemNode = itemNodes[ i ];
-				var buildItem = {
-					objectid: itemNode.getAttribute( 'objectid' )
-				};
-				var transform = itemNode.getAttribute( 'transform' );
+        var itemNode = itemNodes[ i ];
+        var buildItem = {
+          objectid: itemNode.getAttribute( 'objectid' )
+        };
+        var transform = itemNode.getAttribute( 'transform' );
 
-				if ( transform ) {
+        if ( transform ) {
 
-					var t = [];
-					transform.split( ' ' ).forEach( function ( s ) {
+          var t = [];
+          transform.split( ' ' ).forEach( function ( s ) {
 
-						t.push( parseFloat( s ) );
+            t.push( parseFloat( s ) );
 
-					} );
-					var mat4 = new THREE.Matrix4();
-					buildItem[ 'transform' ] = mat4.set(
-						t[ 0 ], t[ 3 ], t[ 6 ], t[ 9 ],
-						t[ 1 ], t[ 4 ], t[ 7 ], t[ 10 ],
-						t[ 2 ], t[ 5 ], t[ 8 ], t[ 11 ],
-						 0.0, 0.0, 0.0, 1.0
-					);
+          } );
+          var mat4 = new THREE.Matrix4();
+          buildItem[ 'transform' ] = mat4.set(
+            t[ 0 ], t[ 3 ], t[ 6 ], t[ 9 ],
+            t[ 1 ], t[ 4 ], t[ 7 ], t[ 10 ],
+            t[ 2 ], t[ 5 ], t[ 8 ], t[ 11 ],
+             0.0, 0.0, 0.0, 1.0
+          );
 
-				}
+        }
 
-				buildData.push( buildItem );
+        buildData.push( buildItem );
 
-			}
+      }
 
-			return buildData;
+      return buildData;
 
-		}
+    }
 
-		function parseModelNode( modelNode ) {
+    function parseModelNode( modelNode ) {
 
-			var modelData = { unit: modelNode.getAttribute( 'unit' ) || 'millimeter' };
-			var metadataNodes = modelNode.querySelectorAll( 'metadata' );
+      var modelData = { unit: modelNode.getAttribute( 'unit' ) || 'millimeter' };
+      var metadataNodes = modelNode.querySelectorAll( 'metadata' );
 
-			if ( metadataNodes ) {
+      if ( metadataNodes ) {
 
-				modelData[ 'metadata' ] = parseMetadataNodes( metadataNodes );
+        modelData[ 'metadata' ] = parseMetadataNodes( metadataNodes );
 
-			}
+      }
 
-			var resourcesNode = modelNode.querySelector( 'resources' );
+      var resourcesNode = modelNode.querySelector( 'resources' );
 
-			if ( resourcesNode ) {
+      if ( resourcesNode ) {
 
-				modelData[ 'resources' ] = parseResourcesNode( resourcesNode );
+        modelData[ 'resources' ] = parseResourcesNode( resourcesNode );
 
-			}
+      }
 
-			var buildNode = modelNode.querySelector( 'build' );
+      var buildNode = modelNode.querySelector( 'build' );
 
-			if ( buildNode ) {
+      if ( buildNode ) {
 
-				modelData[ 'build' ] = parseBuildNode( buildNode );
+        modelData[ 'build' ] = parseBuildNode( buildNode );
 
-			}
+      }
 
-			return modelData;
+      return modelData;
 
-		}
+    }
 
-		function buildMesh( meshData, data3mf ) {
+    function buildMesh( meshData, data3mf ) {
 
-			var geometry = new THREE.BufferGeometry();
-			geometry.setIndex( new THREE.BufferAttribute( meshData[ 'triangles' ], 1 ) );
-			geometry.addAttribute( 'position', new THREE.BufferAttribute( meshData[ 'vertices' ], 3 ) );
+      var geometry = new THREE.BufferGeometry();
+      geometry.setIndex( new THREE.BufferAttribute( meshData[ 'triangles' ], 1 ) );
+      geometry.addAttribute( 'position', new THREE.BufferAttribute( meshData[ 'vertices' ], 3 ) );
 
-			if ( meshData[ 'colors' ] ) {
+      if ( meshData[ 'colors' ] ) {
 
-				geometry.addAttribute( 'color', new THREE.BufferAttribute( meshData[ 'colors' ], 3 ) );
+        geometry.addAttribute( 'color', new THREE.BufferAttribute( meshData[ 'colors' ], 3 ) );
 
-			}
+      }
 
-			geometry.computeBoundingSphere();
+      geometry.computeBoundingSphere();
 
-			var materialOpts = {
-				flatShading: true
-			};
+      var materialOpts = {
+        flatShading: true
+      };
 
-			if ( meshData[ 'colors' ] && 0 < meshData[ 'colors' ].length ) {
+      if ( meshData[ 'colors' ] && 0 < meshData[ 'colors' ].length ) {
 
-				materialOpts[ 'vertexColors' ] = THREE.VertexColors;
+        materialOpts[ 'vertexColors' ] = THREE.VertexColors;
 
-			} else {
+      } else {
 
-				materialOpts[ 'color' ] = 0xaaaaff;
+        materialOpts[ 'color' ] = 0xaaaaff;
 
-			}
+      }
 
-			var material = new THREE.MeshPhongMaterial( materialOpts );
-			return new THREE.Mesh( geometry, material );
+      var material = new THREE.MeshPhongMaterial( materialOpts );
+      return new THREE.Mesh( geometry, material );
 
-		}
+    }
 
-		function applyExtensions( extensions, meshData, modelXml, data3mf ) {
+    function applyExtensions( extensions, meshData, modelXml, data3mf ) {
 
-			if ( ! extensions ) {
+      if ( ! extensions ) {
 
-				return;
+        return;
 
-			}
+      }
 
-			var availableExtensions = [];
-			var keys = Object.keys( extensions );
+      var availableExtensions = [];
+      var keys = Object.keys( extensions );
 
-			for ( var i = 0; i < keys.length; i ++ ) {
+      for ( var i = 0; i < keys.length; i ++ ) {
 
-				var ns = keys[ i ];
+        var ns = keys[ i ];
 
-				for ( var j = 0; j < scope.availableExtensions.length; j ++ ) {
+        for ( var j = 0; j < scope.availableExtensions.length; j ++ ) {
 
-					var extension = scope.availableExtensions[ j ];
+          var extension = scope.availableExtensions[ j ];
 
-					if ( extension.ns === ns ) {
+          if ( extension.ns === ns ) {
 
-						availableExtensions.push( extension );
+            availableExtensions.push( extension );
 
-					}
+          }
 
-				}
+        }
 
-			}
+      }
 
-			for ( var i = 0; i < availableExtensions.length; i ++ ) {
+      for ( var i = 0; i < availableExtensions.length; i ++ ) {
 
-				var extension = availableExtensions[ i ];
-				extension.apply( modelXml, extensions[ extension[ 'ns' ] ], meshData );
+        var extension = availableExtensions[ i ];
+        extension.apply( modelXml, extensions[ extension[ 'ns' ] ], meshData );
 
-			}
+      }
 
-		}
+    }
 
-		function buildMeshes( data3mf ) {
+    function buildMeshes( data3mf ) {
 
-			var modelsData = data3mf.model;
-			var meshes = {};
-			var modelsKeys = Object.keys( modelsData );
+      var modelsData = data3mf.model;
+      var meshes = {};
+      var modelsKeys = Object.keys( modelsData );
 
-			for ( var i = 0; i < modelsKeys.length; i ++ ) {
+      for ( var i = 0; i < modelsKeys.length; i ++ ) {
 
-				var modelsKey = modelsKeys[ i ];
-				var modelData = modelsData[ modelsKey ];
-				var modelXml = modelData[ 'xml' ];
-				var extensions = modelData[ 'extensions' ];
+        var modelsKey = modelsKeys[ i ];
+        var modelData = modelsData[ modelsKey ];
+        var modelXml = modelData[ 'xml' ];
+        var extensions = modelData[ 'extensions' ];
 
-				var objectIds = Object.keys( modelData[ 'resources' ][ 'object' ] );
+        var objectIds = Object.keys( modelData[ 'resources' ][ 'object' ] );
 
-				for ( var j = 0; j < objectIds.length; j ++ ) {
+        for ( var j = 0; j < objectIds.length; j ++ ) {
 
-					var objectId = objectIds[ j ];
-					var objectData = modelData[ 'resources' ][ 'object' ][ objectId ];
-					var meshData = objectData[ 'mesh' ];
-					applyExtensions( extensions, meshData, modelXml, data3mf );
-					meshes[ objectId ] = buildMesh( meshData, data3mf );
+          var objectId = objectIds[ j ];
+          var objectData = modelData[ 'resources' ][ 'object' ][ objectId ];
+          var meshData = objectData[ 'mesh' ];
+          applyExtensions( extensions, meshData, modelXml, data3mf );
+          meshes[ objectId ] = buildMesh( meshData, data3mf );
 
-				}
+        }
 
-			}
+      }
 
-			return meshes;
+      return meshes;
 
-		}
+    }
 
-		function build( meshes, refs, data3mf ) {
+    function build( meshes, refs, data3mf ) {
 
-			var group = new THREE.Group();
-			var buildData = data3mf.model[ refs[ 'target' ].substring( 1 ) ][ 'build' ];
+      var group = new THREE.Group();
+      var buildData = data3mf.model[ refs[ 'target' ].substring( 1 ) ][ 'build' ];
 
-			for ( var i = 0; i < buildData.length; i ++ ) {
+      for ( var i = 0; i < buildData.length; i ++ ) {
 
-				var buildItem = buildData[ i ];
-				var mesh = meshes[ buildItem[ 'objectid' ] ];
+        var buildItem = buildData[ i ];
+        var mesh = meshes[ buildItem[ 'objectid' ] ];
 
-				if ( buildItem[ 'transform' ] ) {
+        if ( buildItem[ 'transform' ] ) {
 
-					mesh.geometry.applyMatrix( buildItem[ 'transform' ] );
+          mesh.geometry.applyMatrix( buildItem[ 'transform' ] );
 
-				}
+        }
 
-				group.add( mesh );
+        group.add( mesh );
 
-			}
+      }
 
-			return group;
+      return group;
 
-		}
+    }
 
-		var data3mf = loadDocument( data );
-		var meshes = buildMeshes( data3mf );
+    var data3mf = loadDocument( data );
+    var meshes = buildMeshes( data3mf );
 
-		return build( meshes, data3mf[ 'rels' ], data3mf );
+    return build( meshes, data3mf[ 'rels' ], data3mf );
 
-	},
+  },
 
-	addExtension: function ( extension ) {
+  addExtension: function ( extension ) {
 
-		this.availableExtensions.push( extension );
+    this.availableExtensions.push( extension );
 
-	}
+  }
 
 };

@@ -54,10 +54,10 @@
 
 THREE.TeapotBufferGeometry = function ( size, segments, bottom, lid, body, fitLid, blinn ) {
 
-	"use strict";
+  "use strict";
 
-	// 32 * 4 * 4 Bezier spline patches
-	var teapotPatches = [
+  // 32 * 4 * 4 Bezier spline patches
+  var teapotPatches = [
 /*rim*/
 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,
 3,16,17,18,7,19,20,21,11,22,23,24,15,25,26,27,
@@ -96,9 +96,9 @@ THREE.TeapotBufferGeometry = function ( size, segments, bottom, lid, body, fitLi
 265,265,265,265,269,274,275,276,273,277,278,279,113,112,111,104,
 265,265,265,265,276,280,281,282,279,283,284,285,104,103,102,95,
 265,265,265,265,282,286,287,266,285,288,289,270,95,94,93,92
-	] ;
+  ] ;
 
-	var teapotVertices = [
+  var teapotVertices = [
 1.4,0,2.4,
 1.4,-0.784,2.4,
 0.784,-1.4,2.4,
@@ -389,344 +389,344 @@ THREE.TeapotBufferGeometry = function ( size, segments, bottom, lid, body, fitLi
 1.425,-0.798,0,
 0.84,-1.5,0.075,
 1.5,-0.84,0.075
-	] ;
-
-	THREE.BufferGeometry.call( this );
+  ] ;
+
+  THREE.BufferGeometry.call( this );
 
-	this.type = 'TeapotBufferGeometry';
-
-	this.parameters = {
-		size: size,
-		segments: segments,
-		bottom: bottom,
-		lid: lid,
-		body: body,
-		fitLid: fitLid,
-		blinn: blinn
-	};
+  this.type = 'TeapotBufferGeometry';
+
+  this.parameters = {
+    size: size,
+    segments: segments,
+    bottom: bottom,
+    lid: lid,
+    body: body,
+    fitLid: fitLid,
+    blinn: blinn
+  };
 
-	size = size || 50;
+  size = size || 50;
 
-	// number of segments per patch
-	segments = segments !== undefined ? Math.max( 2, Math.floor( segments ) || 10 ) : 10;
+  // number of segments per patch
+  segments = segments !== undefined ? Math.max( 2, Math.floor( segments ) || 10 ) : 10;
 
-	// which parts should be visible
-	bottom = bottom === undefined ? true : bottom;
-	lid = lid === undefined ? true : lid;
-	body = body === undefined ? true : body;
-
-	// Should the lid be snug? It's not traditional, but we make it snug by default
-	fitLid = fitLid === undefined ? true : fitLid;
-
-	// Jim Blinn scaled the teapot down in size by about 1.3 for
-	// some rendering tests. He liked the new proportions that he kept
-	// the data in this form. The model was distributed with these new
-	// proportions and became the norm. Trivia: comparing images of the
-	// real teapot and the computer model, the ratio for the bowl of the
-	// real teapot is more like 1.25, but since 1.3 is the traditional
-	// value given, we use it here.
-	var blinnScale = 1.3;
-	blinn = blinn === undefined ? true : blinn;
+  // which parts should be visible
+  bottom = bottom === undefined ? true : bottom;
+  lid = lid === undefined ? true : lid;
+  body = body === undefined ? true : body;
+
+  // Should the lid be snug? It's not traditional, but we make it snug by default
+  fitLid = fitLid === undefined ? true : fitLid;
+
+  // Jim Blinn scaled the teapot down in size by about 1.3 for
+  // some rendering tests. He liked the new proportions that he kept
+  // the data in this form. The model was distributed with these new
+  // proportions and became the norm. Trivia: comparing images of the
+  // real teapot and the computer model, the ratio for the bowl of the
+  // real teapot is more like 1.25, but since 1.3 is the traditional
+  // value given, we use it here.
+  var blinnScale = 1.3;
+  blinn = blinn === undefined ? true : blinn;
 
-	// scale the size to be the real scaling factor
-	var maxHeight = 3.15 * ( blinn ? 1 : blinnScale );
+  // scale the size to be the real scaling factor
+  var maxHeight = 3.15 * ( blinn ? 1 : blinnScale );
 
-	var maxHeight2 = maxHeight / 2;
-	var trueSize = size / maxHeight2;
+  var maxHeight2 = maxHeight / 2;
+  var trueSize = size / maxHeight2;
 
-	// Number of elements depends on what is needed. Subtract degenerate
-	// triangles at tip of bottom and lid out in advance.
-	var numTriangles = bottom ? ( 8 * segments - 4 ) * segments : 0;
-	numTriangles += lid ? ( 16 * segments - 4 ) * segments : 0;
-	numTriangles += body ? 40 * segments * segments : 0;
+  // Number of elements depends on what is needed. Subtract degenerate
+  // triangles at tip of bottom and lid out in advance.
+  var numTriangles = bottom ? ( 8 * segments - 4 ) * segments : 0;
+  numTriangles += lid ? ( 16 * segments - 4 ) * segments : 0;
+  numTriangles += body ? 40 * segments * segments : 0;
 
-	var indices = new Uint32Array( numTriangles * 3 );
+  var indices = new Uint32Array( numTriangles * 3 );
 
-	var numVertices = bottom ? 4 : 0;
-	numVertices += lid ? 8 : 0;
-	numVertices += body ? 20 : 0;
-	numVertices *= ( segments + 1 ) * ( segments + 1 );
+  var numVertices = bottom ? 4 : 0;
+  numVertices += lid ? 8 : 0;
+  numVertices += body ? 20 : 0;
+  numVertices *= ( segments + 1 ) * ( segments + 1 );
 
-	var vertices = new Float32Array( numVertices * 3 );
-	var normals = new Float32Array( numVertices * 3 );
-	var uvs = new Float32Array( numVertices * 2 );
+  var vertices = new Float32Array( numVertices * 3 );
+  var normals = new Float32Array( numVertices * 3 );
+  var uvs = new Float32Array( numVertices * 2 );
 
-	// Bezier form
-	var ms = new THREE.Matrix4();
-	ms.set( -1.0,  3.0, -3.0,  1.0,
-			 3.0, -6.0,  3.0,  0.0,
-			-3.0,  3.0,  0.0,  0.0,
-			 1.0,  0.0,  0.0,  0.0 ) ;
+  // Bezier form
+  var ms = new THREE.Matrix4();
+  ms.set( -1.0,  3.0, -3.0,  1.0,
+       3.0, -6.0,  3.0,  0.0,
+      -3.0,  3.0,  0.0,  0.0,
+       1.0,  0.0,  0.0,  0.0 ) ;
 
-	var g = [];
-	var i, r, c;
+  var g = [];
+  var i, r, c;
 
-	var sp = [];
-	var tp = [];
-	var dsp = [];
-	var dtp = [];
+  var sp = [];
+  var tp = [];
+  var dsp = [];
+  var dtp = [];
 
-	// M * G * M matrix, sort of see
-	// http://www.cs.helsinki.fi/group/goa/mallinnus/curves/surfaces.html
-	var mgm = [];
+  // M * G * M matrix, sort of see
+  // http://www.cs.helsinki.fi/group/goa/mallinnus/curves/surfaces.html
+  var mgm = [];
 
-	var vert = [];
-	var sdir = [];
-	var tdir = [];
+  var vert = [];
+  var sdir = [];
+  var tdir = [];
 
-	var norm = new THREE.Vector3();
+  var norm = new THREE.Vector3();
 
-	var tcoord;
+  var tcoord;
 
-	var sstep, tstep;
-	var vertPerRow;
+  var sstep, tstep;
+  var vertPerRow;
 
-	var s, t, sval, tval, p;
-	var dsval = 0;
-	var dtval = 0;
+  var s, t, sval, tval, p;
+  var dsval = 0;
+  var dtval = 0;
 
-	var normOut = new THREE.Vector3();
-	var v1, v2, v3, v4;
+  var normOut = new THREE.Vector3();
+  var v1, v2, v3, v4;
 
-	var gmx = new THREE.Matrix4();
-	var tmtx = new THREE.Matrix4();
+  var gmx = new THREE.Matrix4();
+  var tmtx = new THREE.Matrix4();
 
-	var vsp = new THREE.Vector4();
-	var vtp = new THREE.Vector4();
-	var vdsp = new THREE.Vector4();
-	var vdtp = new THREE.Vector4();
+  var vsp = new THREE.Vector4();
+  var vtp = new THREE.Vector4();
+  var vdsp = new THREE.Vector4();
+  var vdtp = new THREE.Vector4();
 
-	var vsdir = new THREE.Vector3();
-	var vtdir = new THREE.Vector3();
+  var vsdir = new THREE.Vector3();
+  var vtdir = new THREE.Vector3();
 
-	var mst = ms.clone();
-	mst.transpose();
+  var mst = ms.clone();
+  mst.transpose();
 
-	// internal function: test if triangle has any matching vertices;
-	// if so, don't save triangle, since it won't display anything.
-	var notDegenerate = function ( vtx1, vtx2, vtx3 ) {
+  // internal function: test if triangle has any matching vertices;
+  // if so, don't save triangle, since it won't display anything.
+  var notDegenerate = function ( vtx1, vtx2, vtx3 ) {
 
-		// if any vertex matches, return false
-		return ! ( ( ( vertices[ vtx1 * 3 ]     === vertices[ vtx2 * 3 ] ) &&
-					 ( vertices[ vtx1 * 3 + 1 ] === vertices[ vtx2 * 3 + 1 ] ) &&
-					 ( vertices[ vtx1 * 3 + 2 ] === vertices[ vtx2 * 3 + 2 ] ) ) ||
-				   ( ( vertices[ vtx1 * 3 ]     === vertices[ vtx3 * 3 ] ) &&
-					 ( vertices[ vtx1 * 3 + 1 ] === vertices[ vtx3 * 3 + 1 ] ) &&
-					 ( vertices[ vtx1 * 3 + 2 ] === vertices[ vtx3 * 3 + 2 ] ) ) ||
-				   ( ( vertices[ vtx2 * 3 ]     === vertices[ vtx3 * 3 ] ) &&
-					 ( vertices[ vtx2 * 3 + 1 ] === vertices[ vtx3 * 3 + 1 ] ) &&
-					 ( vertices[ vtx2 * 3 + 2 ] === vertices[ vtx3 * 3 + 2 ] ) ) );
+    // if any vertex matches, return false
+    return ! ( ( ( vertices[ vtx1 * 3 ]     === vertices[ vtx2 * 3 ] ) &&
+           ( vertices[ vtx1 * 3 + 1 ] === vertices[ vtx2 * 3 + 1 ] ) &&
+           ( vertices[ vtx1 * 3 + 2 ] === vertices[ vtx2 * 3 + 2 ] ) ) ||
+           ( ( vertices[ vtx1 * 3 ]     === vertices[ vtx3 * 3 ] ) &&
+           ( vertices[ vtx1 * 3 + 1 ] === vertices[ vtx3 * 3 + 1 ] ) &&
+           ( vertices[ vtx1 * 3 + 2 ] === vertices[ vtx3 * 3 + 2 ] ) ) ||
+           ( ( vertices[ vtx2 * 3 ]     === vertices[ vtx3 * 3 ] ) &&
+           ( vertices[ vtx2 * 3 + 1 ] === vertices[ vtx3 * 3 + 1 ] ) &&
+           ( vertices[ vtx2 * 3 + 2 ] === vertices[ vtx3 * 3 + 2 ] ) ) );
 
-	};
+  };
 
 
-	for ( i = 0; i < 3; i ++ )
-	{
+  for ( i = 0; i < 3; i ++ )
+  {
 
-		mgm[ i ] = new THREE.Matrix4();
+    mgm[ i ] = new THREE.Matrix4();
 
-	}
+  }
 
-	var minPatches = body ? 0 : 20;
-	var maxPatches = bottom ? 32 : 28;
+  var minPatches = body ? 0 : 20;
+  var maxPatches = bottom ? 32 : 28;
 
-	vertPerRow = segments + 1;
+  vertPerRow = segments + 1;
 
-	var surfCount = 0;
+  var surfCount = 0;
 
-	var vertCount = 0;
-	var normCount = 0;
-	var uvCount = 0;
+  var vertCount = 0;
+  var normCount = 0;
+  var uvCount = 0;
 
-	var indexCount = 0;
+  var indexCount = 0;
 
-	for ( var surf = minPatches ; surf < maxPatches ; surf ++ ) {
+  for ( var surf = minPatches ; surf < maxPatches ; surf ++ ) {
 
-		// lid is in the middle of the data, patches 20-27,
-		// so ignore it for this part of the loop if the lid is not desired
-		if ( lid || ( surf < 20 || surf >= 28 ) ) {
+    // lid is in the middle of the data, patches 20-27,
+    // so ignore it for this part of the loop if the lid is not desired
+    if ( lid || ( surf < 20 || surf >= 28 ) ) {
 
-			// get M * G * M matrix for x,y,z
-			for ( i = 0 ; i < 3 ; i ++ ) {
+      // get M * G * M matrix for x,y,z
+      for ( i = 0 ; i < 3 ; i ++ ) {
 
-				// get control patches
-				for ( r = 0 ; r < 4 ; r ++ ) {
+        // get control patches
+        for ( r = 0 ; r < 4 ; r ++ ) {
 
-					for ( c = 0 ; c < 4 ; c ++ ) {
+          for ( c = 0 ; c < 4 ; c ++ ) {
 
-						// transposed
-						g[ c * 4 + r ] = teapotVertices[ teapotPatches[ surf * 16 + r * 4 + c ] * 3 + i ] ;
+            // transposed
+            g[ c * 4 + r ] = teapotVertices[ teapotPatches[ surf * 16 + r * 4 + c ] * 3 + i ] ;
 
-						// is the lid to be made larger, and is this a point on the lid
-						// that is X or Y?
-						if ( fitLid && ( surf >= 20 && surf < 28 ) && ( i !== 2 ) ) {
+            // is the lid to be made larger, and is this a point on the lid
+            // that is X or Y?
+            if ( fitLid && ( surf >= 20 && surf < 28 ) && ( i !== 2 ) ) {
 
-							// increase XY size by 7.7%, found empirically. I don't
-							// increase Z so that the teapot will continue to fit in the
-							// space -1 to 1 for Y (Y is up for the final model).
-							g[ c * 4 + r ] *= 1.077;
+              // increase XY size by 7.7%, found empirically. I don't
+              // increase Z so that the teapot will continue to fit in the
+              // space -1 to 1 for Y (Y is up for the final model).
+              g[ c * 4 + r ] *= 1.077;
 
-						}
+            }
 
-						// Blinn "fixed" the teapot by dividing Z by blinnScale, and that's the
-						// data we now use. The original teapot is taller. Fix it:
-						if ( ! blinn && ( i === 2 ) ) {
+            // Blinn "fixed" the teapot by dividing Z by blinnScale, and that's the
+            // data we now use. The original teapot is taller. Fix it:
+            if ( ! blinn && ( i === 2 ) ) {
 
-							g[ c * 4 + r ] *= blinnScale;
+              g[ c * 4 + r ] *= blinnScale;
 
-						}
+            }
 
-					}
+          }
 
-				}
+        }
 
-				gmx.set( g[ 0 ], g[ 1 ], g[ 2 ], g[ 3 ], g[ 4 ], g[ 5 ], g[ 6 ], g[ 7 ], g[ 8 ], g[ 9 ], g[ 10 ], g[ 11 ], g[ 12 ], g[ 13 ], g[ 14 ], g[ 15 ] );
+        gmx.set( g[ 0 ], g[ 1 ], g[ 2 ], g[ 3 ], g[ 4 ], g[ 5 ], g[ 6 ], g[ 7 ], g[ 8 ], g[ 9 ], g[ 10 ], g[ 11 ], g[ 12 ], g[ 13 ], g[ 14 ], g[ 15 ] );
 
-				tmtx.multiplyMatrices( gmx, ms );
-				mgm[ i ].multiplyMatrices( mst, tmtx );
+        tmtx.multiplyMatrices( gmx, ms );
+        mgm[ i ].multiplyMatrices( mst, tmtx );
 
-			}
+      }
 
-			// step along, get points, and output
-			for ( sstep = 0 ; sstep <= segments ; sstep ++ ) {
+      // step along, get points, and output
+      for ( sstep = 0 ; sstep <= segments ; sstep ++ ) {
 
-				s = sstep / segments;
+        s = sstep / segments;
 
-				for ( tstep = 0 ; tstep <= segments ; tstep ++ ) {
+        for ( tstep = 0 ; tstep <= segments ; tstep ++ ) {
 
-					t = tstep / segments;
+          t = tstep / segments;
 
-					// point from basis
-					// get power vectors and their derivatives
-					for ( p = 4, sval = tval = 1.0 ; p -- ; ) {
+          // point from basis
+          // get power vectors and their derivatives
+          for ( p = 4, sval = tval = 1.0 ; p -- ; ) {
 
-						sp[ p ] = sval ;
-						tp[ p ] = tval ;
-						sval *= s ;
-						tval *= t ;
+            sp[ p ] = sval ;
+            tp[ p ] = tval ;
+            sval *= s ;
+            tval *= t ;
 
-						if ( p === 3 ) {
+            if ( p === 3 ) {
 
-							dsp[ p ] = dtp[ p ] = 0.0 ;
-							dsval = dtval = 1.0 ;
+              dsp[ p ] = dtp[ p ] = 0.0 ;
+              dsval = dtval = 1.0 ;
 
-						} else {
+            } else {
 
-							dsp[ p ] = dsval * ( 3 - p ) ;
-							dtp[ p ] = dtval * ( 3 - p ) ;
-							dsval *= s ;
-							dtval *= t ;
+              dsp[ p ] = dsval * ( 3 - p ) ;
+              dtp[ p ] = dtval * ( 3 - p ) ;
+              dsval *= s ;
+              dtval *= t ;
 
-						}
+            }
 
-					}
+          }
 
-					vsp.fromArray( sp );
-					vtp.fromArray( tp );
-					vdsp.fromArray( dsp );
-					vdtp.fromArray( dtp );
+          vsp.fromArray( sp );
+          vtp.fromArray( tp );
+          vdsp.fromArray( dsp );
+          vdtp.fromArray( dtp );
 
-					// do for x,y,z
-					for ( i = 0 ; i < 3 ; i ++ ) {
+          // do for x,y,z
+          for ( i = 0 ; i < 3 ; i ++ ) {
 
-						// multiply power vectors times matrix to get value
-						tcoord = vsp.clone();
-						tcoord.applyMatrix4( mgm[ i ] );
-						vert[ i ] = tcoord.dot( vtp );
+            // multiply power vectors times matrix to get value
+            tcoord = vsp.clone();
+            tcoord.applyMatrix4( mgm[ i ] );
+            vert[ i ] = tcoord.dot( vtp );
 
-						// get s and t tangent vectors
-						tcoord = vdsp.clone();
-						tcoord.applyMatrix4( mgm[ i ] );
-						sdir[ i ] = tcoord.dot( vtp ) ;
+            // get s and t tangent vectors
+            tcoord = vdsp.clone();
+            tcoord.applyMatrix4( mgm[ i ] );
+            sdir[ i ] = tcoord.dot( vtp ) ;
 
-						tcoord = vsp.clone();
-						tcoord.applyMatrix4( mgm[ i ] );
-						tdir[ i ] = tcoord.dot( vdtp ) ;
+            tcoord = vsp.clone();
+            tcoord.applyMatrix4( mgm[ i ] );
+            tdir[ i ] = tcoord.dot( vdtp ) ;
 
-					}
+          }
 
-					// find normal
-					vsdir.fromArray( sdir );
-					vtdir.fromArray( tdir );
-					norm.crossVectors( vtdir, vsdir );
-					norm.normalize();
+          // find normal
+          vsdir.fromArray( sdir );
+          vtdir.fromArray( tdir );
+          norm.crossVectors( vtdir, vsdir );
+          norm.normalize();
 
-					// if X and Z length is 0, at the cusp, so point the normal up or down, depending on patch number
-					if ( vert[ 0 ] === 0 && vert[ 1 ] === 0 )
-					{
+          // if X and Z length is 0, at the cusp, so point the normal up or down, depending on patch number
+          if ( vert[ 0 ] === 0 && vert[ 1 ] === 0 )
+          {
 
-						// if above the middle of the teapot, normal points up, else down
-						normOut.set( 0, vert[ 2 ] > maxHeight2 ? 1 : - 1, 0 );
+            // if above the middle of the teapot, normal points up, else down
+            normOut.set( 0, vert[ 2 ] > maxHeight2 ? 1 : - 1, 0 );
 
-					}
-					else
-					{
+          }
+          else
+          {
 
-						// standard output: rotate on X axis
-						normOut.set( norm.x, norm.z, - norm.y );
+            // standard output: rotate on X axis
+            normOut.set( norm.x, norm.z, - norm.y );
 
-					}
+          }
 
-					// store it all
-					vertices[ vertCount ++ ] = trueSize * vert[ 0 ];
-					vertices[ vertCount ++ ] = trueSize * ( vert[ 2 ] - maxHeight2 );
-					vertices[ vertCount ++ ] = - trueSize * vert[ 1 ];
+          // store it all
+          vertices[ vertCount ++ ] = trueSize * vert[ 0 ];
+          vertices[ vertCount ++ ] = trueSize * ( vert[ 2 ] - maxHeight2 );
+          vertices[ vertCount ++ ] = - trueSize * vert[ 1 ];
 
-					normals[ normCount ++ ] = normOut.x;
-					normals[ normCount ++ ] = normOut.y;
-					normals[ normCount ++ ] = normOut.z;
+          normals[ normCount ++ ] = normOut.x;
+          normals[ normCount ++ ] = normOut.y;
+          normals[ normCount ++ ] = normOut.z;
 
-					uvs[ uvCount ++ ] = 1 - t;
-					uvs[ uvCount ++ ] = 1 - s;
+          uvs[ uvCount ++ ] = 1 - t;
+          uvs[ uvCount ++ ] = 1 - s;
 
-				}
+        }
 
-			}
+      }
 
-			// save the faces
-			for ( sstep = 0 ; sstep < segments ; sstep ++ ) {
+      // save the faces
+      for ( sstep = 0 ; sstep < segments ; sstep ++ ) {
 
-				for ( tstep = 0 ; tstep < segments ; tstep ++ ) {
+        for ( tstep = 0 ; tstep < segments ; tstep ++ ) {
 
-					v1 = surfCount * vertPerRow * vertPerRow + sstep * vertPerRow + tstep;
-					v2 = v1 + 1;
-					v3 = v2 + vertPerRow;
-					v4 = v1 + vertPerRow;
+          v1 = surfCount * vertPerRow * vertPerRow + sstep * vertPerRow + tstep;
+          v2 = v1 + 1;
+          v3 = v2 + vertPerRow;
+          v4 = v1 + vertPerRow;
 
-					// Normals and UVs cannot be shared. Without clone(), you can see the consequences
-					// of sharing if you call geometry.applyMatrix( matrix ).
-					if ( notDegenerate ( v1, v2, v3 ) ) {
+          // Normals and UVs cannot be shared. Without clone(), you can see the consequences
+          // of sharing if you call geometry.applyMatrix( matrix ).
+          if ( notDegenerate ( v1, v2, v3 ) ) {
 
-						indices[ indexCount ++ ] = v1;
-						indices[ indexCount ++ ] = v2;
-						indices[ indexCount ++ ] = v3;
+            indices[ indexCount ++ ] = v1;
+            indices[ indexCount ++ ] = v2;
+            indices[ indexCount ++ ] = v3;
 
-					}
-					if ( notDegenerate ( v1, v3, v4 ) ) {
+          }
+          if ( notDegenerate ( v1, v3, v4 ) ) {
 
-						indices[ indexCount ++ ] = v1;
-						indices[ indexCount ++ ] = v3;
-						indices[ indexCount ++ ] = v4;
+            indices[ indexCount ++ ] = v1;
+            indices[ indexCount ++ ] = v3;
+            indices[ indexCount ++ ] = v4;
 
-					}
+          }
 
-				}
+        }
 
-			}
+      }
 
-			// increment only if a surface was used
-			surfCount ++;
+      // increment only if a surface was used
+      surfCount ++;
 
-		}
+    }
 
-	}
+  }
 
-	this.setIndex( new THREE.BufferAttribute( indices, 1 ) );
-	this.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-	this.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
-	this.addAttribute( 'uv', new THREE.BufferAttribute( uvs, 2 ) );
+  this.setIndex( new THREE.BufferAttribute( indices, 1 ) );
+  this.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+  this.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
+  this.addAttribute( 'uv', new THREE.BufferAttribute( uvs, 2 ) );
 
-	this.computeBoundingSphere();
+  this.computeBoundingSphere();
 
 };
 
@@ -736,16 +736,16 @@ THREE.TeapotBufferGeometry.prototype.constructor = THREE.TeapotBufferGeometry;
 
 THREE.TeapotBufferGeometry.prototype.clone = function () {
 
-	var bufferGeometry = new THREE.TeapotBufferGeometry(
-		this.parameters.size,
-		this.parameters.segments,
-		this.parameters.bottom,
-		this.parameters.lid,
-		this.parameters.body,
-		this.parameters.fitLid,
-		this.parameters.blinn
-	);
+  var bufferGeometry = new THREE.TeapotBufferGeometry(
+    this.parameters.size,
+    this.parameters.segments,
+    this.parameters.bottom,
+    this.parameters.lid,
+    this.parameters.body,
+    this.parameters.fitLid,
+    this.parameters.blinn
+  );
 
-	return bufferGeometry;
+  return bufferGeometry;
 
 };
