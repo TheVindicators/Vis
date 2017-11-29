@@ -4,125 +4,125 @@
 
 function detectCreateImageBitmap() {
 
-	var url = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+  var url = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
-	return new Promise( function ( resolve, reject ) {
+  return new Promise( function ( resolve, reject ) {
 
-		if ( ! ( 'createImageBitmap' in window ) ) {
+    if ( ! ( 'createImageBitmap' in window ) ) {
 
-			reject();
-			return;
+      reject();
+      return;
 
-		}
+    }
 
-		fetch( url ).then( function ( res ) {
+    fetch( url ).then( function ( res ) {
 
-			return res.blob();
+      return res.blob();
 
-		} ).then( function ( blob ) {
+    } ).then( function ( blob ) {
 
-			Promise.all( [
-				createImageBitmap( blob, { imageOrientation: 'none', premultiplyAlpha: 'none' } ),
-				createImageBitmap( blob, { imageOrientation: 'flipY', premultiplyAlpha: 'none' } ),
-				createImageBitmap( blob, { imageOrientation: 'none', premultiplyAlpha: 'premultiply' } ),
-				createImageBitmap( blob, { imageOrientation: 'flipY', premultiplyAlpha: 'premultiply' } )
-			] ).then( function () {
+      Promise.all( [
+        createImageBitmap( blob, { imageOrientation: 'none', premultiplyAlpha: 'none' } ),
+        createImageBitmap( blob, { imageOrientation: 'flipY', premultiplyAlpha: 'none' } ),
+        createImageBitmap( blob, { imageOrientation: 'none', premultiplyAlpha: 'premultiply' } ),
+        createImageBitmap( blob, { imageOrientation: 'flipY', premultiplyAlpha: 'premultiply' } )
+      ] ).then( function () {
 
-				resolve();
+        resolve();
 
-			} ).catch( function () {
+      } ).catch( function () {
 
-				reject();
+        reject();
 
-			} );
+      } );
 
-		} );
+    } );
 
-	} );
+  } );
 
 }
 
 var canUseImageBitmap = detectCreateImageBitmap();
 canUseImageBitmap.then( function () {
 
-	console.log( 'THREE.ImageBitmapLoader: createImageBitmap() supported.' );
+  console.log( 'THREE.ImageBitmapLoader: createImageBitmap() supported.' );
 
 } ).catch( function () {
 
-	console.warn( 'THREE.ImageBitmapLoader: createImageBitmap() not supported.' );
+  console.warn( 'THREE.ImageBitmapLoader: createImageBitmap() not supported.' );
 
 } );
 
 
 THREE.ImageBitmapLoader = function ( manager ) {
 
-	this.manager = manager !== undefined ? manager : THREE.DefaultLoadingManager;
-	this.options = {};
+  this.manager = manager !== undefined ? manager : THREE.DefaultLoadingManager;
+  this.options = {};
 
 };
 
 THREE.ImageBitmapLoader.prototype = {
 
-	constructor: THREE.ImageBitmapLoader,
+  constructor: THREE.ImageBitmapLoader,
 
-	setOptions: function setOptions( options ) {
+  setOptions: function setOptions( options ) {
 
-		this.options = options;
-		return this;
+    this.options = options;
+    return this;
 
-	},
+  },
 
-	load: function load( url, onLoad, onProgress, onError ) {
+  load: function load( url, onLoad, onProgress, onError ) {
 
-		if ( url === undefined ) url = '';
+    if ( url === undefined ) url = '';
 
-		if ( this.path !== undefined ) url = this.path + url;
+    if ( this.path !== undefined ) url = this.path + url;
 
-		var scope = this;
+    var scope = this;
 
-		var cached = THREE.Cache.get( url );
+    var cached = THREE.Cache.get( url );
 
-		if ( cached !== undefined ) {
+    if ( cached !== undefined ) {
 
-			scope.manager.itemStart( url );
+      scope.manager.itemStart( url );
 
-			setTimeout( function () {
+      setTimeout( function () {
 
-				if ( onLoad ) onLoad( cached );
+        if ( onLoad ) onLoad( cached );
 
-				scope.manager.itemEnd( url );
+        scope.manager.itemEnd( url );
 
-			}, 0 );
+      }, 0 );
 
-			return cached;
+      return cached;
 
-		}
+    }
 
-		fetch( url ).then( function ( res ) {
+    fetch( url ).then( function ( res ) {
 
-			return res.blob();
+      return res.blob();
 
-		} ).then( function ( res ) {
+    } ).then( function ( res ) {
 
-			return createImageBitmap( res, scope.options );
+      return createImageBitmap( res, scope.options );
 
-		} ).then( function ( res ) {
+    } ).then( function ( res ) {
 
-			THREE.Cache.add( url, res );
+      THREE.Cache.add( url, res );
 
-			if ( onLoad ) onLoad( res );
+      if ( onLoad ) onLoad( res );
 
-			scope.manager.itemEnd( url );
+      scope.manager.itemEnd( url );
 
-		} ).catch( function ( e ) {
+    } ).catch( function ( e ) {
 
-			if ( onError ) onError( e );
+      if ( onError ) onError( e );
 
-			scope.manager.itemEnd( url );
-			scope.manager.itemError( url );
+      scope.manager.itemEnd( url );
+      scope.manager.itemError( url );
 
-		} );
+    } );
 
-	}
+  }
 
 };

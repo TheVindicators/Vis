@@ -4,108 +4,108 @@
 
 Sidebar.Material = function ( editor ) {
 
-	var signals = editor.signals;
+  var signals = editor.signals;
 
-	var currentObject;
+  var currentObject;
 
-	var container = new UI.Panel();
-	container.setBorderTop( '0' );
-	container.setPaddingTop( '20px' );
+  var container = new UI.Panel();
+  container.setBorderTop( '0' );
+  container.setPaddingTop( '20px' );
 
-	// wireframe
+  // wireframe
 
-	var materialWireframeRow = new UI.Row();
-	var materialWireframe = new UI.Checkbox( false ).onChange( update );
+  var materialWireframeRow = new UI.Row();
+  var materialWireframe = new UI.Checkbox( false ).onChange( update );
 
-	materialWireframeRow.add( new UI.Text( 'Wireframe' ).setWidth( '90px' ) );
-	materialWireframeRow.add( materialWireframe );
+  materialWireframeRow.add( new UI.Text( 'Wireframe' ).setWidth( '90px' ) );
+  materialWireframeRow.add( materialWireframe );
 
-	container.add( materialWireframeRow );
+  container.add( materialWireframeRow );
 
-	//
-	
-	
+  //
+  
+  
 
-	function update() {
-		
-		var currentObject = editor.selected;
-		
-		if (currentObject) {
-			
-			//if ( (editor.getObjectMaterial((currentObject.children)[0])).wireframe !== undefined && (editor.getObjectMaterial((currentObject.children)[0])).wireframe !== materialWireframe.getValue() ) {
+  function update() {
+    
+    var currentObject = editor.selected;
+    
+    if (currentObject) {
+      
+      //if ( (editor.getObjectMaterial((currentObject.children)[0])).wireframe !== undefined && (editor.getObjectMaterial((currentObject.children)[0])).wireframe !== materialWireframe.getValue() ) {
 
-			//editor.execute( new SetMaterialValueCommand( (currentObject.children)[3], 'wireframe', materialWireframe.getValue()) );
-			//editor.execute( new SetMaterialValueCommand( (currentObject.children)[7], 'wireframe', materialWireframe.getValue()) );
-			
-			var cmds = [];
-			var objects = currentObject.children;
-			var object
+      //editor.execute( new SetMaterialValueCommand( (currentObject.children)[3], 'wireframe', materialWireframe.getValue()) );
+      //editor.execute( new SetMaterialValueCommand( (currentObject.children)[7], 'wireframe', materialWireframe.getValue()) );
+      
+      var cmds = [];
+      var objects = currentObject.children;
+      var object
 
-			for ( var i = 0, l = objects.length; i < l; i ++ ) {
+      for ( var i = 0, l = objects.length; i < l; i ++ ) {
 
-				object = objects[ i ];
-				
-				//var material = editor.getObjectMaterial(object)
-				
-				//if ( material.wireframe !== undefined && material.wireframe !== materialWireframe.getValue() ) {
-					
-				cmds.push(new SetMaterialValueCommand( object, 'wireframe', materialWireframe.getValue()));
+        object = objects[ i ];
+        
+        //var material = editor.getObjectMaterial(object)
+        
+        //if ( material.wireframe !== undefined && material.wireframe !== materialWireframe.getValue() ) {
+          
+        cmds.push(new SetMaterialValueCommand( object, 'wireframe', materialWireframe.getValue()));
 
-				//editor.execute( new SetMaterialValueCommand( object, 'wireframe', materialWireframe.getValue()) );
+        //editor.execute( new SetMaterialValueCommand( object, 'wireframe', materialWireframe.getValue()) );
 
-				//}
+        //}
 
-			}
+      }
 
-			editor.execute( new MultiCmdsCommand(cmds), 'wireframe' );
+      editor.execute( new MultiCmdsCommand(cmds), 'wireframe' );
 
-			//}
-			refreshUI();
+      //}
+      refreshUI();
 
-		}
+    }
 
-		if ( textureWarning ) {
+    if ( textureWarning ) {
 
-			console.warn( "Can't set texture, model doesn't have texture coordinates" );
+      console.warn( "Can't set texture, model doesn't have texture coordinates" );
 
-		}
+    }
 
-	}
+  }
 
 
-	function refreshUI( resetTextureSelectors ) {
+  function refreshUI( resetTextureSelectors ) {
 
-		if ( ! currentObject ) return;
+    if ( ! currentObject ) return;
 
-		var material = currentObject.material;
+    var material = currentObject.material;
 
-		material = editor.getObjectMaterial( currentObject );
+    material = editor.getObjectMaterial( currentObject );
 
-		if ( material.wireframe !== undefined ) {
+    if ( material.wireframe !== undefined ) {
 
-			materialWireframe.setValue( material.wireframe );
+      materialWireframe.setValue( material.wireframe );
 
-		}
-	}
+    }
+  }
 
-	// events
+  // events
 
-	signals.objectSelected.add( function ( object ) {
+  signals.objectSelected.add( function ( object ) {
 
-			var objectChanged = object;
+      var objectChanged = object;
 
-			currentObject = object;
-			refreshUI( objectChanged );
-			container.setDisplay( '' );
+      currentObject = object;
+      refreshUI( objectChanged );
+      container.setDisplay( '' );
 
-	} );
+  } );
 
-	signals.materialChanged.add( function () {
+  signals.materialChanged.add( function () {
 
-		refreshUI();
+    refreshUI();
 
-	} );
+  } );
 
-	return container;
+  return container;
 
 };

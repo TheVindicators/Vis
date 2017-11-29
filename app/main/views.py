@@ -4,4 +4,4 @@ import os
 
 @main.route('/')
 def index():
-    return render_template('editor.html')
+    return render_template('editor2.html')

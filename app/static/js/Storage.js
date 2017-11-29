@@ -4,55 +4,55 @@
 
 var Storage = function () {
 
-	var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+  var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
 
-	if ( indexedDB === undefined  ) {
+  if ( indexedDB === undefined  ) {
 
-		console.warn( 'Storage: IndexedDB not available.' );
-		return { init: function () {}, get: function () {}, set: function () {}, clear: function () {} };
+    console.warn( 'Storage: IndexedDB not available.' );
+    return { init: function () {}, get: function () {}, set: function () {}, clear: function () {} };
 
-	}
+  }
 
-	var name = 'threejs-editor';
-	var version = 1;
+  var name = 'threejs-editor';
+  var version = 1;
 
-	var database;
+  var database;
 
-	return {
+  return {
 
-		init: function ( callback ) {
+    init: function ( callback ) {
 
-			var request = indexedDB.open( name, version );
-			request.onupgradeneeded = function ( event ) {
+      var request = indexedDB.open( name, version );
+      request.onupgradeneeded = function ( event ) {
 
-				var db = event.target.result;
+        var db = event.target.result;
 
-				if ( db.objectStoreNames.contains( 'states' ) === false ) {
+        if ( db.objectStoreNames.contains( 'states' ) === false ) {
 
-					db.createObjectStore( 'states' );
+          db.createObjectStore( 'states' );
 
-				}
+        }
 
-			};
-			request.onsuccess = function ( event ) {
+      };
+      request.onsuccess = function ( event ) {
 
-				database = event.target.result;
+        database = event.target.result;
 
-				callback();
+        callback();
 
-			};
-			request.onerror = function ( event ) {
+      };
+      request.onerror = function ( event ) {
 
-				console.error( 'IndexedDB', event );
+        console.error( 'IndexedDB', event );
 
-			};
+      };
 
 
-		},
+    },
 
-		get: function ( uuid, callback ) {
+    get: function ( uuid, callback ) {
 
-			if (uuid != "None") {
+      if (uuid != "None") {
         $.ajax({
            url: '/rest/resume_state/' + uuid,
            data: {
@@ -64,31 +64,24 @@ var Storage = function () {
            },
            type: 'GET'
         });
-			} else {
-				var transaction = database.transaction( [ 'states' ], 'readwrite' );
-				var objectStore = transaction.objectStore( 'states' );
+      } else {
+        var transaction = database.transaction( [ 'states' ], 'readwrite' );
+        var objectStore = transaction.objectStore( 'states' );
 
-				var request = objectStore.get( 0 );
-				request.onsuccess = function ( event ) {
-					callback( event.target.result );
-				};
-			}
-
-
+        var request = objectStore.get( 0 );
+        request.onsuccess = function ( event ) {
+          callback( event.target.result );
+        };
+      }
 
 
-		},
-
-		set: function ( data, callback ) {
-
-			var start = performance.now();
-
-			var transaction = database.transaction( [ 'states' ], 'readwrite' );
-			var objectStore = transaction.objectStore( 'states' );
-			//console.log(JSON.stringify(data));
-			var request = objectStore.put( data, 0 );
 
 
+    },
+
+    set: function ( data, callback ) {
+
+      var start = performance.now();
       $.ajax({
         url: '/rest/save_state',
         data: JSON.stringify(data),
@@ -96,7 +89,7 @@ var Storage = function () {
         dataType: "json",
         success: function(data) {
           if ( data.results == "SUCCESS" ) {
-            console.log('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Saved state to server as UUID', data.uuid);
+            console.log('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Saved state to server as UUID', data.uuid, ( performance.now() - start ).toFixed( 2 ) + 'ms');
             if ( editor.project_uuid == "" ) {
               editor.project_uuid = data.uuid; //Set the initial UUID if this the first save-state for this session.
             }
@@ -113,7 +106,6 @@ var Storage = function () {
               } else { // Other error
                 console.error('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Failed to save state to server.', data.reason, data.error);
               }
-
             }
         },
         error: function() {
@@ -122,31 +114,34 @@ var Storage = function () {
         type: 'POST'
       });
 
-			//console.log(data);
+      var transaction = database.transaction( [ 'states' ], 'readwrite' );
+      var objectStore = transaction.objectStore( 'states' );
+      var request = objectStore.put( data, 0 );
 
-			request.onsuccess = function ( event ) {
 
-				console.log( '[' + /\d\d\:\d\d\:\d\d/.exec( new Date() )[ 0 ] + ']', 'Saved state to IndexedDB. ' + ( performance.now() - start ).toFixed( 2 ) + 'ms' );
+      request.onsuccess = function ( event ) {
 
-			};
+        console.log( '[' + /\d\d\:\d\d\:\d\d/.exec( new Date() )[ 0 ] + ']', 'Saved state to IndexedDB. ' + ( performance.now() - start ).toFixed( 2 ) + 'ms' );
 
-		},
+      };
 
-		clear: function () {
+    },
 
-			if ( database === undefined ) return;
+    clear: function () {
 
-			var transaction = database.transaction( [ 'states' ], 'readwrite' );
-			var objectStore = transaction.objectStore( 'states' );
-			var request = objectStore.clear();
-			request.onsuccess = function ( event ) {
+      if ( database === undefined ) return;
 
-				console.log( '[' + /\d\d\:\d\d\:\d\d/.exec( new Date() )[ 0 ] + ']', 'Cleared IndexedDB.' );
+      var transaction = database.transaction( [ 'states' ], 'readwrite' );
+      var objectStore = transaction.objectStore( 'states' );
+      var request = objectStore.clear();
+      request.onsuccess = function ( event ) {
 
-			};
+        console.log( '[' + /\d\d\:\d\d\:\d\d/.exec( new Date() )[ 0 ] + ']', 'Cleared IndexedDB.' );
 
-		}
+      };
 
-	};
+    }
+
+  };
 
 };

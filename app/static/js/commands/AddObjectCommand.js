@@ -10,57 +10,57 @@
 
 var AddObjectCommand = function ( object ) {
 
-	Command.call( this );
+  Command.call( this );
 
-	this.type = 'AddObjectCommand';
+  this.type = 'AddObjectCommand';
 
-	this.object = object;
-	if ( object !== undefined ) {
+  this.object = object;
+  if ( object !== undefined ) {
 
-		this.name = 'Add Object: ' + object.name;
+    this.name = 'Add Object: ' + object.name;
 
-	}
+  }
 
 };
 
 AddObjectCommand.prototype = {
 
-	execute: function () {
+  execute: function () {
 
-		this.editor.addObject( this.object );
-		this.editor.select( this.object );
+    this.editor.addObject( this.object );
+    this.editor.select( this.object );
 
-	},
+  },
 
-	undo: function () {
+  undo: function () {
 
-		this.editor.removeObject( this.object );
-		this.editor.deselect();
+    this.editor.removeObject( this.object );
+    this.editor.deselect();
 
-	},
+  },
 
-	toJSON: function () {
+  toJSON: function () {
 
-		var output = Command.prototype.toJSON.call( this );
-		output.object = this.object.toJSON();
+    var output = Command.prototype.toJSON.call( this );
+    output.object = this.object.toJSON();
 
-		return output;
+    return output;
 
-	},
+  },
 
-	fromJSON: function ( json ) {
+  fromJSON: function ( json ) {
 
-		Command.prototype.fromJSON.call( this, json );
+    Command.prototype.fromJSON.call( this, json );
 
-		this.object = this.editor.objectByUuid( json.object.object.uuid );
+    this.object = this.editor.objectByUuid( json.object.object.uuid );
 
-		if ( this.object === undefined ) {
+    if ( this.object === undefined ) {
 
-			var loader = new THREE.ObjectLoader();
-			this.object = loader.parse( json.object );
+      var loader = new THREE.ObjectLoader();
+      this.object = loader.parse( json.object );
 
-		}
+    }
 
-	}
+  }
 
 };

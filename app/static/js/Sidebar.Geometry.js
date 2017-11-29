@@ -4,183 +4,183 @@
 
 Sidebar.Geometry = function ( editor ) {
 
-	var signals = editor.signals;
+  var signals = editor.signals;
 
-	var container = new UI.Panel();
-	container.setBorderTop( '0' );
-	container.setPaddingTop( '20px' );
+  var container = new UI.Panel();
+  container.setBorderTop( '0' );
+  container.setPaddingTop( '20px' );
 
-	// Actions
+  // Actions
 
-	/*
-	var objectActions = new UI.Select().setPosition( 'absolute' ).setRight( '8px' ).setFontSize( '11px' );
-	objectActions.setOptions( {
+  /*
+  var objectActions = new UI.Select().setPosition( 'absolute' ).setRight( '8px' ).setFontSize( '11px' );
+  objectActions.setOptions( {
 
-		'Actions': 'Actions',
-		'Center': 'Center',
-		'Convert': 'Convert',
-		'Flatten': 'Flatten'
+    'Actions': 'Actions',
+    'Center': 'Center',
+    'Convert': 'Convert',
+    'Flatten': 'Flatten'
 
-	} );
-	objectActions.onClick( function ( event ) {
+  } );
+  objectActions.onClick( function ( event ) {
 
-		event.stopPropagation(); // Avoid panel collapsing
+    event.stopPropagation(); // Avoid panel collapsing
 
-	} );
-	objectActions.onChange( function ( event ) {
+  } );
+  objectActions.onChange( function ( event ) {
 
-		var action = this.getValue();
+    var action = this.getValue();
 
-		var object = editor.selected;
-		var geometry = object.geometry;
+    var object = editor.selected;
+    var geometry = object.geometry;
 
-		if ( confirm( action + ' ' + object.name + '?' ) === false ) return;
+    if ( confirm( action + ' ' + object.name + '?' ) === false ) return;
 
-		switch ( action ) {
+    switch ( action ) {
 
-			case 'Center':
+      case 'Center':
 
-				var offset = geometry.center();
+        var offset = geometry.center();
 
-				var newPosition = object.position.clone();
-				newPosition.sub( offset );
-				editor.execute( new SetPositionCommand( object, newPosition ) );
+        var newPosition = object.position.clone();
+        newPosition.sub( offset );
+        editor.execute( new SetPositionCommand( object, newPosition ) );
 
-				editor.signals.geometryChanged.dispatch( object );
+        editor.signals.geometryChanged.dispatch( object );
 
-				break;
+        break;
 
-			case 'Convert':
+      case 'Convert':
 
-				if ( geometry instanceof THREE.Geometry ) {
+        if ( geometry instanceof THREE.Geometry ) {
 
-					editor.execute( new SetGeometryCommand( object, new THREE.BufferGeometry().fromGeometry( geometry ) ) );
+          editor.execute( new SetGeometryCommand( object, new THREE.BufferGeometry().fromGeometry( geometry ) ) );
 
-				}
+        }
 
-				break;
+        break;
 
-			case 'Flatten':
+      case 'Flatten':
 
-				var newGeometry = geometry.clone();
-				newGeometry.uuid = geometry.uuid;
-				newGeometry.applyMatrix( object.matrix );
+        var newGeometry = geometry.clone();
+        newGeometry.uuid = geometry.uuid;
+        newGeometry.applyMatrix( object.matrix );
 
-				var cmds = [ new SetGeometryCommand( object, newGeometry ),
-					new SetPositionCommand( object, new THREE.Vector3( 0, 0, 0 ) ),
-					new SetRotationCommand( object, new THREE.Euler( 0, 0, 0 ) ),
-					new SetScaleCommand( object, new THREE.Vector3( 1, 1, 1 ) ) ];
+        var cmds = [ new SetGeometryCommand( object, newGeometry ),
+          new SetPositionCommand( object, new THREE.Vector3( 0, 0, 0 ) ),
+          new SetRotationCommand( object, new THREE.Euler( 0, 0, 0 ) ),
+          new SetScaleCommand( object, new THREE.Vector3( 1, 1, 1 ) ) ];
 
-				editor.execute( new MultiCmdsCommand( cmds ), 'Flatten Geometry' );
+        editor.execute( new MultiCmdsCommand( cmds ), 'Flatten Geometry' );
 
-				break;
+        break;
 
-		}
+    }
 
-		this.setValue( 'Actions' );
+    this.setValue( 'Actions' );
 
-	} );
-	container.addStatic( objectActions );
-	*/
+  } );
+  container.addStatic( objectActions );
+  */
 
-	// type
+  // type
 
-	var geometryTypeRow = new UI.Row();
-	var geometryType = new UI.Text();
+  var geometryTypeRow = new UI.Row();
+  var geometryType = new UI.Text();
 
-	geometryTypeRow.add( new UI.Text( 'Type' ).setWidth( '90px' ) );
-	geometryTypeRow.add( geometryType );
+  geometryTypeRow.add( new UI.Text( 'Type' ).setWidth( '90px' ) );
+  geometryTypeRow.add( geometryType );
 
-	container.add( geometryTypeRow );
+  container.add( geometryTypeRow );
 
-	// uuid
+  // uuid
 
-	var geometryUUIDRow = new UI.Row();
-	var geometryUUID = new UI.Input().setWidth( '102px' ).setFontSize( '12px' ).setDisabled( true );
-	var geometryUUIDRenew = new UI.Button( 'New' ).setMarginLeft( '7px' ).onClick( function () {
+  var geometryUUIDRow = new UI.Row();
+  var geometryUUID = new UI.Input().setWidth( '102px' ).setFontSize( '12px' ).setDisabled( true );
+  var geometryUUIDRenew = new UI.Button( 'New' ).setMarginLeft( '7px' ).onClick( function () {
 
-		geometryUUID.setValue( THREE.Math.generateUUID() );
+    geometryUUID.setValue( THREE.Math.generateUUID() );
 
-		editor.execute( new SetGeometryValueCommand( editor.selected, 'uuid', geometryUUID.getValue() ) );
+    editor.execute( new SetGeometryValueCommand( editor.selected, 'uuid', geometryUUID.getValue() ) );
 
-	} );
+  } );
 
-	geometryUUIDRow.add( new UI.Text( 'UUID' ).setWidth( '90px' ) );
-	geometryUUIDRow.add( geometryUUID );
-	geometryUUIDRow.add( geometryUUIDRenew );
+  geometryUUIDRow.add( new UI.Text( 'UUID' ).setWidth( '90px' ) );
+  geometryUUIDRow.add( geometryUUID );
+  geometryUUIDRow.add( geometryUUIDRenew );
 
-	container.add( geometryUUIDRow );
+  container.add( geometryUUIDRow );
 
-	// name
+  // name
 
-	var geometryNameRow = new UI.Row();
-	var geometryName = new UI.Input().setWidth( '150px' ).setFontSize( '12px' ).onChange( function () {
+  var geometryNameRow = new UI.Row();
+  var geometryName = new UI.Input().setWidth( '150px' ).setFontSize( '12px' ).onChange( function () {
 
-		editor.execute( new SetGeometryValueCommand( editor.selected, 'name', geometryName.getValue() ) );
+    editor.execute( new SetGeometryValueCommand( editor.selected, 'name', geometryName.getValue() ) );
 
-	} );
+  } );
 
-	geometryNameRow.add( new UI.Text( 'Name' ).setWidth( '90px' ) );
-	geometryNameRow.add( geometryName );
+  geometryNameRow.add( new UI.Text( 'Name' ).setWidth( '90px' ) );
+  geometryNameRow.add( geometryName );
 
-	container.add( geometryNameRow );
+  container.add( geometryNameRow );
 
-	// geometry
+  // geometry
 
-	container.add( new Sidebar.Geometry.Geometry( editor ) );
+  container.add( new Sidebar.Geometry.Geometry( editor ) );
 
-	// buffergeometry
+  // buffergeometry
 
-	container.add( new Sidebar.Geometry.BufferGeometry( editor ) );
+  container.add( new Sidebar.Geometry.BufferGeometry( editor ) );
 
-	// parameters
+  // parameters
 
-	var parameters = new UI.Span();
-	container.add( parameters );
+  var parameters = new UI.Span();
+  container.add( parameters );
 
 
-	//
+  //
 
-	function build() {
+  function build() {
 
-		var object = editor.selected;
+    var object = editor.selected;
 
-		if ( object && object.geometry ) {
+    if ( object && object.geometry ) {
 
-			var geometry = object.geometry;
+      var geometry = object.geometry;
 
-			container.setDisplay( 'block' );
+      container.setDisplay( 'block' );
 
-			geometryType.setValue( geometry.type );
+      geometryType.setValue( geometry.type );
 
-			geometryUUID.setValue( geometry.uuid );
-			geometryName.setValue( geometry.name );
+      geometryUUID.setValue( geometry.uuid );
+      geometryName.setValue( geometry.name );
 
-			//
+      //
 
-			parameters.clear();
+      parameters.clear();
 
-			if ( geometry.type === 'BufferGeometry' || geometry.type === 'Geometry' ) {
+      if ( geometry.type === 'BufferGeometry' || geometry.type === 'Geometry' ) {
 
-				parameters.add( new Sidebar.Geometry.Modifiers( editor, object ) );
+        parameters.add( new Sidebar.Geometry.Modifiers( editor, object ) );
 
-			} else if ( Sidebar.Geometry[ geometry.type ] !== undefined ) {
+      } else if ( Sidebar.Geometry[ geometry.type ] !== undefined ) {
 
-				parameters.add( new Sidebar.Geometry[ geometry.type ]( editor, object ) );
+        parameters.add( new Sidebar.Geometry[ geometry.type ]( editor, object ) );
 
-			}
+      }
 
-		} else {
+    } else {
 
-			container.setDisplay( 'none' );
+      container.setDisplay( 'none' );
 
-		}
+    }
 
-	}
+  }
 
-	signals.objectSelected.add( build );
-	signals.geometryChanged.add( build );
+  signals.objectSelected.add( build );
+  signals.geometryChanged.add( build );
 
-	return container;
+  return container;
 
 };

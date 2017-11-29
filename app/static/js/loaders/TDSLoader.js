@@ -13,918 +13,918 @@
 
 THREE.TDSLoader = function ( manager ) {
 
-	this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
-	this.debug = false;
+  this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
+  this.debug = false;
 
-	this.group = null;
-	this.position = 0;
+  this.group = null;
+  this.position = 0;
 
-	this.materials = [];
-	this.meshes = [];
+  this.materials = [];
+  this.meshes = [];
 
-	this.path = "";
+  this.path = "";
 
 };
 
 THREE.TDSLoader.prototype = {
 
-	constructor: THREE.TDSLoader,
+  constructor: THREE.TDSLoader,
 
-	/**
-	 * Load 3ds file from url.
-	 *
-	 * @method load
-	 * @param {[type]} url URL for the file.
-	 * @param {Function} onLoad onLoad callback, receives group Object3D as argument.
-	 * @param {Function} onProgress onProgress callback.
-	 * @param {Function} onError onError callback.
-	 */
-	load: function ( url, onLoad, onProgress, onError ) {
+  /**
+   * Load 3ds file from url.
+   *
+   * @method load
+   * @param {[type]} url URL for the file.
+   * @param {Function} onLoad onLoad callback, receives group Object3D as argument.
+   * @param {Function} onProgress onProgress callback.
+   * @param {Function} onError onError callback.
+   */
+  load: function ( url, onLoad, onProgress, onError ) {
 
-		var scope = this;
+    var scope = this;
 
-		var loader = new THREE.FileLoader( this.manager );
+    var loader = new THREE.FileLoader( this.manager );
 
-		loader.setResponseType( 'arraybuffer' );
+    loader.setResponseType( 'arraybuffer' );
 
-		loader.load( url, function ( data ) {
+    loader.load( url, function ( data ) {
 
-			onLoad( scope.parse( data ) );
+      onLoad( scope.parse( data ) );
 
-		}, onProgress, onError );
+    }, onProgress, onError );
 
-	},
+  },
 
-	/**
-	 * Parse arraybuffer data and load 3ds file.
-	 *
-	 * @method parse
-	 * @param {ArrayBuffer} arraybuffer Arraybuffer data to be loaded.
-	 * @param {String} path Path for external resources.
-	 * @return {Object3D} Group loaded from 3ds file.
-	 */
-	parse: function ( arraybuffer ) {
+  /**
+   * Parse arraybuffer data and load 3ds file.
+   *
+   * @method parse
+   * @param {ArrayBuffer} arraybuffer Arraybuffer data to be loaded.
+   * @param {String} path Path for external resources.
+   * @return {Object3D} Group loaded from 3ds file.
+   */
+  parse: function ( arraybuffer ) {
 
-		this.group = new THREE.Group();
-		this.position = 0;
-		this.materials = [];
-		this.meshes = [];
+    this.group = new THREE.Group();
+    this.position = 0;
+    this.materials = [];
+    this.meshes = [];
 
-		this.readFile( arraybuffer );
+    this.readFile( arraybuffer );
 
-		for ( var i = 0; i < this.meshes.length; i ++ ) {
+    for ( var i = 0; i < this.meshes.length; i ++ ) {
 
-			this.group.add( this.meshes[ i ] );
+      this.group.add( this.meshes[ i ] );
 
-		}
+    }
 
-		return this.group;
+    return this.group;
 
-	},
+  },
 
-	/**
-	 * Decode file content to read 3ds data.
-	 *
-	 * @method readFile
-	 * @param {ArrayBuffer} arraybuffer Arraybuffer data to be loaded.
-	 */
-	readFile: function ( arraybuffer ) {
+  /**
+   * Decode file content to read 3ds data.
+   *
+   * @method readFile
+   * @param {ArrayBuffer} arraybuffer Arraybuffer data to be loaded.
+   */
+  readFile: function ( arraybuffer ) {
 
-		var data = new DataView( arraybuffer );
-		var chunk = this.readChunk( data );
+    var data = new DataView( arraybuffer );
+    var chunk = this.readChunk( data );
 
-		if ( chunk.id === MLIBMAGIC || chunk.id === CMAGIC || chunk.id === M3DMAGIC ) {
+    if ( chunk.id === MLIBMAGIC || chunk.id === CMAGIC || chunk.id === M3DMAGIC ) {
 
-			var next = this.nextChunk( data, chunk );
+      var next = this.nextChunk( data, chunk );
 
-			while ( next !== 0 ) {
+      while ( next !== 0 ) {
 
-				if ( next === M3D_VERSION ) {
+        if ( next === M3D_VERSION ) {
 
-					var version = this.readDWord( data );
-					this.debugMessage( '3DS file version: ' + version );
+          var version = this.readDWord( data );
+          this.debugMessage( '3DS file version: ' + version );
 
-				} else if ( next === MDATA ) {
+        } else if ( next === MDATA ) {
 
-					this.resetPosition( data );
-					this.readMeshData( data );
+          this.resetPosition( data );
+          this.readMeshData( data );
 
-				} else {
+        } else {
 
-					this.debugMessage( 'Unknown main chunk: ' + next.toString( 16 ) );
+          this.debugMessage( 'Unknown main chunk: ' + next.toString( 16 ) );
 
-				}
+        }
 
-				next = this.nextChunk( data, chunk );
+        next = this.nextChunk( data, chunk );
 
-			}
+      }
 
-		}
+    }
 
-		this.debugMessage( 'Parsed ' + this.meshes.length + ' meshes' );
+    this.debugMessage( 'Parsed ' + this.meshes.length + ' meshes' );
 
-	},
+  },
 
-	/**
-	 * Read mesh data chunk.
-	 *
-	 * @method readMeshData
-	 * @param {Dataview} data Dataview in use.
-	 */
-	readMeshData: function ( data ) {
+  /**
+   * Read mesh data chunk.
+   *
+   * @method readMeshData
+   * @param {Dataview} data Dataview in use.
+   */
+  readMeshData: function ( data ) {
 
-		var chunk = this.readChunk( data );
-		var next = this.nextChunk( data, chunk );
+    var chunk = this.readChunk( data );
+    var next = this.nextChunk( data, chunk );
 
-		while ( next !== 0 ) {
+    while ( next !== 0 ) {
 
-			if ( next === MESH_VERSION ) {
+      if ( next === MESH_VERSION ) {
 
-				var version = + this.readDWord( data );
-				this.debugMessage( 'Mesh Version: ' + version );
+        var version = + this.readDWord( data );
+        this.debugMessage( 'Mesh Version: ' + version );
 
-			} else if ( next === MASTER_SCALE ) {
+      } else if ( next === MASTER_SCALE ) {
 
-				var scale = this.readFloat( data );
-				this.debugMessage( 'Master scale: ' + scale );
-				this.group.scale.set( scale, scale, scale );
+        var scale = this.readFloat( data );
+        this.debugMessage( 'Master scale: ' + scale );
+        this.group.scale.set( scale, scale, scale );
 
-			} else if ( next === NAMED_OBJECT ) {
+      } else if ( next === NAMED_OBJECT ) {
 
-				this.debugMessage( 'Named Object' );
-				this.resetPosition( data );
-				this.readNamedObject( data );
+        this.debugMessage( 'Named Object' );
+        this.resetPosition( data );
+        this.readNamedObject( data );
 
-			} else if ( next === MAT_ENTRY ) {
+      } else if ( next === MAT_ENTRY ) {
 
-				this.debugMessage( 'Material' );
-				this.resetPosition( data );
-				this.readMaterialEntry( data );
+        this.debugMessage( 'Material' );
+        this.resetPosition( data );
+        this.readMaterialEntry( data );
 
-			} else {
+      } else {
 
-				this.debugMessage( 'Unknown MDATA chunk: ' + next.toString( 16 ) );
+        this.debugMessage( 'Unknown MDATA chunk: ' + next.toString( 16 ) );
 
-			}
+      }
 
-			next = this.nextChunk( data, chunk );
+      next = this.nextChunk( data, chunk );
 
-		}
+    }
 
-	},
+  },
 
-	/**
-	 * Read named object chunk.
-	 *
-	 * @method readNamedObject
-	 * @param {Dataview} data Dataview in use.
-	 */
-	readNamedObject: function ( data ) {
+  /**
+   * Read named object chunk.
+   *
+   * @method readNamedObject
+   * @param {Dataview} data Dataview in use.
+   */
+  readNamedObject: function ( data ) {
 
-		var chunk = this.readChunk( data );
-		var name = this.readString( data, 64 );
-		chunk.cur = this.position;
+    var chunk = this.readChunk( data );
+    var name = this.readString( data, 64 );
+    chunk.cur = this.position;
 
-		var next = this.nextChunk( data, chunk );
-		while ( next !== 0 ) {
+    var next = this.nextChunk( data, chunk );
+    while ( next !== 0 ) {
 
-			if ( next === N_TRI_OBJECT ) {
+      if ( next === N_TRI_OBJECT ) {
 
-				this.resetPosition( data );
-				var mesh = this.readMesh( data );
-				mesh.name = name;
-				this.meshes.push( mesh );
+        this.resetPosition( data );
+        var mesh = this.readMesh( data );
+        mesh.name = name;
+        this.meshes.push( mesh );
 
-			} else {
+      } else {
 
-				this.debugMessage( 'Unknown named object chunk: ' + next.toString( 16 ) );
+        this.debugMessage( 'Unknown named object chunk: ' + next.toString( 16 ) );
 
-			}
+      }
 
-			next = this.nextChunk( data, chunk );
+      next = this.nextChunk( data, chunk );
 
-		}
+    }
 
-		this.endChunk( chunk );
+    this.endChunk( chunk );
 
-	},
+  },
 
-	/**
-	 * Read material data chunk and add it to the material list.
-	 *
-	 * @method readMaterialEntry
-	 * @param {Dataview} data Dataview in use.
-	 */
-	readMaterialEntry: function ( data ) {
+  /**
+   * Read material data chunk and add it to the material list.
+   *
+   * @method readMaterialEntry
+   * @param {Dataview} data Dataview in use.
+   */
+  readMaterialEntry: function ( data ) {
 
-		var chunk = this.readChunk( data );
-		var next = this.nextChunk( data, chunk );
-		var material = new THREE.MeshPhongMaterial();
+    var chunk = this.readChunk( data );
+    var next = this.nextChunk( data, chunk );
+    var material = new THREE.MeshPhongMaterial();
 
-		while ( next !== 0 ) {
+    while ( next !== 0 ) {
 
-			if ( next === MAT_NAME ) {
+      if ( next === MAT_NAME ) {
 
-				material.name = this.readString( data, 64 );
-				this.debugMessage( '   Name: ' + material.name );
+        material.name = this.readString( data, 64 );
+        this.debugMessage( '   Name: ' + material.name );
 
-			} else if ( next === MAT_WIRE ) {
+      } else if ( next === MAT_WIRE ) {
 
-				this.debugMessage( '   Wireframe' );
-				material.wireframe = true;
+        this.debugMessage( '   Wireframe' );
+        material.wireframe = true;
 
-			} else if ( next === MAT_WIRE_SIZE ) {
+      } else if ( next === MAT_WIRE_SIZE ) {
 
-				var value = this.readByte( data );
-				material.wireframeLinewidth = value;
-				this.debugMessage( '   Wireframe Thickness: ' + value );
+        var value = this.readByte( data );
+        material.wireframeLinewidth = value;
+        this.debugMessage( '   Wireframe Thickness: ' + value );
 
-			} else if ( next === MAT_TWO_SIDE ) {
+      } else if ( next === MAT_TWO_SIDE ) {
 
-				material.side = THREE.DoubleSide;
-				this.debugMessage( '   DoubleSided' );
+        material.side = THREE.DoubleSide;
+        this.debugMessage( '   DoubleSided' );
 
-			} else if ( next === MAT_ADDITIVE ) {
+      } else if ( next === MAT_ADDITIVE ) {
 
-				this.debugMessage( '   Additive Blending' );
-				material.blending = THREE.AdditiveBlending;
+        this.debugMessage( '   Additive Blending' );
+        material.blending = THREE.AdditiveBlending;
 
-			} else if ( next === MAT_DIFFUSE ) {
+      } else if ( next === MAT_DIFFUSE ) {
 
-				this.debugMessage( '   Diffuse Color' );
-				material.color = this.readColor( data );
+        this.debugMessage( '   Diffuse Color' );
+        material.color = this.readColor( data );
 
-			} else if ( next === MAT_SPECULAR ) {
+      } else if ( next === MAT_SPECULAR ) {
 
-				this.debugMessage( '   Specular Color' );
-				material.specular = this.readColor( data );
+        this.debugMessage( '   Specular Color' );
+        material.specular = this.readColor( data );
 
-			} else if ( next === MAT_AMBIENT ) {
+      } else if ( next === MAT_AMBIENT ) {
 
-				this.debugMessage( '   Ambient color' );
-				material.color = this.readColor( data );
+        this.debugMessage( '   Ambient color' );
+        material.color = this.readColor( data );
 
-			} else if ( next === MAT_SHININESS ) {
+      } else if ( next === MAT_SHININESS ) {
 
-				var shininess = this.readWord( data );
-				material.shininess = shininess;
-				this.debugMessage( '   Shininess : ' + shininess );
+        var shininess = this.readWord( data );
+        material.shininess = shininess;
+        this.debugMessage( '   Shininess : ' + shininess );
 
-			} else if ( next === MAT_TEXMAP ) {
+      } else if ( next === MAT_TEXMAP ) {
 
-				this.debugMessage( '   ColorMap' );
-				this.resetPosition( data );
-				material.map = this.readMap( data );
+        this.debugMessage( '   ColorMap' );
+        this.resetPosition( data );
+        material.map = this.readMap( data );
 
-			} else if ( next === MAT_BUMPMAP ) {
+      } else if ( next === MAT_BUMPMAP ) {
 
-				this.debugMessage( '   BumpMap' );
-				this.resetPosition( data );
-				material.bumpMap = this.readMap( data );
+        this.debugMessage( '   BumpMap' );
+        this.resetPosition( data );
+        material.bumpMap = this.readMap( data );
 
-			} else if ( next === MAT_OPACMAP ) {
+      } else if ( next === MAT_OPACMAP ) {
 
-				this.debugMessage( '   OpacityMap' );
-				this.resetPosition( data );
-				material.alphaMap = this.readMap( data );
+        this.debugMessage( '   OpacityMap' );
+        this.resetPosition( data );
+        material.alphaMap = this.readMap( data );
 
-			} else if ( next === MAT_SPECMAP ) {
+      } else if ( next === MAT_SPECMAP ) {
 
-				this.debugMessage( '   SpecularMap' );
-				this.resetPosition( data );
-				material.specularMap = this.readMap( data );
+        this.debugMessage( '   SpecularMap' );
+        this.resetPosition( data );
+        material.specularMap = this.readMap( data );
 
-			} else {
+      } else {
 
-				this.debugMessage( '   Unknown material chunk: ' + next.toString( 16 ) );
+        this.debugMessage( '   Unknown material chunk: ' + next.toString( 16 ) );
 
-			}
+      }
 
-			next = this.nextChunk( data, chunk );
+      next = this.nextChunk( data, chunk );
 
-		}
+    }
 
-		this.endChunk( chunk );
+    this.endChunk( chunk );
 
-		this.materials[ material.name ] = material;
+    this.materials[ material.name ] = material;
 
-	},
+  },
 
-	/**
-	 * Read mesh data chunk.
-	 *
-	 * @method readMesh
-	 * @param {Dataview} data Dataview in use.
-	 */
-	readMesh: function ( data ) {
+  /**
+   * Read mesh data chunk.
+   *
+   * @method readMesh
+   * @param {Dataview} data Dataview in use.
+   */
+  readMesh: function ( data ) {
 
-		var chunk = this.readChunk( data );
-		var next = this.nextChunk( data, chunk );
+    var chunk = this.readChunk( data );
+    var next = this.nextChunk( data, chunk );
 
-		var useBufferGeometry = false;
-		var geometry = null;
-		var uvs = [];
+    var useBufferGeometry = false;
+    var geometry = null;
+    var uvs = [];
 
-		if ( useBufferGeometry ) {
+    if ( useBufferGeometry ) {
 
-			geometry = new THREE.BufferGeometry();
+      geometry = new THREE.BufferGeometry();
 
-		}	else {
+    } else {
 
-			geometry = new THREE.Geometry();
+      geometry = new THREE.Geometry();
 
-		}
+    }
 
-		var material = new THREE.MeshPhongMaterial();
-		var mesh = new THREE.Mesh( geometry, material );
-		mesh.name = 'mesh';
+    var material = new THREE.MeshPhongMaterial();
+    var mesh = new THREE.Mesh( geometry, material );
+    mesh.name = 'mesh';
 
-		while ( next !== 0 ) {
+    while ( next !== 0 ) {
 
-			if ( next === POINT_ARRAY ) {
+      if ( next === POINT_ARRAY ) {
 
-				var points = this.readWord( data );
+        var points = this.readWord( data );
 
-				this.debugMessage( '   Vertex: ' + points );
+        this.debugMessage( '   Vertex: ' + points );
 
-				//BufferGeometry
+        //BufferGeometry
 
-				if ( useBufferGeometry )	{
+        if ( useBufferGeometry )  {
 
-					var vertices = [];
-					for ( var i = 0; i < points; i ++ )		{
+          var vertices = [];
+          for ( var i = 0; i < points; i ++ )   {
 
-						vertices.push( this.readFloat( data ) );
-						vertices.push( this.readFloat( data ) );
-						vertices.push( this.readFloat( data ) );
+            vertices.push( this.readFloat( data ) );
+            vertices.push( this.readFloat( data ) );
+            vertices.push( this.readFloat( data ) );
 
-					}
+          }
 
-					geometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( vertices ), 3 ) );
+          geometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( vertices ), 3 ) );
 
-				} else	{ //Geometry
+        } else  { //Geometry
 
-					for ( var i = 0; i < points; i ++ )		{
+          for ( var i = 0; i < points; i ++ )   {
 
-						geometry.vertices.push( new THREE.Vector3( this.readFloat( data ), this.readFloat( data ), this.readFloat( data ) ) );
+            geometry.vertices.push( new THREE.Vector3( this.readFloat( data ), this.readFloat( data ), this.readFloat( data ) ) );
 
-					}
+          }
 
-				}
+        }
 
-			} else if ( next === FACE_ARRAY ) {
+      } else if ( next === FACE_ARRAY ) {
 
-				this.resetPosition( data );
-				this.readFaceArray( data, mesh );
+        this.resetPosition( data );
+        this.readFaceArray( data, mesh );
 
-			} else if ( next === TEX_VERTS ) {
+      } else if ( next === TEX_VERTS ) {
 
-				var texels = this.readWord( data );
+        var texels = this.readWord( data );
 
-				this.debugMessage( '   UV: ' + texels );
+        this.debugMessage( '   UV: ' + texels );
 
-				//BufferGeometry
+        //BufferGeometry
 
-				if ( useBufferGeometry )	{
+        if ( useBufferGeometry )  {
 
-					var uvs = [];
-					for ( var i = 0; i < texels; i ++ )		{
+          var uvs = [];
+          for ( var i = 0; i < texels; i ++ )   {
 
-						uvs.push( this.readFloat( data ) );
-						uvs.push( this.readFloat( data ) );
+            uvs.push( this.readFloat( data ) );
+            uvs.push( this.readFloat( data ) );
 
-					}
-					geometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array( uvs ), 2 ) );
+          }
+          geometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array( uvs ), 2 ) );
 
-				} else { //Geometry
+        } else { //Geometry
 
-					uvs = [];
-					for ( var i = 0; i < texels; i ++ )		{
+          uvs = [];
+          for ( var i = 0; i < texels; i ++ )   {
 
-						uvs.push( new THREE.Vector2( this.readFloat( data ), this.readFloat( data ) ) );
+            uvs.push( new THREE.Vector2( this.readFloat( data ), this.readFloat( data ) ) );
 
-					}
+          }
 
-				}
+        }
 
-			} else if ( next === MESH_MATRIX ) {
+      } else if ( next === MESH_MATRIX ) {
 
-				this.debugMessage( '   Tranformation Matrix (TODO)' );
+        this.debugMessage( '   Tranformation Matrix (TODO)' );
 
-				var values = [];
-				for ( var i = 0; i < 12; i ++ ) {
+        var values = [];
+        for ( var i = 0; i < 12; i ++ ) {
 
-					values[ i ] = this.readFloat( data );
+          values[ i ] = this.readFloat( data );
 
-				}
+        }
 
-				var matrix = new THREE.Matrix4();
+        var matrix = new THREE.Matrix4();
 
-				//X Line
-				matrix.elements[ 0 ] = values[ 0 ];
-				matrix.elements[ 1 ] = values[ 6 ];
-				matrix.elements[ 2 ] = values[ 3 ];
-				matrix.elements[ 3 ] = values[ 9 ];
+        //X Line
+        matrix.elements[ 0 ] = values[ 0 ];
+        matrix.elements[ 1 ] = values[ 6 ];
+        matrix.elements[ 2 ] = values[ 3 ];
+        matrix.elements[ 3 ] = values[ 9 ];
 
-				//Y Line
-				matrix.elements[ 4 ] = values[ 2 ];
-				matrix.elements[ 5 ] = values[ 8 ];
-				matrix.elements[ 6 ] = values[ 5 ];
-				matrix.elements[ 7 ] = values[ 11 ];
+        //Y Line
+        matrix.elements[ 4 ] = values[ 2 ];
+        matrix.elements[ 5 ] = values[ 8 ];
+        matrix.elements[ 6 ] = values[ 5 ];
+        matrix.elements[ 7 ] = values[ 11 ];
 
-				//Z Line
-				matrix.elements[ 8 ] = values[ 1 ];
-				matrix.elements[ 9 ] = values[ 7 ];
-				matrix.elements[ 10 ] = values[ 4 ];
-				matrix.elements[ 11 ] = values[ 10 ];
+        //Z Line
+        matrix.elements[ 8 ] = values[ 1 ];
+        matrix.elements[ 9 ] = values[ 7 ];
+        matrix.elements[ 10 ] = values[ 4 ];
+        matrix.elements[ 11 ] = values[ 10 ];
 
-				//W Line
-				matrix.elements[ 12 ] = 0;
-				matrix.elements[ 13 ] = 0;
-				matrix.elements[ 14 ] = 0;
-				matrix.elements[ 15 ] = 1;
+        //W Line
+        matrix.elements[ 12 ] = 0;
+        matrix.elements[ 13 ] = 0;
+        matrix.elements[ 14 ] = 0;
+        matrix.elements[ 15 ] = 1;
 
-				matrix.transpose();
+        matrix.transpose();
 
-				var inverse = new THREE.Matrix4();
-				inverse.getInverse( matrix, true );
-				geometry.applyMatrix( inverse );
+        var inverse = new THREE.Matrix4();
+        inverse.getInverse( matrix, true );
+        geometry.applyMatrix( inverse );
 
-				matrix.decompose( mesh.position, mesh.quaternion, mesh.scale );
+        matrix.decompose( mesh.position, mesh.quaternion, mesh.scale );
 
-			} else {
+      } else {
 
-				this.debugMessage( '   Unknown mesh chunk: ' + next.toString( 16 ) );
+        this.debugMessage( '   Unknown mesh chunk: ' + next.toString( 16 ) );
 
-			}
+      }
 
-			next = this.nextChunk( data, chunk );
+      next = this.nextChunk( data, chunk );
 
-		}
+    }
 
-		this.endChunk( chunk );
+    this.endChunk( chunk );
 
-		if ( ! useBufferGeometry ) {
+    if ( ! useBufferGeometry ) {
 
-			//geometry.faceVertexUvs[0][faceIndex][vertexIndex]
+      //geometry.faceVertexUvs[0][faceIndex][vertexIndex]
 
-			if ( uvs.length > 0 ) {
+      if ( uvs.length > 0 ) {
 
-				var faceUV = [];
+        var faceUV = [];
 
-				for ( var i = 0; i < geometry.faces.length; i ++ ) {
+        for ( var i = 0; i < geometry.faces.length; i ++ ) {
 
-					faceUV.push( [ uvs[ geometry.faces[ i ].a ], uvs[ geometry.faces[ i ].b ], uvs[ geometry.faces[ i ].c ] ] );
+          faceUV.push( [ uvs[ geometry.faces[ i ].a ], uvs[ geometry.faces[ i ].b ], uvs[ geometry.faces[ i ].c ] ] );
 
-				}
+        }
 
-				geometry.faceVertexUvs[ 0 ] = faceUV;
+        geometry.faceVertexUvs[ 0 ] = faceUV;
 
-			}
+      }
 
-			geometry.computeVertexNormals();
+      geometry.computeVertexNormals();
 
-		}
+    }
 
-		return mesh;
+    return mesh;
 
-	},
+  },
 
-	/**
-	 * Read face array data chunk.
-	 *
-	 * @method readFaceArray
-	 * @param {Dataview} data Dataview in use.
-	 * @param {Mesh} mesh Mesh to be filled with the data read.
-	 */
-	readFaceArray: function ( data, mesh ) {
+  /**
+   * Read face array data chunk.
+   *
+   * @method readFaceArray
+   * @param {Dataview} data Dataview in use.
+   * @param {Mesh} mesh Mesh to be filled with the data read.
+   */
+  readFaceArray: function ( data, mesh ) {
 
-		var chunk = this.readChunk( data );
-		var faces = this.readWord( data );
+    var chunk = this.readChunk( data );
+    var faces = this.readWord( data );
 
-		this.debugMessage( '   Faces: ' + faces );
+    this.debugMessage( '   Faces: ' + faces );
 
-		for ( var i = 0; i < faces; ++ i ) {
+    for ( var i = 0; i < faces; ++ i ) {
 
-			mesh.geometry.faces.push( new THREE.Face3( this.readWord( data ), this.readWord( data ), this.readWord( data ) ) );
+      mesh.geometry.faces.push( new THREE.Face3( this.readWord( data ), this.readWord( data ), this.readWord( data ) ) );
 
-			var visibility = this.readWord( data );
+      var visibility = this.readWord( data );
 
-		}
+    }
 
-		//The rest of the FACE_ARRAY chunk is subchunks
+    //The rest of the FACE_ARRAY chunk is subchunks
 
-		while ( this.position < chunk.end ) {
+    while ( this.position < chunk.end ) {
 
-			var chunk = this.readChunk( data );
+      var chunk = this.readChunk( data );
 
-			if ( chunk.id === MSH_MAT_GROUP ) {
+      if ( chunk.id === MSH_MAT_GROUP ) {
 
-				this.debugMessage( '      Material Group' );
+        this.debugMessage( '      Material Group' );
 
-				this.resetPosition( data );
+        this.resetPosition( data );
 
-				var group = this.readMaterialGroup( data );
+        var group = this.readMaterialGroup( data );
 
-				var material = this.materials[ group.name ];
+        var material = this.materials[ group.name ];
 
-				if ( material !== undefined )	{
+        if ( material !== undefined ) {
 
-					mesh.material = material;
+          mesh.material = material;
 
-					if ( material.name === '' )		{
+          if ( material.name === '' )   {
 
-						material.name = mesh.name;
+            material.name = mesh.name;
 
-					}
+          }
 
-				}
+        }
 
-			} else {
+      } else {
 
-				this.debugMessage( '      Unknown face array chunk: ' + chunk.toString( 16 ) );
+        this.debugMessage( '      Unknown face array chunk: ' + chunk.toString( 16 ) );
 
-			}
+      }
 
-			this.endChunk( chunk );
+      this.endChunk( chunk );
 
-		}
+    }
 
-		this.endChunk( chunk );
+    this.endChunk( chunk );
 
-	},
+  },
 
-	/**
-	 * Read texture map data chunk.
-	 *
-	 * @method readMap
-	 * @param {Dataview} data Dataview in use.
-	 * @return {Texture} Texture read from this data chunk.
-	 */
-	readMap: function ( data ) {
+  /**
+   * Read texture map data chunk.
+   *
+   * @method readMap
+   * @param {Dataview} data Dataview in use.
+   * @return {Texture} Texture read from this data chunk.
+   */
+  readMap: function ( data ) {
 
-		var chunk = this.readChunk( data );
-		var next = this.nextChunk( data, chunk );
-		var texture = {};
+    var chunk = this.readChunk( data );
+    var next = this.nextChunk( data, chunk );
+    var texture = {};
 
-		var loader = new THREE.TextureLoader();
-		loader.setPath( this.path );
+    var loader = new THREE.TextureLoader();
+    loader.setPath( this.path );
 
-		while ( next !== 0 ) {
+    while ( next !== 0 ) {
 
-			if ( next === MAT_MAPNAME ) {
+      if ( next === MAT_MAPNAME ) {
 
-				var name = this.readString( data, 128 );
-				texture = loader.load( name );
+        var name = this.readString( data, 128 );
+        texture = loader.load( name );
 
-				this.debugMessage( '      File: ' + this.path + name );
+        this.debugMessage( '      File: ' + this.path + name );
 
-			} else if ( next === MAT_MAP_UOFFSET ) {
+      } else if ( next === MAT_MAP_UOFFSET ) {
 
-				texture.offset.x = this.readFloat( data );
-				this.debugMessage( '      OffsetX: ' + texture.offset.x );
+        texture.offset.x = this.readFloat( data );
+        this.debugMessage( '      OffsetX: ' + texture.offset.x );
 
-			} else if ( next === MAT_MAP_VOFFSET ) {
+      } else if ( next === MAT_MAP_VOFFSET ) {
 
-				texture.offset.y = this.readFloat( data );
-				this.debugMessage( '      OffsetY: ' + texture.offset.y );
+        texture.offset.y = this.readFloat( data );
+        this.debugMessage( '      OffsetY: ' + texture.offset.y );
 
-			} else if ( next === MAT_MAP_USCALE ) {
+      } else if ( next === MAT_MAP_USCALE ) {
 
-				texture.repeat.x = this.readFloat( data );
-				this.debugMessage( '      RepeatX: ' + texture.repeat.x );
+        texture.repeat.x = this.readFloat( data );
+        this.debugMessage( '      RepeatX: ' + texture.repeat.x );
 
-			} else if ( next === MAT_MAP_VSCALE ) {
+      } else if ( next === MAT_MAP_VSCALE ) {
 
-				texture.repeat.y = this.readFloat( data );
-				this.debugMessage( '      RepeatY: ' + texture.repeat.y );
+        texture.repeat.y = this.readFloat( data );
+        this.debugMessage( '      RepeatY: ' + texture.repeat.y );
 
-			} else {
+      } else {
 
-				this.debugMessage( '      Unknown map chunk: ' + next.toString( 16 ) );
+        this.debugMessage( '      Unknown map chunk: ' + next.toString( 16 ) );
 
-			}
+      }
 
-			next = this.nextChunk( data, chunk );
+      next = this.nextChunk( data, chunk );
 
-		}
+    }
 
-		this.endChunk( chunk );
+    this.endChunk( chunk );
 
-		return texture;
+    return texture;
 
-	},
+  },
 
-	/**
-	 * Read material group data chunk.
-	 *
-	 * @method readMaterialGroup
-	 * @param {Dataview} data Dataview in use.
-	 * @return {Object} Object with name and index of the object.
-	 */
-	readMaterialGroup: function ( data ) {
+  /**
+   * Read material group data chunk.
+   *
+   * @method readMaterialGroup
+   * @param {Dataview} data Dataview in use.
+   * @return {Object} Object with name and index of the object.
+   */
+  readMaterialGroup: function ( data ) {
 
-		var chunk = this.readChunk( data );
-		var name = this.readString( data, 64 );
-		var numFaces = this.readWord( data );
+    var chunk = this.readChunk( data );
+    var name = this.readString( data, 64 );
+    var numFaces = this.readWord( data );
 
-		this.debugMessage( '         Name: ' + name );
-		this.debugMessage( '         Faces: ' + numFaces );
+    this.debugMessage( '         Name: ' + name );
+    this.debugMessage( '         Faces: ' + numFaces );
 
-		var index = [];
-		for ( var i = 0; i < numFaces; ++ i ) {
+    var index = [];
+    for ( var i = 0; i < numFaces; ++ i ) {
 
-			index.push( this.readWord( data ) );
+      index.push( this.readWord( data ) );
 
-		}
+    }
 
-		return { name: name, index: index };
+    return { name: name, index: index };
 
-	},
+  },
 
-	/**
-	 * Read a color value.
-	 *
-	 * @method readColor
-	 * @param {DataView} data Dataview.
-	 * @return {Color} Color value read..
-	 */
-	readColor: function ( data ) {
+  /**
+   * Read a color value.
+   *
+   * @method readColor
+   * @param {DataView} data Dataview.
+   * @return {Color} Color value read..
+   */
+  readColor: function ( data ) {
 
-		var chunk = this.readChunk( data );
-		var color = new THREE.Color();
+    var chunk = this.readChunk( data );
+    var color = new THREE.Color();
 
-		if ( chunk.id === COLOR_24 || chunk.id === LIN_COLOR_24 ) {
+    if ( chunk.id === COLOR_24 || chunk.id === LIN_COLOR_24 ) {
 
-			var r = this.readByte( data );
-			var g = this.readByte( data );
-			var b = this.readByte( data );
+      var r = this.readByte( data );
+      var g = this.readByte( data );
+      var b = this.readByte( data );
 
-			color.setRGB( r / 255, g / 255, b / 255 );
+      color.setRGB( r / 255, g / 255, b / 255 );
 
-			this.debugMessage( '      Color: ' + color.r + ', ' + color.g + ', ' + color.b );
+      this.debugMessage( '      Color: ' + color.r + ', ' + color.g + ', ' + color.b );
 
-		}	else if ( chunk.id === COLOR_F || chunk.id === LIN_COLOR_F ) {
+    } else if ( chunk.id === COLOR_F || chunk.id === LIN_COLOR_F ) {
 
-			var r = this.readFloat( data );
-			var g = this.readFloat( data );
-			var b = this.readFloat( data );
+      var r = this.readFloat( data );
+      var g = this.readFloat( data );
+      var b = this.readFloat( data );
 
-			color.setRGB( r, g, b );
+      color.setRGB( r, g, b );
 
-			this.debugMessage( '      Color: ' + color.r + ', ' + color.g + ', ' + color.b );
+      this.debugMessage( '      Color: ' + color.r + ', ' + color.g + ', ' + color.b );
 
-		}	else {
+    } else {
 
-			this.debugMessage( '      Unknown color chunk: ' + chunk.toString( 16 ) );
+      this.debugMessage( '      Unknown color chunk: ' + chunk.toString( 16 ) );
 
-		}
+    }
 
-		this.endChunk( chunk );
-		return color;
+    this.endChunk( chunk );
+    return color;
 
-	},
+  },
 
-	/**
-	 * Read next chunk of data.
-	 *
-	 * @method readChunk
-	 * @param {DataView} data Dataview.
-	 * @return {Object} Chunk of data read.
-	 */
-	readChunk: function ( data ) {
+  /**
+   * Read next chunk of data.
+   *
+   * @method readChunk
+   * @param {DataView} data Dataview.
+   * @return {Object} Chunk of data read.
+   */
+  readChunk: function ( data ) {
 
-		var chunk = {};
+    var chunk = {};
 
-		chunk.cur = this.position;
-		chunk.id = this.readWord( data );
-		chunk.size = this.readDWord( data );
-		chunk.end = chunk.cur + chunk.size;
-		chunk.cur += 6;
+    chunk.cur = this.position;
+    chunk.id = this.readWord( data );
+    chunk.size = this.readDWord( data );
+    chunk.end = chunk.cur + chunk.size;
+    chunk.cur += 6;
 
-		return chunk;
+    return chunk;
 
-	},
+  },
 
-	/**
-	 * Set position to the end of the current chunk of data.
-	 *
-	 * @method endChunk
-	 * @param {Object} chunk Data chunk.
-	 */
-	endChunk: function ( chunk ) {
+  /**
+   * Set position to the end of the current chunk of data.
+   *
+   * @method endChunk
+   * @param {Object} chunk Data chunk.
+   */
+  endChunk: function ( chunk ) {
 
-		this.position = chunk.end;
+    this.position = chunk.end;
 
-	},
+  },
 
-	/**
-	 * Move to the next data chunk.
-	 *
-	 * @method nextChunk
-	 * @param {DataView} data Dataview.
-	 * @param {Object} chunk Data chunk.
-	 */
-	nextChunk: function ( data, chunk ) {
+  /**
+   * Move to the next data chunk.
+   *
+   * @method nextChunk
+   * @param {DataView} data Dataview.
+   * @param {Object} chunk Data chunk.
+   */
+  nextChunk: function ( data, chunk ) {
 
-		if ( chunk.cur >= chunk.end ) {
+    if ( chunk.cur >= chunk.end ) {
 
-			return 0;
+      return 0;
 
-		}
+    }
 
-		this.position = chunk.cur;
+    this.position = chunk.cur;
 
-		try {
+    try {
 
-			var next = this.readChunk( data );
-			chunk.cur += next.size;
-			return next.id;
+      var next = this.readChunk( data );
+      chunk.cur += next.size;
+      return next.id;
 
-		}	catch ( e ) {
+    } catch ( e ) {
 
-			this.debugMessage( 'Unable to read chunk at ' + this.position );
-			return 0;
+      this.debugMessage( 'Unable to read chunk at ' + this.position );
+      return 0;
 
-		}
+    }
 
-	},
+  },
 
-	/**
-	 * Reset dataview position.
-	 *
-	 * @method resetPosition
-	 * @param {DataView} data Dataview.
-	 */
-	resetPosition: function () {
+  /**
+   * Reset dataview position.
+   *
+   * @method resetPosition
+   * @param {DataView} data Dataview.
+   */
+  resetPosition: function () {
 
-		this.position -= 6;
+    this.position -= 6;
 
-	},
+  },
 
-	/**
-	 * Read byte value.
-	 *
-	 * @method readByte
-	 * @param {DataView} data Dataview to read data from.
-	 * @return {Number} Data read from the dataview.
-	 */
-	readByte: function ( data ) {
+  /**
+   * Read byte value.
+   *
+   * @method readByte
+   * @param {DataView} data Dataview to read data from.
+   * @return {Number} Data read from the dataview.
+   */
+  readByte: function ( data ) {
 
-		var v = data.getUint8( this.position, true );
-		this.position += 1;
-		return v;
+    var v = data.getUint8( this.position, true );
+    this.position += 1;
+    return v;
 
-	},
+  },
 
-	/**
-	 * Read 32 bit float value.
-	 *
-	 * @method readFloat
-	 * @param {DataView} data Dataview to read data from.
-	 * @return {Number} Data read from the dataview.
-	 */
-	readFloat: function ( data ) {
+  /**
+   * Read 32 bit float value.
+   *
+   * @method readFloat
+   * @param {DataView} data Dataview to read data from.
+   * @return {Number} Data read from the dataview.
+   */
+  readFloat: function ( data ) {
 
-		try {
+    try {
 
-			var v = data.getFloat32( this.position, true );
-			this.position += 4;
-			return v;
+      var v = data.getFloat32( this.position, true );
+      this.position += 4;
+      return v;
 
-		}	catch ( e ) {
+    } catch ( e ) {
 
-			this.debugMessage( e + ' ' + this.position + ' ' + data.byteLength );
+      this.debugMessage( e + ' ' + this.position + ' ' + data.byteLength );
 
-		}
+    }
 
-	},
+  },
 
-	/**
-	 * Read 32 bit signed integer value.
-	 *
-	 * @method readInt
-	 * @param {DataView} data Dataview to read data from.
-	 * @return {Number} Data read from the dataview.
-	 */
-	readInt: function ( data ) {
+  /**
+   * Read 32 bit signed integer value.
+   *
+   * @method readInt
+   * @param {DataView} data Dataview to read data from.
+   * @return {Number} Data read from the dataview.
+   */
+  readInt: function ( data ) {
 
-		var v = data.getInt32( this.position, true );
-		this.position += 4;
-		return v;
+    var v = data.getInt32( this.position, true );
+    this.position += 4;
+    return v;
 
-	},
+  },
 
-	/**
-	 * Read 16 bit signed integer value.
-	 *
-	 * @method readShort
-	 * @param {DataView} data Dataview to read data from.
-	 * @return {Number} Data read from the dataview.
-	 */
-	readShort: function ( data ) {
+  /**
+   * Read 16 bit signed integer value.
+   *
+   * @method readShort
+   * @param {DataView} data Dataview to read data from.
+   * @return {Number} Data read from the dataview.
+   */
+  readShort: function ( data ) {
 
-		var v = data.getInt16( this.position, true );
-		this.position += 2;
-		return v;
+    var v = data.getInt16( this.position, true );
+    this.position += 2;
+    return v;
 
-	},
+  },
 
-	/**
-	 * Read 64 bit unsigned integer value.
-	 *
-	 * @method readDWord
-	 * @param {DataView} data Dataview to read data from.
-	 * @return {Number} Data read from the dataview.
-	 */
-	readDWord: function ( data ) {
+  /**
+   * Read 64 bit unsigned integer value.
+   *
+   * @method readDWord
+   * @param {DataView} data Dataview to read data from.
+   * @return {Number} Data read from the dataview.
+   */
+  readDWord: function ( data ) {
 
-		var v = data.getUint32( this.position, true );
-		this.position += 4;
-		return v;
+    var v = data.getUint32( this.position, true );
+    this.position += 4;
+    return v;
 
-	},
+  },
 
-	/**
-	 * Read 32 bit unsigned integer value.
-	 *
-	 * @method readWord
-	 * @param {DataView} data Dataview to read data from.
-	 * @return {Number} Data read from the dataview.
-	 */
-	readWord: function ( data ) {
+  /**
+   * Read 32 bit unsigned integer value.
+   *
+   * @method readWord
+   * @param {DataView} data Dataview to read data from.
+   * @return {Number} Data read from the dataview.
+   */
+  readWord: function ( data ) {
 
-		var v = data.getUint16( this.position, true );
-		this.position += 2;
-		return v;
+    var v = data.getUint16( this.position, true );
+    this.position += 2;
+    return v;
 
-	},
+  },
 
-	/**
-	 * Read string value.
-	 *
-	 * @method readString
-	 * @param {DataView} data Dataview to read data from.
-	 * @param {Number} maxLength Max size of the string to be read.
-	 * @return {String} Data read from the dataview.
-	 */
-	readString: function ( data, maxLength ) {
+  /**
+   * Read string value.
+   *
+   * @method readString
+   * @param {DataView} data Dataview to read data from.
+   * @param {Number} maxLength Max size of the string to be read.
+   * @return {String} Data read from the dataview.
+   */
+  readString: function ( data, maxLength ) {
 
-		var s = '';
+    var s = '';
 
-		for ( var i = 0; i < maxLength; i ++ ) {
+    for ( var i = 0; i < maxLength; i ++ ) {
 
-			var c = this.readByte( data );
-			if ( ! c ) {
+      var c = this.readByte( data );
+      if ( ! c ) {
 
-				break;
+        break;
 
-			}
+      }
 
-			s += String.fromCharCode( c );
+      s += String.fromCharCode( c );
 
-		}
+    }
 
-		return s;
+    return s;
 
-	},
+  },
 
-	/**
-	 * Set resource path used to determine the file path to attached resources.
-	 *
-	 * @method setPath
-	 * @param {String} path Path to resources.
-	 * @return Self for chaining.
-	 */
-	setPath: function ( path ) {
+  /**
+   * Set resource path used to determine the file path to attached resources.
+   *
+   * @method setPath
+   * @param {String} path Path to resources.
+   * @return Self for chaining.
+   */
+  setPath: function ( path ) {
 
-		if ( path !== undefined ) {
+    if ( path !== undefined ) {
 
-			this.path = path;
+      this.path = path;
 
-		}
+    }
 
-		return this;
+    return this;
 
-	},
+  },
 
-	/**
-	 * Print debug message to the console.
-	 *
-	 * Is controlled by a flag to show or hide debug messages.
-	 *
-	 * @method debugMessage
-	 * @param {Object} message Debug message to print to the console.
-	 */
-	debugMessage: function ( message ) {
+  /**
+   * Print debug message to the console.
+   *
+   * Is controlled by a flag to show or hide debug messages.
+   *
+   * @method debugMessage
+   * @param {Object} message Debug message to print to the console.
+   */
+  debugMessage: function ( message ) {
 
-		if ( this.debug ) {
+    if ( this.debug ) {
 
-			console.log( message );
+      console.log( message );
 
-		}
+    }
 
-	}
+  }
 };
 
 var NULL_CHUNK = 0x0000;
