@@ -129,3 +129,4 @@ js_libs:
         - js/libs/app.js
         - js/libs/html2canvas.js
         - js/libs/three.html.js
+        - js/libs/stats.min.js
