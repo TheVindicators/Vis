@@ -193,7 +193,7 @@ Menubar.File = function ( editor ) {
         options.remove(opt1);
         options.remove(opt2);
         options.remove(opt3);
-        options.remove(line)
+        options.remove(line);
         options.remove(opt4);
         options.add(input_pane);
 
@@ -426,7 +426,8 @@ Menubar.File = function ( editor ) {
 
     //
 
-    options.add( new UI.HorizontalRule() );
+    var line2 = new UI.HorizontalRule();
+    options.add( line2 );
 
     // Export Antennas XML
     var opt2 = new UI.Row();
@@ -569,10 +570,12 @@ Menubar.File = function ( editor ) {
         input_w.setValue(0);
         input_h.setValue(0);
         options.remove(input_pane);
+        options.remove(line2);
         options.add(opt1);
+        options.add(line2);
         options.add(opt2);
         options.add(opt3);
-        options.add( line );
+        options.add(line);
         options.add(opt4);
     };
 
