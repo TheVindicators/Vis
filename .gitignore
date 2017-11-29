@@ -95,6 +95,9 @@ vis.sock
 vis.log
 app/json_save_states
 app/conversion_work
+tests/json_save_states
+tests/conversion_work
+app/static/js/compiled/
 
 # Mac stuff
 .DS_Store
