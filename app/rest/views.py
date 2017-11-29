@@ -28,7 +28,7 @@ def convert_object():
             with open(current_app.config["FILE_CONVERSION_WORK_DIR"] + temp_file_name + ".obj", 'r') as converted_file:
                 return converted_file.read()
         except Exception as e:
-            return str(e)
+            return str(e), 500
 
 
 
@@ -39,26 +39,27 @@ def convert_object():
 #the user first selects their state (i.e. new, resume). Then, that UUID is forever used as the official representation of that state.
 #JSON schema TBD
 
-@rest.route('/save_state', methods=["GET", "POST"])
+@rest.route('/save_state', methods=["POST"])
 def save_state():
-    if request.method == "POST":
-        try:
-            state = request.get_json(request.data)
-            #Check to see if the POSTed save state has a UUID. If not, then this is a new project and we need to generate a UUID for it.
-            if "uuid" not in state["project"] or state["project"]["uuid"] == "":
-                state["project"]["uuid"] = str(uuid.uuid4())
-            #Save the save state to the appropriate folder. The file is named 'UUID.json'
-            with open(current_app.config["JSON_STORE_DATA"] + secure_filename(str(state["project"]["uuid"])) + ".json", 'w+') as save_state_file:
-                save_state_file.write(json.dumps(state))
-            print "I'm saving: " + state["project"]["uuid"]
-            return jsonify({"results": "SUCCESS", "uuid": state["project"]["uuid"]}) #Return the UUID if successful. This is used by the client to receive the UUID on the first initial save.
-        except IOError as error: #Disk error on save
-            return jsonify({"results": "FAIL", "reason": "IOERROR", "error": str(error.errno), "errorstring": str(error.strerror)})
-        except TypeError as error: #Save state format error
-            return jsonify({"results": "FAIL", "reason": "BADPOST", "error": str(error)})
-        except Exception as error: #Other general error
-            return jsonify({"results": "FAIL", "reason": "OTHER", "error": str(error)})
-    return jsonify({"results": "FAIL", "reason": "NOTPOST"}) #How'd we get here? Someone trying to load the page?
+    try:
+        state = request.get_json(request.data)
+        if "project" not in state or "scene" not in state or "camera" not in state or "metadata" not in state:
+            return jsonify({"results": "FAIL", "reason": "BADPOST", "error": "non-valid JSON save state"}), 406
+        #Check to see if the POSTed save state has a UUID. If not, then this is a new project and we need to generate a UUID for it.
+        if "uuid" not in state["project"] or state["project"]["uuid"] == "":
+            state["project"]["uuid"] = str(uuid.uuid4())
+        #Save the save state to the appropriate folder. The file is named 'UUID.json'
+        with open(current_app.config["JSON_STORE_DATA"] + secure_filename(str(state["project"]["uuid"])) + ".json", 'w+') as save_state_file:
+            save_state_file.write(json.dumps(state))
+        print "I'm saving: " + state["project"]["uuid"]
+        return jsonify({"results": "SUCCESS", "uuid": state["project"]["uuid"]}) #Return the UUID if successful. This is used by the client to receive the UUID on the first initial save.
+    except IOError as error: #Disk error on save
+        return jsonify({"results": "FAIL", "reason": "IOERROR", "error": str(error.errno), "errorstring": str(error.strerror)}), 500
+    except TypeError as error: #Save state format error
+        return jsonify({"results": "FAIL", "reason": "BADPOST", "error": str(error)}), 406
+    except Exception as error: #Other general error
+        return jsonify({"results": "FAIL", "reason": "OTHER", "error": str(error)}), 400
+    return jsonify({"results": "FAIL", "reason": "OTHER"}), 400 #How'd we get here? Someone trying to load the page?
 
 
 #This URL (website.com/rest/resume_state) is used to fetch the JSON file of the state requested by the user.

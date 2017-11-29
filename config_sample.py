@@ -27,9 +27,10 @@ class ProductionConfig(Config):
     MODE ='Production'
 
 class TestingConfig(Config):
-    JSON_STORE_DATA = basedir + "/app/json_save_states/"
-    FILE_CONVERSION_WORK_DIR = basedir + "/app/conversion_work/"
+    JSON_STORE_DATA = basedir + "/tests/json_save_states/"
+    FILE_CONVERSION_WORK_DIR = basedir + "/tests/conversion_work/"
     MODE = 'Testing'
+    TESTING = True
 
 
 config = {
