@@ -44,7 +44,7 @@ def save_state():
     try:
         state = request.get_json(request.data)
         if "project" not in state or "scene" not in state or "camera" not in state or "metadata" not in state:
-            return jsonify({"results": "FAIL", "reason": "BADPOST", "error": "non-valid JSON save state"}), 406
+            return jsonify({"results": "FAIL", "reason": "BADPOST", "error": "non-valid JSON save state"}), 400
         #Check to see if the POSTed save state has a UUID. If not, then this is a new project and we need to generate a UUID for it.
         if "uuid" not in state["project"] or state["project"]["uuid"] == "":
             state["project"]["uuid"] = str(uuid.uuid4())
@@ -56,7 +56,7 @@ def save_state():
     except IOError as error: #Disk error on save
         return jsonify({"results": "FAIL", "reason": "IOERROR", "error": str(error.errno), "errorstring": str(error.strerror)}), 500
     except TypeError as error: #Save state format error
-        return jsonify({"results": "FAIL", "reason": "BADPOST", "error": str(error)}), 406
+        return jsonify({"results": "FAIL", "reason": "BADPOST", "error": str(error)}), 400
     except Exception as error: #Other general error
         return jsonify({"results": "FAIL", "reason": "OTHER", "error": str(error)}), 400
     return jsonify({"results": "FAIL", "reason": "OTHER"}), 400 #How'd we get here? Someone trying to load the page?
@@ -76,11 +76,11 @@ def resume_state(uuid=None):
                     states += save_state[:-5] + "," #Only return the UUID, remove .json ending
             return jsonify({"results": "SUCCESS", "data": str(states[:-1])})
         except Exception as error: #There was an error listing the directory, return general error
-            return jsonify({"results": "FAIL", "reason": "OTHER", "error": str(error)})
+            return jsonify({"results": "FAIL", "reason": "OTHER", "error": str(error)}), 500
     else: #We're requesting a specific UUID to resume from.
         try:
             with open(current_app.config["JSON_STORE_DATA"] + secure_filename(str(uuid))+ ".json", 'r') as save_state_file:
                 return save_state_file.read()
         except Exception as error: #Other general error
-            return jsonify({"results": "FAIL", "reason": "OTHER", "error": str(error)})
+            return jsonify({"results": "FAIL", "reason": "OTHER", "error": str(error)}), 500
     return "FAIL" #How'd we get here?
