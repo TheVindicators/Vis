@@ -90,7 +90,8 @@ var Storage = function () {
         success: function(data) {
           if ( data.results == "SUCCESS" ) {
             console.log('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Saved state to server as UUID', data.uuid, ( performance.now() - start ).toFixed( 2 ) + 'ms');
-            if ( editor.project_uuid == "" ) {
+            if ( editor.project_uuid  != data.uuid  ) {
+              console.log('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'The UUID changed from', editor.project_uuid, 'to', data.uuid);
               editor.project_uuid = data.uuid; //Set the initial UUID if this the first save-state for this session.
             }
           } else {

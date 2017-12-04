@@ -65,7 +65,7 @@ The error field is an int with the Python-related IOError. Some common examples 
 ```
 **Condition** : All other errors not covered above (hardware failure, global thermonuclear warfare-EMP burst)
 
-**Code** : `400 BAD REQUEST`
+**Code** : `500 INTERNAL SERVER ERROR`
 
 **Content** :
 
@@ -123,7 +123,7 @@ The error field is a string that details the specific error that was raised. In 
 {
   "results": "FAIL",
   "reason": "OTHER",
-  "error": "No such file or directory",
+  "error": "No such file or directory"
 }
 ```
 
@@ -168,6 +168,6 @@ The error field is a string that details the specific error that was raised. In 
 {
   "results": "FAIL",
   "reason": "OTHER",
-  "error": "No such file or directory",
+  "error": "No such file or directory"
 }
 ```
