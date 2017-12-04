@@ -2847,7 +2847,7 @@
 	"object": {
 		"uuid": "27C01CB9-DB3A-4DCD-9CBE-3E40008385E2",
 		"type": "Group",
-		"name": "F-15E Strike Eagle",
+		"name": "F-15C Eagle",
 		"matrix": [0.01,0,0,0,0,0.01,0,0,0,0,0.01,0,0,0,0,1],
 		"children": [
 			{
