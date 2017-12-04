@@ -1,6 +1,6 @@
 // Full source:
 //
-//		https://github.com/zaach/jsonlint
+//    https://github.com/zaach/jsonlint
 //
 // Copyright (C) 2012 Zachary Carter
 //

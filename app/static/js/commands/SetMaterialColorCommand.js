@@ -12,68 +12,68 @@
 
 var SetMaterialColorCommand = function ( object, attributeName, newValue, materialSlot ) {
 
-	Command.call( this );
+  Command.call( this );
 
-	this.type = 'SetMaterialColorCommand';
-	this.name = 'Set Material.' + attributeName;
-	this.updatable = true;
+  this.type = 'SetMaterialColorCommand';
+  this.name = 'Set Material.' + attributeName;
+  this.updatable = true;
 
-	this.object = object;
-	this.material = this.editor.getObjectMaterial( object, materialSlot );
+  this.object = object;
+  this.material = this.editor.getObjectMaterial( object, materialSlot );
 
-	this.oldValue = ( this.material !== undefined ) ? this.material[ attributeName ].getHex() : undefined;
-	this.newValue = newValue;
+  this.oldValue = ( this.material !== undefined ) ? this.material[ attributeName ].getHex() : undefined;
+  this.newValue = newValue;
 
-	this.attributeName = attributeName;
+  this.attributeName = attributeName;
 
 };
 
 SetMaterialColorCommand.prototype = {
 
-	execute: function () {
+  execute: function () {
 
-		this.material[ this.attributeName ].setHex( this.newValue );
+    this.material[ this.attributeName ].setHex( this.newValue );
 
-		this.editor.signals.materialChanged.dispatch( this.material );
+    this.editor.signals.materialChanged.dispatch( this.material );
 
-	},
+  },
 
-	undo: function () {
+  undo: function () {
 
-		this.material[ this.attributeName ].setHex( this.oldValue );
+    this.material[ this.attributeName ].setHex( this.oldValue );
 
-		this.editor.signals.materialChanged.dispatch( this.material );
+    this.editor.signals.materialChanged.dispatch( this.material );
 
-	},
+  },
 
-	update: function ( cmd ) {
+  update: function ( cmd ) {
 
-		this.newValue = cmd.newValue;
+    this.newValue = cmd.newValue;
 
-	},
+  },
 
-	toJSON: function () {
+  toJSON: function () {
 
-		var output = Command.prototype.toJSON.call( this );
+    var output = Command.prototype.toJSON.call( this );
 
-		output.objectUuid = this.object.uuid;
-		output.attributeName = this.attributeName;
-		output.oldValue = this.oldValue;
-		output.newValue = this.newValue;
+    output.objectUuid = this.object.uuid;
+    output.attributeName = this.attributeName;
+    output.oldValue = this.oldValue;
+    output.newValue = this.newValue;
 
-		return output;
+    return output;
 
-	},
+  },
 
-	fromJSON: function ( json ) {
+  fromJSON: function ( json ) {
 
-		Command.prototype.fromJSON.call( this, json );
+    Command.prototype.fromJSON.call( this, json );
 
-		this.object = this.editor.objectByUuid( json.objectUuid );
-		this.attributeName = json.attributeName;
-		this.oldValue = json.oldValue;
-		this.newValue = json.newValue;
+    this.object = this.editor.objectByUuid( json.objectUuid );
+    this.attributeName = json.attributeName;
+    this.oldValue = json.oldValue;
+    this.newValue = json.newValue;
 
-	}
+  }
 
 };

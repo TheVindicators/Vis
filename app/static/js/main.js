@@ -11,24 +11,24 @@ let mainWindow;
 
 function createWindow() {
 
-	mainWindow = new BrowserWindow( { webPreferences: {
-		nodeIntegration: false
-	} } );
+  mainWindow = new BrowserWindow( { webPreferences: {
+    nodeIntegration: false
+  } } );
 
-	mainWindow.maximize();
-	mainWindow.setMenu( null );
+  mainWindow.maximize();
+  mainWindow.setMenu( null );
 
-	mainWindow.loadURL( url.format( {
-		pathname: path.join( __dirname, 'index.html' ),
-		protocol: 'file:',
-		slashes: true
-	} ) );
+  mainWindow.loadURL( url.format( {
+    pathname: path.join( __dirname, 'index.html' ),
+    protocol: 'file:',
+    slashes: true
+  } ) );
 
-	mainWindow.on( 'closed', function () {
+  mainWindow.on( 'closed', function () {
 
-		mainWindow = null;
+    mainWindow = null;
 
-	} );
+  } );
 
 }
 
@@ -36,20 +36,20 @@ app.on( 'ready', createWindow );
 
 app.on( 'window-all-closed', function () {
 
-	if ( process.platform !== 'darwin' ) {
+  if ( process.platform !== 'darwin' ) {
 
-		app.quit();
+    app.quit();
 
-	}
+  }
 
 } );
 
 app.on( 'activate', function () {
 
-	if ( mainWindow === null ) {
+  if ( mainWindow === null ) {
 
-		createWindow();
+    createWindow();
 
-	}
+  }
 
 } );

@@ -11,61 +11,61 @@
 
 var SetUuidCommand = function ( object, newUuid ) {
 
-	Command.call( this );
+  Command.call( this );
 
-	this.type = 'SetUuidCommand';
-	this.name = 'Update UUID';
+  this.type = 'SetUuidCommand';
+  this.name = 'Update UUID';
 
-	this.object = object;
+  this.object = object;
 
-	this.oldUuid = ( object !== undefined ) ? object.uuid : undefined;
-	this.newUuid = newUuid;
+  this.oldUuid = ( object !== undefined ) ? object.uuid : undefined;
+  this.newUuid = newUuid;
 
 };
 
 SetUuidCommand.prototype = {
 
-	execute: function () {
+  execute: function () {
 
-		this.object.uuid = this.newUuid;
-		this.editor.signals.objectChanged.dispatch( this.object );
-		this.editor.signals.sceneGraphChanged.dispatch();
+    this.object.uuid = this.newUuid;
+    this.editor.signals.objectChanged.dispatch( this.object );
+    this.editor.signals.sceneGraphChanged.dispatch();
 
-	},
+  },
 
-	undo: function () {
+  undo: function () {
 
-		this.object.uuid = this.oldUuid;
-		this.editor.signals.objectChanged.dispatch( this.object );
-		this.editor.signals.sceneGraphChanged.dispatch();
+    this.object.uuid = this.oldUuid;
+    this.editor.signals.objectChanged.dispatch( this.object );
+    this.editor.signals.sceneGraphChanged.dispatch();
 
-	},
+  },
 
-	toJSON: function () {
+  toJSON: function () {
 
-		var output = Command.prototype.toJSON.call( this );
+    var output = Command.prototype.toJSON.call( this );
 
-		output.oldUuid = this.oldUuid;
-		output.newUuid = this.newUuid;
+    output.oldUuid = this.oldUuid;
+    output.newUuid = this.newUuid;
 
-		return output;
+    return output;
 
-	},
+  },
 
-	fromJSON: function ( json ) {
+  fromJSON: function ( json ) {
 
-		Command.prototype.fromJSON.call( this, json );
+    Command.prototype.fromJSON.call( this, json );
 
-		this.oldUuid = json.oldUuid;
-		this.newUuid = json.newUuid;
-		this.object = this.editor.objectByUuid( json.oldUuid );
+    this.oldUuid = json.oldUuid;
+    this.newUuid = json.newUuid;
+    this.object = this.editor.objectByUuid( json.oldUuid );
 
-		if ( this.object === undefined ) {
+    if ( this.object === undefined ) {
 
-			this.object = this.editor.objectByUuid( json.newUuid );
+      this.object = this.editor.objectByUuid( json.newUuid );
 
-		}
+    }
 
-	}
+  }
 
 };

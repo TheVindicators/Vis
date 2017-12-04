@@ -4,26 +4,26 @@
 
 Menubar.Help = function ( editor ) {
 
-	var container = new UI.Panel();
-	container.setClass( 'menu' );
+  var container = new UI.Panel();
+  container.setClass( 'menu' );
 
-	var title = new UI.Panel();
-	title.setClass( 'title' );
-	title.setTextContent( 'Help' );
-	container.add( title );
+  var title = new UI.Panel();
+  title.setClass( 'title' );
+  title.setTextContent( 'Help' );
+  container.add( title );
 
-	var options = new UI.Panel();
-	options.setClass( 'options' );
-	container.add( options );
+  var options = new UI.Panel();
+  options.setClass( 'options' );
+  container.add( options );
 
-	//options.add( option );
+  //options.add( option );
 
-	// How To
+  // How To
 
-	var option = new UI.Row();
-	option.setClass( 'option' );
-	option.setTextContent( 'How To Use' );
-	option.onClick( function () {
+  var option = new UI.Row();
+  option.setClass( 'option' );
+  option.setTextContent( 'How To Use' );
+  option.onClick( function () {
 
         document.getElementById('readme').style.display = "block";
         var but = document.getElementById('input');
@@ -31,11 +31,11 @@ Menubar.Help = function ( editor ) {
             document.getElementById('readme').style.display = "none";
         }
 
-	} );
-	options.add( option );
+  } );
+  options.add( option );
 
     editor.setMenubar(options);          // store menubar configuration
 
-	return container;
+  return container;
 
 };

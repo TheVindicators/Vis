@@ -4,31 +4,31 @@
 
 Menubar.Add = function ( editor ) {
 
-	var container = new UI.Panel();
-	container.setClass( 'menu' );
+  var container = new UI.Panel();
+  container.setClass( 'menu' );
 
-	var title = new UI.Panel();
-	title.setClass( 'title' );
-	title.setTextContent( 'Add' );
-	container.add( title );
+  var title = new UI.Panel();
+  title.setClass( 'title' );
+  title.setTextContent( 'Add' );
+  container.add( title );
 
-	var options = new UI.Panel();
-	options.setClass( 'options' );
-	container.add( options );
+  var options = new UI.Panel();
+  options.setClass( 'options' );
+  container.add( options );
 
-	//
+  //
 
-	var meshCount = 0;
-	var lightCount = 0;
-	var cameraCount = 0;
+  var meshCount = 0;
+  var lightCount = 0;
+  var cameraCount = 0;
 
-	editor.signals.editorCleared.add( function () {
+  editor.signals.editorCleared.add( function () {
 
-		meshCount = 0;
-		lightCount = 0;
-		cameraCount = 0;
+    meshCount = 0;
+    lightCount = 0;
+    cameraCount = 0;
 
-	} );
+  } );
 
     // Input Variables
 
@@ -62,12 +62,12 @@ Menubar.Add = function ( editor ) {
     input_pane.add(input_row);
     input_pane.add(new UI.Break());
 
-	// Antenna
+  // Antenna
 
-	var option = new UI.Row();                    // basic point for antenna representation
-	option.setClass( 'option' );
-	option.setTextContent( 'Antenna' );
-	option.onClick( function () {
+  var option = new UI.Row();                    // basic point for antenna representation
+  option.setClass( 'option' );
+  option.setTextContent( 'Antenna' );
+  option.onClick( function () {
 
         for ( var i = 0; i < 4; i ++ ){           // lock menubar
             if ( i !== 2 ){
@@ -76,7 +76,7 @@ Menubar.Add = function ( editor ) {
         }
         options.setClass( 'options2' );
 
-	    if (check === true){                     // check if prior button state already displayed
+      if (check === true){                     // check if prior button state already displayed
             options.newInput();                  // if so, remove the display
             input_pane.remove(input);
         }
@@ -132,8 +132,8 @@ Menubar.Add = function ( editor ) {
                     face.color.setRGB( 0, 0, 256 );
                 }
                 else {
-                	face.color.setRGB( 256, 0, 0 );
-	    		}
+                  face.color.setRGB( 256, 0, 0 );
+          }
             }
 
             var geo = new THREE.BufferGeometry().fromGeometry( geometry );               // convert to BufferGeometry type
@@ -154,11 +154,11 @@ Menubar.Add = function ( editor ) {
         options.add(filler);
         options.add(input_pane);
 
-	} );
-	options.add( option );
+  } );
+  options.add( option );
 
-	options.newInput = function(){       // reset all input values and displays
-	    input_x.setValue(0);
+  options.newInput = function(){       // reset all input values and displays
+      input_x.setValue(0);
         input_y.setValue(0);
         input_z.setValue(0);
         options.remove(input_pane);

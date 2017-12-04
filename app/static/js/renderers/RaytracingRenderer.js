@@ -8,277 +8,277 @@
 
 THREE.RaytracingRenderer = function ( parameters ) {
 
-	console.log( 'THREE.RaytracingRenderer', THREE.REVISION );
+  console.log( 'THREE.RaytracingRenderer', THREE.REVISION );
 
-	parameters = parameters || {};
+  parameters = parameters || {};
 
-	var scope = this;
-	var pool = [];
-	var renderering = false;
+  var scope = this;
+  var pool = [];
+  var renderering = false;
 
-	var canvas = document.createElement( 'canvas' );
-	var context = canvas.getContext( '2d', {
-		alpha: parameters.alpha === true
-	} );
+  var canvas = document.createElement( 'canvas' );
+  var context = canvas.getContext( '2d', {
+    alpha: parameters.alpha === true
+  } );
 
-	var maxRecursionDepth = 3;
+  var maxRecursionDepth = 3;
 
-	var canvasWidth, canvasHeight;
+  var canvasWidth, canvasHeight;
 
-	var clearColor = new THREE.Color( 0x000000 );
+  var clearColor = new THREE.Color( 0x000000 );
 
-	this.domElement = canvas;
+  this.domElement = canvas;
 
-	this.autoClear = true;
+  this.autoClear = true;
 
-	var workers = parameters.workers;
-	var blockSize = parameters.blockSize || 64;
-	this.randomize = parameters.randomize;
+  var workers = parameters.workers;
+  var blockSize = parameters.blockSize || 64;
+  this.randomize = parameters.randomize;
 
-	var toRender = [], workerId = 0, sceneId = 0;
+  var toRender = [], workerId = 0, sceneId = 0;
 
-	console.log( '%cSpinning off ' + workers + ' Workers ', 'font-size: 20px; background: black; color: white; font-family: monospace;' );
+  console.log( '%cSpinning off ' + workers + ' Workers ', 'font-size: 20px; background: black; color: white; font-family: monospace;' );
 
-	this.setWorkers = function( w ) {
+  this.setWorkers = function( w ) {
 
-		workers = w || navigator.hardwareConcurrency || 4;
+    workers = w || navigator.hardwareConcurrency || 4;
 
-		while ( pool.length < workers ) {
-			var worker = new Worker( parameters.workerPath );
-			worker.id = workerId++;
+    while ( pool.length < workers ) {
+      var worker = new Worker( parameters.workerPath );
+      worker.id = workerId++;
 
-			worker.onmessage = function( e ) {
+      worker.onmessage = function( e ) {
 
-				var data = e.data;
+        var data = e.data;
 
-				if ( ! data ) return;
+        if ( ! data ) return;
 
-				if ( data.blockSize && sceneId == data.sceneId ) { // we match sceneId here to be sure
+        if ( data.blockSize && sceneId == data.sceneId ) { // we match sceneId here to be sure
 
-					var imagedata = new ImageData( new Uint8ClampedArray( data.data ), data.blockSize, data.blockSize );
-					context.putImageData( imagedata, data.blockX, data.blockY );
+          var imagedata = new ImageData( new Uint8ClampedArray( data.data ), data.blockSize, data.blockSize );
+          context.putImageData( imagedata, data.blockX, data.blockY );
 
-					// completed
+          // completed
 
-					console.log( 'Worker ' + this.id, data.time / 1000, ( Date.now() - reallyThen ) / 1000 + ' s' );
+          console.log( 'Worker ' + this.id, data.time / 1000, ( Date.now() - reallyThen ) / 1000 + ' s' );
 
-					if ( pool.length > workers ) {
+          if ( pool.length > workers ) {
 
-						pool.splice( pool.indexOf( this ), 1 );
-						return this.terminate();
+            pool.splice( pool.indexOf( this ), 1 );
+            return this.terminate();
 
-					}
+          }
 
-					renderNext( this );
+          renderNext( this );
 
-				}
+        }
 
-			};
+      };
 
-			worker.color = new THREE.Color().setHSL( Math.random() , 0.8, 0.8 ).getHexString();
-			pool.push( worker );
+      worker.color = new THREE.Color().setHSL( Math.random() , 0.8, 0.8 ).getHexString();
+      pool.push( worker );
 
-			if ( renderering ) {
+      if ( renderering ) {
 
-				updateSettings( worker );
+        updateSettings( worker );
 
-				worker.postMessage( {
-					scene: sceneJSON,
-					camera: cameraJSON,
-					annex: materials,
-					sceneId: sceneId
-				} );
+        worker.postMessage( {
+          scene: sceneJSON,
+          camera: cameraJSON,
+          annex: materials,
+          sceneId: sceneId
+        } );
 
-				renderNext( worker );
+        renderNext( worker );
 
-			}
+      }
 
-		}
+    }
 
-		if ( ! renderering ) {
+    if ( ! renderering ) {
 
-			while ( pool.length > workers ) {
+      while ( pool.length > workers ) {
 
-				pool.pop().terminate();
+        pool.pop().terminate();
 
-			}
+      }
 
-		}
+    }
 
-	};
+  };
 
-	this.setWorkers( workers );
+  this.setWorkers( workers );
 
-	this.setClearColor = function ( color, alpha ) {
+  this.setClearColor = function ( color, alpha ) {
 
-		clearColor.set( color );
+    clearColor.set( color );
 
-	};
+  };
 
-	this.setPixelRatio = function () {};
+  this.setPixelRatio = function () {};
 
-	this.setSize = function ( width, height ) {
+  this.setSize = function ( width, height ) {
 
-		canvas.width = width;
-		canvas.height = height;
+    canvas.width = width;
+    canvas.height = height;
 
-		canvasWidth = canvas.width;
-		canvasHeight = canvas.height;
+    canvasWidth = canvas.width;
+    canvasHeight = canvas.height;
 
-		context.fillStyle = 'white';
+    context.fillStyle = 'white';
 
-		pool.forEach( updateSettings );
+    pool.forEach( updateSettings );
 
-	};
+  };
 
-	this.setSize( canvas.width, canvas.height );
+  this.setSize( canvas.width, canvas.height );
 
-	this.clear = function () {
+  this.clear = function () {
 
-	};
+  };
 
-	//
+  //
 
-	var totalBlocks, xblocks, yblocks;
+  var totalBlocks, xblocks, yblocks;
 
-	function updateSettings( worker ) {
+  function updateSettings( worker ) {
 
-		worker.postMessage( {
+    worker.postMessage( {
 
-			init: [ canvasWidth, canvasHeight ],
-			worker: worker.id,
-			// workers: pool.length,
-			blockSize: blockSize
+      init: [ canvasWidth, canvasHeight ],
+      worker: worker.id,
+      // workers: pool.length,
+      blockSize: blockSize
 
-		} );
+    } );
 
-	}
+  }
 
-	function renderNext( worker ) {
-		if ( ! toRender.length ) {
+  function renderNext( worker ) {
+    if ( ! toRender.length ) {
 
-			renderering = false;
-			return scope.dispatchEvent( { type: "complete" } );
+      renderering = false;
+      return scope.dispatchEvent( { type: "complete" } );
 
-		}
+    }
 
-		var current = toRender.pop();
+    var current = toRender.pop();
 
-		var blockX = ( current % xblocks ) * blockSize;
-		var blockY = ( current / xblocks | 0 ) * blockSize;
+    var blockX = ( current % xblocks ) * blockSize;
+    var blockY = ( current / xblocks | 0 ) * blockSize;
 
-		worker.postMessage( {
-			render: true,
-			x: blockX,
-			y: blockY,
-			sceneId: sceneId
-		} );
+    worker.postMessage( {
+      render: true,
+      x: blockX,
+      y: blockY,
+      sceneId: sceneId
+    } );
 
-		context.fillStyle = '#' + worker.color;
+    context.fillStyle = '#' + worker.color;
 
-		context.fillRect( blockX, blockY, blockSize, blockSize );
+    context.fillRect( blockX, blockY, blockSize, blockSize );
 
-	}
+  }
 
-	var materials = {};
+  var materials = {};
 
-	var sceneJSON, cameraJSON, reallyThen;
+  var sceneJSON, cameraJSON, reallyThen;
 
-	// additional properties that were not serialize automatically
+  // additional properties that were not serialize automatically
 
-	var _annex = {
+  var _annex = {
 
-		mirror: 1,
-		reflectivity: 1,
-		refractionRatio: 1,
-		glass: 1
+    mirror: 1,
+    reflectivity: 1,
+    refractionRatio: 1,
+    glass: 1
 
-	};
+  };
 
-	function serializeObject( o ) {
+  function serializeObject( o ) {
 
-		var mat = o.material;
+    var mat = o.material;
 
-		if ( ! mat || mat.uuid in materials ) return;
+    if ( ! mat || mat.uuid in materials ) return;
 
-		var props = {};
-		for ( var m in _annex ) {
+    var props = {};
+    for ( var m in _annex ) {
 
-			if ( mat[ m ] !== undefined ) {
+      if ( mat[ m ] !== undefined ) {
 
-				props[ m ] = mat[ m ];
+        props[ m ] = mat[ m ];
 
-			}
+      }
 
-		}
+    }
 
-		materials[ mat.uuid ] = props;
-	}
+    materials[ mat.uuid ] = props;
+  }
 
-	this.render = function ( scene, camera ) {
+  this.render = function ( scene, camera ) {
 
-		renderering = true;
+    renderering = true;
 
-		// update scene graph
+    // update scene graph
 
-		if ( scene.autoUpdate === true ) scene.updateMatrixWorld();
+    if ( scene.autoUpdate === true ) scene.updateMatrixWorld();
 
-		// update camera matrices
+    // update camera matrices
 
-		if ( camera.parent === null ) camera.updateMatrixWorld();
+    if ( camera.parent === null ) camera.updateMatrixWorld();
 
 
-		sceneJSON = scene.toJSON();
-		cameraJSON = camera.toJSON();
-		++ sceneId;
+    sceneJSON = scene.toJSON();
+    cameraJSON = camera.toJSON();
+    ++ sceneId;
 
-		scene.traverse( serializeObject );
+    scene.traverse( serializeObject );
 
-		pool.forEach( function( worker ) {
+    pool.forEach( function( worker ) {
 
-			worker.postMessage( {
-				scene: sceneJSON,
-				camera: cameraJSON,
-				annex: materials,
-				sceneId: sceneId
-			} );
-		} );
+      worker.postMessage( {
+        scene: sceneJSON,
+        camera: cameraJSON,
+        annex: materials,
+        sceneId: sceneId
+      } );
+    } );
 
-		context.clearRect( 0, 0, canvasWidth, canvasHeight );
-		reallyThen = Date.now();
+    context.clearRect( 0, 0, canvasWidth, canvasHeight );
+    reallyThen = Date.now();
 
-		xblocks = Math.ceil( canvasWidth / blockSize );
-		yblocks = Math.ceil( canvasHeight / blockSize );
-		totalBlocks = xblocks * yblocks;
+    xblocks = Math.ceil( canvasWidth / blockSize );
+    yblocks = Math.ceil( canvasHeight / blockSize );
+    totalBlocks = xblocks * yblocks;
 
-		toRender = [];
+    toRender = [];
 
-		for ( var i = 0; i < totalBlocks; i ++ ) {
+    for ( var i = 0; i < totalBlocks; i ++ ) {
 
-			toRender.push( i );
+      toRender.push( i );
 
-		}
+    }
 
 
-		// Randomize painting :)
+    // Randomize painting :)
 
-		if ( scope.randomize ) {
+    if ( scope.randomize ) {
 
-			for ( var i = 0; i < totalBlocks; i ++ ) {
+      for ( var i = 0; i < totalBlocks; i ++ ) {
 
-				var swap = Math.random()  * totalBlocks | 0;
-				var tmp = toRender[ swap ];
-				toRender[ swap ] = toRender[ i ];
-				toRender[ i ] = tmp;
+        var swap = Math.random()  * totalBlocks | 0;
+        var tmp = toRender[ swap ];
+        toRender[ swap ] = toRender[ i ];
+        toRender[ i ] = tmp;
 
-			}
+      }
 
-		}
+    }
 
 
-		pool.forEach( renderNext );
+    pool.forEach( renderNext );
 
-	};
+  };
 
 };
 

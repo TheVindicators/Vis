@@ -1,6 +1,6 @@
 // Full source: 
 //
-// 		https://github.com/hughsk/glsl-editor 
+//    https://github.com/hughsk/glsl-editor 
 //
 // (C) Copyright Hugh Kennedy
 //
