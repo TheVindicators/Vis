@@ -515,6 +515,97 @@ Menubar.File = function ( editor ) {
         saveString(output, 'Antennas.csv');
     } );
     options.add( opt3 );
+	
+	// Export Antennas TXT
+    var opt3 = new UI.Row();
+    opt3.setClass( 'option' );
+    opt3.setTextContent( 'Export Antennas TXT' );
+    opt3.onClick( function () {
+		var objects = editor.scene.children
+
+        var right_wing = editor.getModel()[0];              // convert three.js coordinates back to meters for display
+        var left_wing = editor.getModel()[1];
+        var y_slope = ( right_wing - left_wing ) / editor.getModelWingspan();
+
+        var z_nose = editor.getModel()[3];
+        var z_tail = editor.getModel()[2];
+        var z_slope = ( z_nose - z_tail ) / editor.getModelHeight();
+
+        var x_nose = editor.getModel()[4];
+        var x_tail = editor.getModel()[5];
+        var x_slope = ( x_nose - x_tail ) / editor.getModelLength();
+		
+		var antennas = [];
+		var maxValue = new Array(7).fill(0);
+		var antennaNum = 0;
+        for ( var i = 0, l = objects.length; i < l; i ++ ) {
+            var object = objects[ i ];
+
+            if(object.geometry !== undefined && object.geometry.type === 'BufferGeometry'){
+				antennas[antennaNum] = [];
+				antennas[antennaNum][0] = object.name;
+				if((antennas[antennaNum][0].length/5) > maxValue[0]){
+					maxValue[0] = (antennas[antennaNum][0].length/4).toString().split('.')[0];
+				}
+
+                antennas[antennaNum][1] = "X: " + (Math.round((( object.position.z - x_nose ) / x_slope) * 100) / 100);
+				if((antennas[antennaNum][1].length/5) > maxValue[1]){
+					maxValue[1] = (antennas[antennaNum][1].length/4).toString().split('.')[0];
+				}
+				
+				antennas[antennaNum][2] = "Y: " + (Math.round((( object.position.x - ( left_wing + right_wing ) / 2 ) / y_slope) * 100) / 100);
+				if((antennas[antennaNum][2].length/5) > maxValue[2]){
+					maxValue[2] = (antennas[antennaNum][2].length/4).toString().split('.')[0];
+				}
+				
+                antennas[antennaNum][3] = "Z: " + (Math.round((( object.position.y - z_nose ) / z_slope) * 100) / 100);
+				if((antennas[antennaNum][3].length/5) > maxValue[3]){
+					maxValue[3] = (antennas[antennaNum][3].length/4).toString().split('.')[0];
+				}
+				
+                antennas[antennaNum][4] = "X: " + (Math.round((object.rotation.z * THREE.Math.RAD2DEG) * 100) / 100);
+                if((antennas[antennaNum][4].length/5) > maxValue[4]){
+					maxValue[4] = (antennas[antennaNum][4].length/4).toString().split('.')[0];
+				}
+				
+				antennas[antennaNum][5] = "Y: " + (Math.round((object.rotation.x * THREE.Math.RAD2DEG) * 100) / 100);
+                if((antennas[antennaNum][5].length/5) > maxValue[5]){
+					maxValue[5] = (antennas[antennaNum][5].length/4).toString().split('.')[0];
+				}
+				
+				antennas[antennaNum][6] = "Z: " + (Math.round((object.rotation.y * THREE.Math.RAD2DEG) * 100) / 100);
+				if((antennas[antennaNum][6].length/5) > maxValue[6]){
+					maxValue[6] = (antennas[antennaNum][6].length/4).toString().split('.')[0];
+				}
+				antennaNum++;
+		   }
+        }
+		
+		var output = "Name";
+		for(i = 0; i < maxValue[0]; i++){
+			output += "\t";
+		}
+		
+		output += "Coordinates";
+		var coorTab = parseInt(maxValue[1])+parseInt(maxValue[2])+parseInt(maxValue[3])+1;
+		for(i = 0; i < coorTab; i++){
+			output += "\t";
+		}
+		output += "Rotation\n";
+		for(i = 0; i < antennas.length; i++){
+			for(j = 0; j < 7; j++){
+				tabNum = (maxValue[j] - (antennas[i][j].length/4).toString().split('.')[0])+1;
+				for(k = 0; k < tabNum; k++){
+					antennas[i][j] += "\t";
+				}
+				output += antennas[i][j];
+			}
+			output += "\n";
+		}
+		
+        saveString(output, 'Antennas.txt');
+    } );
+    options.add( opt3 );
 
     // Export
 

@@ -482,6 +482,76 @@ Editor.prototype = {
     this.focus( this.scene.getObjectById( id, true ) );
 
   },
+  
+   
+  displayAntennaPlacement: function () {
+		var objects = editor.scene.children
+
+        var right_wing = editor.getModel()[0];              // convert three.js coordinates back to meters for display
+        var left_wing = editor.getModel()[1];
+        var y_slope = ( right_wing - left_wing ) / editor.getModelWingspan();
+
+        var z_nose = editor.getModel()[3];
+        var z_tail = editor.getModel()[2];
+        var z_slope = ( z_nose - z_tail ) / editor.getModelHeight();
+
+        var x_nose = editor.getModel()[4];
+        var x_tail = editor.getModel()[5];
+        var x_slope = ( x_nose - x_tail ) / editor.getModelLength();
+		var output = "<!DOCTYPE html>\n" +
+						"<html>\n" +
+						"<head>\n" +
+						"<style>\n" +
+						"table, th, td {border: 1px solid black;border-collapse: collapse;}\n" +
+						"th, td {padding: 5px;}\n" +
+						".btn {background-color: blue;border: none;color: white;padding: 16px 32px;text-align: center;font-size: 16px;margin: 4px 2px;opacity: 0.6;transition: 0.3s;}\n" +
+						".btn:hover {opacity: 1}\n" +
+						"</style>\n" +
+						"</head>\n" +
+						"<table style=\"width:100%\">\n" +
+						  "<tr><th>Name</th><th colspan=\"3\">Coordinates</th><th colspan=\"3\">Rotation</th></tr>\n";
+        for ( var i = 0, l = objects.length; i < l; i ++ ) {
+            var object = objects[ i ];
+
+            if(object.geometry !== undefined && object.geometry.type === 'BufferGeometry'){
+				
+                output += "<tr><th>" + object.name + "</th>";
+
+                output += "<th>X: " + (Math.round((( object.position.z - x_nose ) / x_slope) * 100) / 100) + "</t>";
+                output += "<th>Y: " + (Math.round((( object.position.x - ( left_wing + right_wing ) / 2 ) / y_slope) * 100) / 100) + "</t>";
+                output += "<th>Z: " + (Math.round((( object.position.y - z_nose ) / z_slope) * 100) / 100) + "</t>";
+
+                output += "<th>X: " + (Math.round((object.rotation.z * THREE.Math.RAD2DEG) * 100) / 100) + "</t>";
+                output += "<th>Y: " + (Math.round((object.rotation.x * THREE.Math.RAD2DEG) * 100) / 100) + "</t>";
+                output += "<th>Z: " + (Math.round((object.rotation.y * THREE.Math.RAD2DEG) * 100) / 100) + "</t>\n";
+            }
+        }
+		
+		output += "</table>\n" +
+					"</body>\n" +
+					"</html>\n" +
+					"<button class=\"btn\" onclick=\"self.close()\">Close</button>";
+		
+		//alert(window.screen.width/2);
+		var antennaWindow = window.open(this.href,'targetWindow',
+                                   "toolbar=no,
+                                    location=no,
+                                    status=no,
+                                    menubar=no,
+                                    scrollbars=yes,
+                                    resizable=no,
+                                    top=100,
+									left=100,
+									width=100,
+									height=100");
+		
+		antennaWindow.resizeTo((window.screen.width/2), (window.screen.height/2));
+		
+
+		antennaWindow.document.body.innerHTML = (output);
+	  //alert( output );
+	  
+  },
 
   clear: function () {
 

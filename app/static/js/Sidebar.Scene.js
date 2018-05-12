@@ -163,6 +163,18 @@ Sidebar.Scene = function ( editor ) {
     resetRow.add( resetButton );
 
     container.add( resetRow );
+	
+	// Antenna Placement
+    container.add( new UI.HorizontalRule() );
+	var antennaPlaceRow = new UI.Row();
+    var placeButton = new UI.Button('Display').onClick( function(){
+		editor.displayAntennaPlacement();
+    });
+	
+	antennaPlaceRow.add( new UI.Text( 'Antenna Placement' ).setWidth( '150px' ) );
+    antennaPlaceRow.add( placeButton );
+	
+	container.add(antennaPlaceRow);
 
     // Antenna Snapping
 
